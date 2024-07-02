@@ -1,5 +1,6 @@
+from functools import wraps
 import secrets
-from flask import Flask, session, url_for, redirect, render_template, request, jsonify
+from flask import Flask, session, url_for, redirect, render_template, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from models import db, User
@@ -13,16 +14,38 @@ socketio = SocketIO(app)
 mail = Mail(app)
 
 
-@app.route('/')
-def index():
-    if 'auth' in session:
-        if session['auth']:
-            return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name)
+def check_access(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            if request.cookies.get('auth') == 'True':
+                session['auth'] = True
+            else:
+                session['auth'] = False
+            session['account'] = int(request.cookies.get('account'))
+            print(session['auth'], session['account'])
+        except:
+            pass
 
-    session['auth_data'] = ''
-    session['auth_code'] = ''
-    emails = [user.email for user in User.query.all()]
-    return render_template('auth.html', emails=emails)
+        if 'auth' not in session or not session['auth']:
+            session['auth_data'] = ''
+            session['auth_code'] = ''
+            emails = [user.email for user in User.query.all()]
+            return render_template('auth.html', emails=emails)
+        user = User.query.filter_by(id=session.get('account')).first()
+        if not user or not user.name:
+            return redirect(url_for('edit_user'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+
+@app.route('/')
+@check_access
+def index():
+    return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name)
+
+
 
 
 @app.route('/auth', methods=['POST'])
@@ -33,9 +56,12 @@ def auth():
                 if str(user.password) == str(request.json.get('password')):
                     session['auth'] = True
                     session['account'] = user.id
-                    return jsonify({
+                    resp = make_response(jsonify({
                         'result': True
-                    }), 200
+                    }), 200)
+                    resp.set_cookie('account', str(session['account']))
+                    resp.set_cookie('auth', str(session['auth']))
+                    return resp
         return jsonify({
             'result': False
         }), 401
@@ -44,7 +70,7 @@ def auth():
 @app.route('/reg', methods=['GET', 'POST'])
 def reg():
     if request.method == "GET":
-        return render_template('reg.html', emails = [user.email for user in User.query.all()])
+        return render_template('reg.html', emails=[user.email for user in User.query.all()])
 
     if request.method == "POST":
         tag = request.json.get('tag')
@@ -100,9 +126,12 @@ def confirm_email():
                 session['auth_data'] = ''
                 session['auth_code'] = ''
 
-                return jsonify({
+                resp = make_response(jsonify({
                     'res': True
-                }), 200
+                }), 200)
+                resp.set_cookie('account', str(session['account']))
+                resp.set_cookie('auth', str(session['auth']))
+                return resp
 
             except Exception as e:
                 print(e)
@@ -131,6 +160,10 @@ def checkUniqueTag():
     else:
         return 'Страницы не существует'
 
+
+@app.route('/edit_user', methods=["POST", "GET"])
+def edit_user():
+    return '1'
 
 
 if __name__ == '__main__':
