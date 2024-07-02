@@ -8,7 +8,7 @@
   <meta name="generator" content="Hugo 0.122.0">
   <title>Редактирование профиля</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link rel="stylesheet" href="url_for('static', filename='css/edit.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}">
   <meta name="theme-color" content="#712cf9">
 </head>
 
@@ -21,12 +21,12 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <label for="firstName" class="form-label">Имя<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <input type="text" class="form-control" id="firstName" placeholder="" value="" required="">
+              <input type="text" class="form-control" id="firstName" placeholder="{% if user.name %}{{user.name}}{% endif %}" value="" required="">
             </div>
 
             <div class="col-sm-6">
               <label for="lastName" class="form-label">Фамилия<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <input type="text" class="form-control" id="lastName" placeholder="" value="" required="">
+              <input type="text" class="form-control" id="lastName" placeholder="{% if user.second_name %}{{user.second_name}}{% endif %}" value="" required="">
             </div>
 
             <div class="col-12">
@@ -44,67 +44,87 @@
             </div>
 
             <div class="col-sm-6">
-              <label for="genfer" class="form-label">Пол<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <select class="form-select" id="gender" required="">
-                <option value="">Выберите...</option>
-                <option>Мужской</option>
-                <option>Женский</option>
-                <option>Не указывать</option>
+              <label for="gender" class="form-label">Пол<span style="color:red !important;" class="text-body-secondary">*</span></label>
+              <select class="form-select" id="gender" required="{% if user.gender %}{% if user.gender == 'man' %}man{% endif %}{% if user.gender == 'woman' %}woman{% endif %}{% endif %}">
+                <option value="no-gender">Не указывать</option>
+                <option value="man">Мужской</option>
+                <option value="woman">Женский</option>
               </select>
             </div>
 
             <div class="col-sm-6">
               <label for="birthday" class="form-label">Дата рождения<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <input type="date" class="form-control" id="birthday" placeholder="">
+              <input type="date" class="form-control" id="birthday" placeholder="{{ user.birthday }}">
             </div>
 
             <div class="col-sm-6">
               <label for="country" class="form-label">Страна<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <input type="text" class="form-control" id="country" placeholder="">
+              <input type="text" class="form-control" id="country" placeholder="{% if user.country %}{{user.country}}{% endif %}">
             </div>
             <div class="col-sm-6">
               <label for="city" class="form-label">Город</label>
-              <input type="text" class="form-control" id="city" placeholder="">
+              <input type="text" class="form-control" id="city" placeholder="{% if user.city %}{{user.city}}{% endif %}">
             </div>
 
             <div class="col-sm-6">
               <label for="education" class="form-label">Место учебы</label>
-              <input type="text" class="form-control" id="education" placeholder="">
+              <input type="text" class="form-control" id="education" placeholder="{% if user.education_place %}{{user.education_place}}{% endif %}">
             </div>
 
             <div class="col-3">
               <label for="education" class="form-label">Год начала</label>
-              <input type="text" class="form-control " id="education-year-start" placeholder="">
+              <input type="text" class="form-control " id="education-year-start" placeholder="{% if user.education_start %}{{user.education_start}}{% endif %}">
             </div>
             <div class="col-3">
               <label for="education" class="form-label">Год окончания</label>
-              <input type="text" class="form-control " id="education-year-finish" placeholder="">
+              <input type="text" class="form-control " id="education-year-finish" placeholder="{% if user.education_end %}{{user.education_end  }}{% endif %}">
             </div>
           </div>
 
           <hr class="my-4">
 
           <div class="form-check">
-            <input type="checkbox" class="form-check-input" checked id="agreement-birthday">
+            {% if user.show_birthday == 'True' %}
+            <input type="checkbox" class="form-check-input" id="agreement-birthday" checked>
+            {% else %}
+            <input type="checkbox" class="form-check-input" id="agreement-birthday">
+            {% endif %}
             <label class="form-check-label" for="agreement-birthday">Показывать дату рождения в профиле</label>
           </div>
+
           <div class="form-check">
-            <input type="checkbox" class="form-check-input" checked id="agreement-gender">
+            {% if user.show_gender == 'True' %}
+            <input type="checkbox" class="form-check-input" id="agreement-gender" checked>
+            {% else %}
+            <input type="checkbox" class="form-check-input" id="agreement-gender">
+            {% endif %}
             <label class="form-check-label" for="agreement-gender">Показывать пол в профиле</label>
           </div>
+
           <div class="form-check">
-            <input type="checkbox" class="form-check-input" checked id="agreement-learn">
+            {% if user.show_education == 'True' %}
+            <input type="checkbox" class="form-check-input" id="agreement-learn" checked>
+            {% else %}
+            <input type="checkbox" class="form-check-input" id="agreement-learn">
+            {% endif %}
             <label class="form-check-label" for="agreement-learn">Показывать место учебы в профиле</label>
           </div>
+
           <div class="form-check">
-            <input type="checkbox" class="form-check-input" checked id="agreement-city">
+            {% if user.show_city == 'True' %}
+            <input type="checkbox" class="form-check-input" id="agreement-city" checked>
+            {% else %}
+            <input type="checkbox" class="form-check-input" id="agreement-city">
+            {% endif %}
             <label class="form-check-label" for="agreement-city">Показывать место жительства в профиле</label>
           </div>
-          <hr class="my-4">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="agreement">
-            <label class="form-check-label" for="agreement">Даю согласие на обработку предоставленной персональной информации</label>
-          </div>
+
+<hr class="my-4">
+
+<div class="form-check">
+  <input type="checkbox" class="form-check-input" id="agreement">
+  <label class="form-check-label" for="agreement">Даю согласие на обработку предоставленной персональной информации</label>
+</div>
 
           <hr class="my-4">
 
