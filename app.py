@@ -1,14 +1,16 @@
 from functools import wraps
 import secrets
-from flask import Flask, session, url_for, redirect, render_template, request, jsonify, make_response
+from flask import Flask, session, redirect, render_template, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
-from models import db, User
 from flask_mail import Mail, Message
+from werkzeug.security import generate_password_hash, check_password_hash
+from models import db, User  # Предполагается, что у вас есть модуль models с описанием базы данных
 from config import app
 import random
+import datetime
 
-
+# Инициализация приложения, базы данных и Socket.IO
 db.init_app(app)
 socketio = SocketIO(app)
 mail = Mail(app)
@@ -40,8 +42,8 @@ def check_access(f):
             return redirect('/edit_user')
 
         return f(*args, **kwargs)
-    return decorated_function
 
+    return decorated_function
 
 
 @app.route('/')
@@ -50,14 +52,12 @@ def index():
     return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name)
 
 
-
-
 @app.route('/auth', methods=['POST'])
 def auth():
     if request.method == "POST":
         for user in User.query.all():
             if str(user.email) == str(request.json.get('email')):
-                if str(user.password) == str(request.json.get('password')):
+                if check_password_hash(user.password, request.json.get('password')):
                     session['auth'] = True
                     session['account'] = user.id
                     resp = make_response(jsonify({
@@ -74,7 +74,7 @@ def auth():
 @app.route('/reg', methods=['GET', 'POST'])
 def reg():
     if request.method == "GET":
-        if session.get('auth') == True:
+        if session.get('auth') != True:
             return redirect('/')
         else:
             return render_template('reg.html', emails=[user.email for user in User.query.all()])
@@ -84,17 +84,16 @@ def reg():
         email = request.json.get('email')
         password = request.json.get('password')
 
+        hashed_password = generate_password_hash(password)
 
-        session['auth_data'] = f'{tag}:%:%:{email}:%:%:{password}'
+        session['auth_data'] = f'{tag}:%:%:{email}:%:%:{hashed_password}'
         if email not in [i.email for i in User.query.all()]:
             return jsonify({
                 'result': True
             }), 200
 
-
         return jsonify({
             'result': False
-
         }), 401
 
 
@@ -120,7 +119,8 @@ def confirm_email():
         code = request.json
         if str(code) == str(session['auth_code']):
             data = session.get('auth_data').split(':%:%:')
-            user = User(tag=data[0], email=data[1], password=data[2], status=0)
+            hashed_password = data[2]
+            user = User(tag=data[0], email=data[1], password=hashed_password, status=0)
             try:
                 db.session.add(user)
                 db.session.commit()
@@ -177,9 +177,6 @@ def edit_user():
         return render_template('edit_user.html', user=user)
 
 
-
-import datetime  # Добавляем импорт модуля datetime
-
 @socketio.on('edit_profile_save')
 def edit_profile_save(data):
     try:
@@ -187,9 +184,7 @@ def edit_profile_save(data):
         user = User.query.filter_by(id=user_id, tag=data['tag']).first()
 
         if user:
-
             date_of_birth = datetime.datetime.strptime(data['birthday'], '%Y-%m-%d').date()
-
 
             user.name = data['name']
             user.second_name = data['second_name']
@@ -222,7 +217,6 @@ def edit_profile_save(data):
             'error': error_message
         }
         socketio.emit('edit_profile_save_result', data)
-
 
 
 if __name__ == '__main__':
