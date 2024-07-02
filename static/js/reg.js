@@ -17,6 +17,20 @@ document.getElementById('iconPassword').addEventListener('mouseleave', function(
 });
 
 
+function tagErrorFunc(message) {
+    const tagError = document.getElementById('tag-error')
+    const tag = document.getElementById('tag')
+    const _window = document.querySelector('.container');
+
+    tagError.textContent = message;
+    tag.style.boxShadow = '0 0 5px red';
+    tag.style.borderColor = 'pink';
+    _window.style.borderColor = 'pink';
+    _window.style.boxShadow = '0 0 20px red';
+    return false;
+}
+
+
 function displayPasswordError(message) {
     const passwordError = document.getElementById('password-error');
     const passwordInput = document.getElementById('password');
@@ -53,9 +67,18 @@ document.getElementById('form-main-button').addEventListener('click', function (
     const _window = document.querySelector('.container');
     const form = document.getElementById('auth-form')
     const password_repeatInput = document.getElementById('password-repeat')
+    const password_repeatError = document.getElementById('password-repeat-error');
+    const tag = document.getElementById('tag')
+    const tagError = document.getElementById('tag-error')
 
+
+    tag.style.boxShadow = '0 0 5px aqua';
+    tag.style.borderColor = 'white';
+    tagError.textContent = '';
     emailError.textContent = '';
     passwordError.textContent = '';
+    tagError.textContent = ''
+    password_repeatError.textContent = '';
     emailInput.style.boxShadow = '0 0 5px aqua';
     emailInput.style.borderColor = 'white';
     passwordInput.style.boxShadow = '0 0 5px aqua';
@@ -97,7 +120,6 @@ document.getElementById('form-main-button').addEventListener('click', function (
 
 
     if (passwordInput.value != password_repeatInput.value){
-        const password_repeatError = document.getElementById('password-repeat-error');
         const _window = document.querySelector('.container');
 
         password_repeatError.textContent = 'Пароли не совпадают';
@@ -108,9 +130,32 @@ document.getElementById('form-main-button').addEventListener('click', function (
         isValid = false;
     }
 
+    if (/[a-zA-Z0-9]/.test(tag.value)){
+        if (tag.value.length > 2){
+            console.log(1)
+             const data = {
+                 tag: tag.value
+             }
+             fetch('/checkUniqueTag', {
+                 method: 'post',
+                 headers: {'Content-Type': 'application/json'},
+                 body: JSON.stringify(data)
+             })
+                 .then(response => response.json())
+                 .then(result => {
+                     if(!result.result){
+                         isValid = tagErrorFunc('Этот тег уже занят')
+                     }
+                 })
+        }
+        else {
+            sValid = tagErrorFunc('Тег должен состоять минимум из 3 символов')
+        }
 
-
-
+    }
+    else{
+        isValid = tagErrorFunc('Тег может состоять только из латинских букв и цифр')
+    }
 
 
 
@@ -118,11 +163,10 @@ document.getElementById('form-main-button').addEventListener('click', function (
 
 
     if (isValid) {
-        const name = document.getElementById('name').value
         const email = emailValue;
         const password = passwordValue;
         const data = {
-            name: name,
+            tag: tag.value,
             email: email,
             password: password
         }

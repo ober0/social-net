@@ -13,7 +13,7 @@ document.getElementById('sendData').addEventListener('click', function () {
 
         .then(result => {
             if (result.res){
-                window.location.href = '/'
+                window.location.href = '/edit_user'
             }
 
             else {

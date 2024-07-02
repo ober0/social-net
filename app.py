@@ -5,6 +5,7 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from models import db, User
 from flask_mail import Mail, Message
 from config import app
+import random
 
 
 db.init_app(app)
@@ -46,11 +47,12 @@ def reg():
         return render_template('reg.html', emails = [user.email for user in User.query.all()])
 
     if request.method == "POST":
+        tag = request.json.get('tag')
         email = request.json.get('email')
         password = request.json.get('password')
 
 
-        session['auth_data'] = f'{email}:%:%:{password}'
+        session['auth_data'] = f'{tag}:%:%:{email}:%:%:{password}'
 
         if email not in [i.email for i in User.query.all()]:
             return jsonify({
@@ -68,6 +70,7 @@ def reg():
 def confirm_email():
     if request.method == "GET":
         data = session.get('auth_data').split(':%:%:')
+        print(data)
         email = data[1]
         code = random.randint(100000, 999999)
         msg = Message('Код подтверждения', recipients=[email])
@@ -87,7 +90,7 @@ def confirm_email():
 
         if str(code) == str(session['auth_code']):
             data = session.get('auth_data').split(':%:%:')
-            user = User(name=data[0], email=data[1], password=data[2], status=0)
+            user = User(tag=data[0], email=data[1], password=data[2], status=0)
             try:
                 db.session.add(user)
                 db.session.commit()
@@ -116,7 +119,21 @@ def exit():
     session['account'] = ''
     return redirect('/')
 
+
+@app.route('/checkUniqueTag', methods=["POST"])
+def checkUniqueTag():
+    if request.method == "POST":
+        tag = request.json.get('tag')
+        if not User.query.filter_by(tag=tag).first():
+            return jsonify({'result': True})
+        else:
+            return jsonify({'result': False})
+    else:
+        return 'Страницы не существует'
+
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, allow_unsafe_werkzeug=True    )
+    socketio.run(app, allow_unsafe_werkzeug=True)
