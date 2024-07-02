@@ -1,0 +1,36 @@
+
+{% block footer %}
+<style>
+    .my-5{
+        margin-top:3rem!important;
+        margin-bottom:3rem!important
+    }
+    .pt-5{
+        padding-top:3rem!important
+    }
+    .text-body-secondary{
+        --bs-text-opacity:1;
+        color:var(--bs-secondary-color)!important
+    }
+    .text-center{
+        text-align:center!important
+    }
+    .mb-1{
+        margin-bottom:.25rem!important
+    }
+    .list-inline{
+        padding-left:0;list-style:none
+    }
+    .list-inline-item{
+        display:inline-block
+    }
+</style>
+<footer class="my-5 pt-5 text-body-secondary text-center">
+        <p class="mb-1">© 2017–2024 Company Name</p>
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="#">Privacy</a></li>
+            <li class="list-inline-item"><a href="#">Terms</a></li>
+            <li class="list-inline-item"><a href="#">Support</a></li>
+        </ul>
+    </footer>
+{% endblock %}
