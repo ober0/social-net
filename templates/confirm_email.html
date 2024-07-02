@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Подтверждение Email</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/confirm.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Проверочный код отправлен на:</h1>
+        <h1>{{ email }}</h1>
+
+        <form action="/confirm_email" method="post">
+            <span class="error-message" id="code-error"></span>
+            <br>
+            <input style="text-align: center" type="text" name="code" id="code">
+            <br><br>
+            <input id="sendData" type="button" value="Подтвердить">
+        </form>
+        <a id="codeTry" href="/confirm_email" class="disabled">Получить код заново</a>
+    </div>
+
+    <script src="{{ url_for('static', filename = 'js/confirm_email.js') }}"></script>
+</body>
+</html>

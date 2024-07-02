@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизация</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <span id="head-h1"></span>
+        <form action="/auth" method="post" class="auth" id="auth-form">
+            <div class="form-group">
+                <label for="email">Электронная почта</label>
+                <input type="text" name="email" id="email">
+                <span class="error-message" id="email-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" name="password" id="password">
+                <img draggable="false"
+                     src="{{ url_for('static', filename='img/iconHidden.png') }}"
+                     data-open="{{ url_for('static', filename='img/iconOpen.png') }}"
+                     data-hidden="{{ url_for('static', filename='img/iconHidden.png') }}"
+                     alt="Посмотреть пароль"
+                     id="iconPassword">
+                <span class="error-message" id="password-error"></span>
+            </div>
+
+            <input id="form-main-button" type="button" value="Войти">
+
+        </form>
+
+        <br>
+        <p class="registration">Еще не зарегистрированы?</p>
+        <a href="/reg" class="register-link">Регистрация</a>
+    </div>
+
+
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>
