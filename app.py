@@ -86,7 +86,6 @@ def reg():
 
 
         session['auth_data'] = f'{tag}:%:%:{email}:%:%:{password}'
-
         if email not in [i.email for i in User.query.all()]:
             return jsonify({
                 'result': True

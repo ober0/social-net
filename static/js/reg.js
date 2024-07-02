@@ -149,7 +149,7 @@ document.getElementById('form-main-button').addEventListener('click', function (
                  })
         }
         else {
-            sValid = tagErrorFunc('Тег должен состоять минимум из 3 символов')
+            isValid = tagErrorFunc('Тег должен состоять минимум из 3 символов')
         }
 
     }
