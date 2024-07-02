@@ -118,9 +118,7 @@ def confirm_email():
         return render_template('confirm_email.html', email=email)
     else:
         code = request.json
-        print(str(code), str(session['auth_code']))
         if str(code) == str(session['auth_code']):
-            print(1)
             data = session.get('auth_data').split(':%:%:')
             user = User(tag=data[0], email=data[1], password=data[2], status=0)
             try:
@@ -140,7 +138,6 @@ def confirm_email():
                 return resp
 
             except Exception as e:
-                print(e)
                 db.session.rollback()
 
         return jsonify({
@@ -163,7 +160,7 @@ def exit():
 def checkUniqueTag():
     if request.method == "POST":
         tag = request.json.get('tag')
-        if not User.query.filter_by(tag=tag).first():
+        if not User.query.filter(User.id != request.cookies.get('account')).filter_by(tag=tag).first():
             return jsonify({'result': True})
         else:
             return jsonify({'result': False})
@@ -178,6 +175,53 @@ def edit_user():
     if request.method == "GET":
         user = User.query.filter_by(id=request.cookies.get('account')).first()
         return render_template('edit_user.html', user=user)
+
+
+
+import datetime  # Добавляем импорт модуля datetime
+
+@socketio.on('edit_profile_save')
+def edit_profile_save(data):
+    try:
+        user_id = request.cookies.get('account')
+        user = User.query.filter_by(id=user_id, tag=data['tag']).first()
+
+        if user:
+
+            date_of_birth = datetime.datetime.strptime(data['birthday'], '%Y-%m-%d').date()
+
+
+            user.name = data['name']
+            user.second_name = data['second_name']
+            user.tag = data['tag']
+            user.gender = data['gender']
+            user.date_of_birthday = date_of_birth
+            user.county = data['country']
+            user.city = data['city']
+            user.education_place = data['education_place']
+            user.education_start = data['education_start']
+            user.education_end = data['education_end']
+            user.show_date_of_birthday = data['show_birthday']
+            user.show_gender = data['show_gender']
+            user.show_education = data['show_education']
+            user.show_city = data['show_address']
+            user.all_accept = 'yes'
+
+            db.session.commit()
+            socketio.emit('edit_profile_save_result', {'result': True})
+        else:
+            data = {
+                'result': False,
+                'error': 'Пользователь не найден: ошибка доступа'
+            }
+            socketio.emit('edit_profile_save_result', data)
+    except Exception as e:
+        error_message = str(e)
+        data = {
+            'result': False,
+            'error': error_message
+        }
+        socketio.emit('edit_profile_save_result', data)
 
 
 

@@ -23,3 +23,4 @@ class User(db.Model):
     show_gender = db.Column(db.String(5), default='True')
     show_city = db.Column(db.String(5), default='True')
     show_education = db.Column(db.String(5), default='True')
+    all_accept = db.Column(db.String(5))

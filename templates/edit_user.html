@@ -21,13 +21,13 @@
           <div class="row g-3">
             <div class="col-sm-6">
               <label for="firstName" class="form-label">Имя<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <input type="text" class="form-control" id="firstName" placeholder="{% if user.name %}{{user.name}}{% endif %}" value="" required="">
+              <input type="text" class="form-control" id="firstName" placeholder="" value="{% if user.name %}{{user.name}}{% endif %}" required="">
               <div class="red hide" id="firstNameError"></div>
             </div>
 
             <div class="col-sm-6">
               <label for="lastName" class="form-label">Фамилия<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <input type="text" class="form-control" id="lastName" placeholder="{% if user.second_name %}{{user.second_name}}{% endif %}" value="" required="">
+              <input type="text" class="form-control" id="lastName" placeholder="" value="{% if user.second_name %}{{user.second_name}}{% endif %}" required="">
               <div class="red hide" id="lastNameError"></div>
             </div>
 
@@ -48,45 +48,46 @@
 
             <div class="col-sm-6">
               <label for="gender" class="form-label">Пол<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <select class="form-select" id="gender" required="{% if user.gender %}{% if user.gender == 'man' %}man{% endif %}{% if user.gender == 'woman' %}woman{% endif %}{% endif %}">
+              <select class="form-select" id="gender">
                 <option value="no-gender">Не указывать</option>
-                <option value="man">Мужской</option>
-                <option value="woman">Женский</option>
-              </select>
+                <option value="man" {% if user.gender == 'man' %}selected{% endif %}>Мужской</option>
+                <option value="woman" {% if user.gender == 'woman' %}selected{% endif %}>Женский</option>
+            </select>
+
             </div>
             <div class="red hide" id="genderError"></div>
 
             <div class="col-sm-6">
               <label for="birthday" class="form-label">Дата рождения<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <input type="date" class="form-control" id="birthday" placeholder="{{ user.birthday }}">
+              <input type="date" class="form-control" id="birthday" placeholder="" value="{{ user.date_of_birthday }}">
               <div class="red hide" id="birthdayError"></div>
             </div>
 
             <div class="col-sm-6">
               <label for="country" class="form-label">Страна<span style="color:red !important;" class="text-body-secondary">*</span></label>
-              <input type="text" class="form-control" id="country" placeholder="{% if user.country %}{{user.country}}{% endif %}">
+              <input type="text" class="form-control" id="country" placeholder="" value="{% if user.county %}{{user.county}}{% endif %}">
               <div class="red hide" id="countryError"></div>
             </div>
             <div class="col-sm-6">
               <label for="city" class="form-label">Город</label>
-              <input type="text" class="form-control" id="city" placeholder="{% if user.city %}{{user.city}}{% endif %}">
+              <input type="text" class="form-control" id="city" value="{% if user.city %}{{user.city}}{% endif %}">
               <div class="red hide" id="cityError"></div>
             </div>
 
             <div class="col-8">
               <label for="education" class="form-label">Место учебы</label>
-              <input type="text" class="form-control" id="education" placeholder="{% if user.education_place %}{{user.education_place}}{% endif %}">
+              <input type="text" class="form-control" id="education" value="{% if user.education_place %}{{user.education_place}}{% endif %}">
               <div class="red hide" id="educationError"></div>
             </div>
 
             <div class="col-2">
               <label for="education" class="form-label">Год начала</label>
-              <input type="text" class="form-control " id="education-year-start" placeholder="{% if user.education_start %}{{user.education_start}}{% endif %}">
+              <input type="text" class="form-control " id="education-year-start" value="{% if user.education_start %}{{user.education_start}}{% endif %}">
               <div class="red hide" id="education-year-startError"></div>
             </div>
             <div class="col-2">
               <label for="education" class="form-label">Год окончания</label>
-              <input type="text" class="form-control " id="education-year-finish" placeholder="{% if user.education_end %}{{user.education_end  }}{% endif %}">
+              <input type="text" class="form-control " id="education-year-finish" value="{% if user.education_end %}{{user.education_end  }}{% endif %}">
               <div class="red hide" id="education-year-finishError"></div>
             </div>
           </div>
@@ -94,7 +95,7 @@
           <hr class="my-4">
 
           <div class="form-check">
-            {% if user.show_birthday == 'True' %}
+            {% if user.show_date_of_birthday == '1' %}
             <input type="checkbox" class="form-check-input" id="agreement-birthday" checked>
             {% else %}
             <input type="checkbox" class="form-check-input" id="agreement-birthday">
@@ -103,7 +104,7 @@
           </div>
 
           <div class="form-check">
-            {% if user.show_gender == 'True' %}
+            {% if user.show_gender == '1' %}
             <input type="checkbox" class="form-check-input" id="agreement-gender" checked>
             {% else %}
             <input type="checkbox" class="form-check-input" id="agreement-gender">
@@ -112,7 +113,7 @@
           </div>
 
           <div class="form-check">
-            {% if user.show_education == 'True' %}
+            {% if user.show_education == '1' %}
             <input type="checkbox" class="form-check-input" id="agreement-learn" checked>
             {% else %}
             <input type="checkbox" class="form-check-input" id="agreement-learn">
@@ -121,14 +122,14 @@
           </div>
 
           <div class="form-check">
-            {% if user.show_city == 'True' %}
+            {% if user.show_city == '1' %}
             <input type="checkbox" class="form-check-input" id="agreement-city" checked>
             {% else %}
             <input type="checkbox" class="form-check-input" id="agreement-city">
             {% endif %}
             <label class="form-check-label" for="agreement-city">Показывать место жительства в профиле</label>
           </div>
-
+{% if user.all_accept != 'yes' %}
 <hr class="my-4">
 
 <div class="form-check">
@@ -136,6 +137,7 @@
   <label class="form-check-label" for="agreement">Даю согласие на обработку предоставленной персональной информации</label>
   <div class="red hide" id="agreementError"></div>
 </div>
+{% endif %}
 
           <hr class="my-4">
 
@@ -149,6 +151,7 @@
 {% include 'footer.html' %}
 {% block footer %}{% endblock %}
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/edit-profile-form.js') }}"></script>
 </body>
 </html>

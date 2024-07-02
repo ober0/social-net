@@ -1,5 +1,4 @@
 document.getElementById('sendDataInfo').addEventListener('click', function () {
-    console.log(1)
     const first_nameInput = document.getElementById('firstName')
     const second_nameInput = document.getElementById('lastName')
     const tagInput = document.getElementById('tag')
@@ -16,8 +15,10 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
     const genderChecked = document.getElementById('agreement-gender').checked;
     const learnChecked = document.getElementById('agreement-learn').checked;
     const cityChecked = document.getElementById('agreement-city').checked;
-    const agreementChecked = document.getElementById('agreement').checked;
-
+    try{
+        const agreementChecked = document.getElementById('agreement').checked;
+    }
+    catch{}
 
     const inputs = [
       first_nameInput, second_nameInput, document.getElementById('tag2'), genderInput, birthdayInput,
@@ -40,7 +41,11 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
     document.getElementById('cityError').classList.add('hide')
     document.getElementById('education-year-startError').classList.add('hide')
     document.getElementById('education-year-finishError').classList.add('hide')
-    document.getElementById('agreementError').classList.add('hide')
+    try{
+        document.getElementById('agreementError').classList.add('hide')
+    }
+    catch {}
+
     document.getElementById('allError').classList.add('hide')
 
     let isValid = true;
@@ -166,14 +171,18 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
         }
     }
 
-    if (!agreementChecked){
-         document.getElementById('agreementError').classList.remove('hide')
-         document.getElementById('agreementError').innerText = 'Согласитесь с условиями для продолжения'
-         isValid = false;
+    try{
+        if (!agreementChecked){
+             document.getElementById('agreementError').classList.remove('hide')
+             document.getElementById('agreementError').innerText = 'Согласитесь с условиями для продолжения'
+             isValid = false;
+        }
     }
+    catch {}
 
 
     if (isValid){
+
         const socket = io()
         socket.emit('edit_profile_save', {
             name: first_nameInput.value,
@@ -189,17 +198,22 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
             show_birthday: birthdayChecked,
             show_gender: genderChecked,
             show_education: learnChecked,
-            show_adress: cityChecked
+            show_address: cityChecked
         })
 
         socket.on('edit_profile_save_result', (data) => {
-            if (result.result){
+            if (data.result){
                 window.location.href = '/'
             }
             else{
                 let error = document.getElementById('allError')
-                error.innerText = result.error
+                error.innerText = data.error
                 error.classList.remove('hide')
+                if (data.error == 'Пользователь не найден: ошибка доступа'){
+                    setTimeout(function () {
+                        window.location.href = '/'
+                    }, 5000)
+                }
             }
         })
 
