@@ -23,7 +23,6 @@ def check_access(f):
             else:
                 session['auth'] = False
             session['account'] = int(request.cookies.get('account'))
-            print(session['auth'], session['account'])
         except:
             pass
 
@@ -32,9 +31,14 @@ def check_access(f):
             session['auth_code'] = ''
             emails = [user.email for user in User.query.all()]
             return render_template('auth.html', emails=emails)
+
         user = User.query.filter_by(id=session.get('account')).first()
-        if not user or not user.name:
-            return redirect(url_for('edit_user'))
+        if not user:
+            emails = [user.email for user in User.query.all()]
+            return render_template('auth.html', emails=emails)
+        elif not user.name:
+            return redirect('/edit_user')
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -70,7 +74,10 @@ def auth():
 @app.route('/reg', methods=['GET', 'POST'])
 def reg():
     if request.method == "GET":
-        return render_template('reg.html', emails=[user.email for user in User.query.all()])
+        if session.get('auth') != True:
+            return redirect('/')
+        else:
+            return render_template('reg.html', emails=[user.email for user in User.query.all()])
 
     if request.method == "POST":
         tag = request.json.get('tag')
@@ -96,7 +103,6 @@ def reg():
 def confirm_email():
     if request.method == "GET":
         data = session.get('auth_data').split(':%:%:')
-        print(data)
         email = data[1]
         code = random.randint(100000, 999999)
         msg = Message('Код подтверждения', recipients=[email])
@@ -113,8 +119,9 @@ def confirm_email():
         return render_template('confirm_email.html', email=email)
     else:
         code = request.json
-
+        print(str(code), str(session['auth_code']))
         if str(code) == str(session['auth_code']):
+            print(1)
             data = session.get('auth_data').split(':%:%:')
             user = User(tag=data[0], email=data[1], password=data[2], status=0)
             try:
@@ -146,7 +153,11 @@ def confirm_email():
 def exit():
     session['auth'] = False
     session['account'] = ''
-    return redirect('/')
+
+    resp = make_response(redirect('/'))
+    resp.set_cookie('account', '')
+    resp.set_cookie('auth', 'False')
+    return resp
 
 
 @app.route('/checkUniqueTag', methods=["POST"])
@@ -163,7 +174,12 @@ def checkUniqueTag():
 
 @app.route('/edit_user', methods=["POST", "GET"])
 def edit_user():
-    return '1'
+    if request.method == "POST":
+        pass
+    if request.method == "GET":
+        user = User.query.filter_by(id=request.cookies.get('account')).first()
+        return render_template('edit_user.html', user=user)
+
 
 
 if __name__ == '__main__':

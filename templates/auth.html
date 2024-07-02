@@ -36,6 +36,8 @@
         <p class="registration">Еще не зарегистрированы?</p>
         <a href="/reg" class="register-link">Регистрация</a>
     </div>
+    {% include 'footer.html' %}
+    {% block footer %}{% endblock %}
 
 
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>

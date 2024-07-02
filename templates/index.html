@@ -10,5 +10,7 @@
 <body>
     <h1>Hello, {{ username }}</h1>
     <a href="/exit">Выйти из аккаунта</a>
+    {% include 'footer.html' %}
+    {% block footer %}{% endblock %}
 </body>
 </html>
