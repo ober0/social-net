@@ -23,15 +23,23 @@
             <div class="col-md-12">
               <div class="row">
                 <div class="col-md-2">
-                  {% if user.avatar %}
-                    <img id="avatar-img" src="{{ url_for('static', filename='avatars/users/user.avatar') }}" alt="Current Avatar" class="img-thumbnail mt-2" >
+                  {% if user.avatar_path %}
+                    <img id="avatar-img" src="{{ url_for('static', filename='avatars/users/' + user.avatar_path) }}" alt="Current Avatar" class="img-thumbnail mt-2">
                   {% else %}
                     <img id="avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="Current Avatar" class="img-thumbnail mt-2">
                   {% endif %}
                 </div>
                 <div class="col-md-10 avatar-text">
                   <label for="avatar-input" class="form-label">Аватар</label>
-                  <input type="file" class="form-control" id="avatar-input" name="avatar" accept="image/png, image/jpeg, image/gif">
+                  {% if user.avatar_path %}
+                  <div class="col-md-2">
+                    <input id="change-avatar-btn" class="form-control" type="button" value="Изменить" onclick="changeAvatar()">
+                  </div>
+
+                  <input type="file" class="form-control hide" id="avatar-input" name="avatar" accept="image/png, image/jpeg, image/gif">
+                  {% else %}
+                   <input type="file" class="form-control" id="avatar-input" name="avatar" accept="image/png, image/jpeg, image/gif">
+                  {% endif %}
                   <div class="red hide" id="avatarError"></div>
                 </div>
               </div>
@@ -169,6 +177,7 @@
 
 {% include 'footer.html' %}
 {% block footer %}{% endblock %}
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/edit-profile-form.js') }}"></script>

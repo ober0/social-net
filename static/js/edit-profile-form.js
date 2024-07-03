@@ -181,8 +181,12 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
     }
     catch {}
 
+
     let avatar = document.getElementById('avatar-input').files[0]
-    let avatar_type = avatar.type
+    try{
+        let avatar_type = avatar.type
+    }
+    catch {}
 
     const allowedTypes = ['image/png', 'image/jpeg', 'image/gif'];
     if (avatar){

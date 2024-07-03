@@ -188,40 +188,24 @@ def edit_profile_save(data):
         if user:
             date_of_birth = datetime.datetime.strptime(data['birthday'], '%Y-%m-%d').date()
 
-            # print(1)
-            # if data['d']:
-            #
-            #     print(2)
-            #     file = data['avatar']
-            #     print(file)
-            #     if file.filename != '':
-            #         print(3)
-            #         try:
-            #             print(4)
-            #             basename, extension = os.path.splitext(file.filename)
-            #             new_filename = f'avatar-user-{session.get("account")}{extension}'
-            #             file.save(f'static/avatars/{new_filename}')
-            #             user.avatar_path = new_filename
-            #             print('success')
-            #         except:
-            #             return 'Произошла ошибка. Аватар не был загружен'
+            try:
+                avatar = data['file']
 
-            avatar = data['file']
-            if avatar:
-                image_type = imghdr.what(None, h=avatar)
-                print(image_type)
-                filename = f'avatar-user-{request.cookies.get("account")}.{image_type}'
+                if avatar:
+                    image_type = imghdr.what(None, h=avatar)
+                    print(image_type)
+                    filename = f'avatar-user-{request.cookies.get("account")}.{image_type}'
 
-                for i in os.listdir('static/avatars/users'):
-                    if i.startswith("avatar-user-1"):
-                        file_path = os.path.join('static/avatars/users', i)
-                        os.remove(file_path)
+                    for i in os.listdir('static/avatars/users'):
+                        if i.startswith("avatar-user-1"):
+                            file_path = os.path.join('static/avatars/users', i)
+                            os.remove(file_path)
 
-                with open(f'static/avatars/users/{filename}', 'wb') as f:
-                    f.write(avatar)
-                user.avatar_path = filename
-            else:
-                print(1)
+                    with open(f'static/avatars/users/{filename}', 'wb') as f:
+                        f.write(avatar)
+                    user.avatar_path = filename
+            except Exception as e:
+                print(e)
 
             user.name = data['name']
             user.second_name = data['second_name']
