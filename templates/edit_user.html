@@ -19,6 +19,24 @@
         <h4 class="mb-3">Мой профиль</h4>
         <form class="needs-validation">
           <div class="row g-3">
+
+            <div class="col-md-12">
+              <div class="row">
+                <div class="col-md-2">
+                  {% if user.avatar %}
+                    <img id="avatar-img" src="{{ url_for('static', filename='avatars/users/user.avatar') }}" alt="Current Avatar" class="img-thumbnail mt-2" >
+                  {% else %}
+                    <img id="avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="Current Avatar" class="img-thumbnail mt-2">
+                  {% endif %}
+                </div>
+                <div class="col-md-10 avatar-text">
+                  <label for="avatar-input" class="form-label">Аватар</label>
+                  <input type="file" class="form-control" id="avatar-input" name="avatar" accept="image/png, image/jpeg, image/gif">
+                  <div class="red hide" id="avatarError"></div>
+                </div>
+              </div>
+            </div>
+
             <div class="col-sm-6">
               <label for="firstName" class="form-label">Имя<span style="color:red !important;" class="text-body-secondary">*</span></label>
               <input type="text" class="form-control" id="firstName" placeholder="" value="{% if user.name %}{{user.name}}{% endif %}" required="">
@@ -92,6 +110,7 @@
             </div>
           </div>
 
+
           <hr class="my-4">
 
           <div class="form-check">
@@ -153,5 +172,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/edit-profile-form.js') }}"></script>
+<script src="{{ url_for('static', filename='js/new-avatar.js') }}"></script>
 </body>
 </html>
