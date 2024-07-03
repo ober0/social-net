@@ -22,7 +22,7 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
 
     const inputs = [
       first_nameInput, second_nameInput, document.getElementById('tag2'), genderInput, birthdayInput,
-      countryInput, cityInput, educationInput, education_year_startInput, education_year_finishInput
+      countryInput, cityInput, educationInput, education_year_startInput, education_year_finishInput, document.getElementById('avatar-input')
     ];
 
     inputs.forEach(input => {
@@ -41,6 +41,7 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
     document.getElementById('cityError').classList.add('hide')
     document.getElementById('education-year-startError').classList.add('hide')
     document.getElementById('education-year-finishError').classList.add('hide')
+    document.getElementById('avatarError').classList.add('hide')
     try{
         document.getElementById('agreementError').classList.add('hide')
     }
@@ -180,26 +181,44 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
     }
     catch {}
 
+    let avatar = document.getElementById('avatar-input').files[0]
+    let avatar_type = avatar.type
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/gif'];
+    if (avatar){
+        if (!allowedTypes.includes(avatar_type)){
+             document.getElementById('avatarError').classList.remove('hide')
+             document.getElementById('avatarError').innerText = 'Доступны только файлы .gif .png .jpg'
+             document.getElementById('avatar-input').style.border = '1px solid red'
+             isValid = false;
+        }
+    }
+
 
     if (isValid){
+         let avatar = document.getElementById('avatar-input').files[0]
 
-        const socket = io()
-        socket.emit('edit_profile_save', {
-            name: first_nameInput.value,
-            second_name: second_nameInput.value,
-            tag: tagInput.value,
-            gender: genderInput.value,
-            birthday: birthdayInput.value,
-            country: countryInput.value,
-            city: cityInput.value,
-            education_place: educationInput.value,
-            education_start: education_year_startInput.value,
-            education_end: education_year_finishInput.value,
-            show_birthday: birthdayChecked,
-            show_gender: genderChecked,
-            show_education: learnChecked,
-            show_address: cityChecked
+         const socket = io()
+         socket.emit('edit_profile_save', {
+             name: first_nameInput.value,
+             second_name: second_nameInput.value,
+             tag: tagInput.value,
+             gender: genderInput.value,
+             birthday: birthdayInput.value,
+             country: countryInput.value,
+             city: cityInput.value,
+             education_place: educationInput.value,
+             education_start: education_year_startInput.value,
+             education_end: education_year_finishInput.value,
+             show_birthday: birthdayChecked,
+             show_gender: genderChecked,
+             show_education: learnChecked,
+             show_address: cityChecked,
+             file: avatar
         })
+
+
+
 
         socket.on('edit_profile_save_result', (data) => {
             if (data.result){

@@ -1,3 +1,4 @@
+import os
 from functools import wraps
 import secrets
 from flask import Flask, session, redirect, render_template, request, jsonify, make_response
@@ -9,6 +10,7 @@ from models import db, User  # Предполагается, что у вас е
 from config import app
 import random
 import datetime
+import imghdr
 
 # Инициализация приложения, базы данных и Socket.IO
 db.init_app(app)
@@ -179,12 +181,47 @@ def edit_user():
 
 @socketio.on('edit_profile_save')
 def edit_profile_save(data):
-    try:
+    # try:
         user_id = request.cookies.get('account')
         user = User.query.filter_by(id=user_id, tag=data['tag']).first()
 
         if user:
             date_of_birth = datetime.datetime.strptime(data['birthday'], '%Y-%m-%d').date()
+
+            # print(1)
+            # if data['d']:
+            #
+            #     print(2)
+            #     file = data['avatar']
+            #     print(file)
+            #     if file.filename != '':
+            #         print(3)
+            #         try:
+            #             print(4)
+            #             basename, extension = os.path.splitext(file.filename)
+            #             new_filename = f'avatar-user-{session.get("account")}{extension}'
+            #             file.save(f'static/avatars/{new_filename}')
+            #             user.avatar_path = new_filename
+            #             print('success')
+            #         except:
+            #             return 'Произошла ошибка. Аватар не был загружен'
+
+            avatar = data['file']
+            if avatar:
+                image_type = imghdr.what(None, h=avatar)
+                print(image_type)
+                filename = f'avatar-user-{request.cookies.get("account")}.{image_type}'
+
+                for i in os.listdir('static/avatars/users'):
+                    if i.startswith("avatar-user-1"):
+                        file_path = os.path.join('static/avatars/users', i)
+                        os.remove(file_path)
+
+                with open(f'static/avatars/users/{filename}', 'wb') as f:
+                    f.write(avatar)
+                user.avatar_path = filename
+            else:
+                print(1)
 
             user.name = data['name']
             user.second_name = data['second_name']
@@ -202,6 +239,7 @@ def edit_profile_save(data):
             user.show_city = data['show_address']
             user.all_accept = 'yes'
 
+
             db.session.commit()
             socketio.emit('edit_profile_save_result', {'result': True})
         else:
@@ -210,13 +248,14 @@ def edit_profile_save(data):
                 'error': 'Пользователь не найден: ошибка доступа'
             }
             socketio.emit('edit_profile_save_result', data)
-    except Exception as e:
-        error_message = str(e)
-        data = {
-            'result': False,
-            'error': error_message
-        }
-        socketio.emit('edit_profile_save_result', data)
+    # except Exception as e:
+    #     error_message = str(e)
+    #     print(error_message)
+    #     data = {
+    #         'result': False,
+    #         'error': error_message
+    #     }
+    #     socketio.emit('edit_profile_save_result', data)
 
 
 if __name__ == '__main__':
