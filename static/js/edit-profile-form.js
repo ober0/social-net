@@ -77,13 +77,14 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
         isValid = false;
     }
 
-    if (!/^[a-zA-Z0-9_]+$/.test(tag.value)) {
+    if (!/^[a-z0-9_]+$/.test(tag.value)) {
         document.getElementById('tag2').style.border = '1px solid red'
         document.getElementById('tagError').classList.remove('hide')
-        document.getElementById('tagError').innerText = 'Тег может состоять только из латинских букв, цифр и нижнего подчеркивания'
+        document.getElementById('tagError').innerText = 'Тег может состоять только из маленьких латинских букв, цифр и нижнего подчеркивания'
         isValid = false;
     }
     else{
+
         if (tag.value.length > 2){
              const data = {
                  tag: tag.value
@@ -183,20 +184,20 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
 
 
     let avatar = document.getElementById('avatar-input').files[0]
+
     try{
         let avatar_type = avatar.type
-    }
-    catch {}
-
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/gif'];
-    if (avatar){
-        if (!allowedTypes.includes(avatar_type)){
-             document.getElementById('avatarError').classList.remove('hide')
-             document.getElementById('avatarError').innerText = 'Доступны только файлы .gif .png .jpg'
-             document.getElementById('avatar-input').style.border = '1px solid red'
-             isValid = false;
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/gif'];
+        if (avatar){
+            if (!allowedTypes.includes(avatar_type)){
+                 document.getElementById('avatarError').classList.remove('hide')
+                 document.getElementById('avatarError').innerText = 'Доступны только файлы .gif .png .jpg'
+                 document.getElementById('avatar-input').style.border = '1px solid red'
+                 isValid = false;
+            }
         }
     }
+    catch {}
 
 
     if (isValid){

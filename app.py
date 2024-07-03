@@ -76,7 +76,7 @@ def auth():
 @app.route('/reg', methods=['GET', 'POST'])
 def reg():
     if request.method == "GET":
-        if session.get('auth') != True:
+        if session.get('auth') == True:
             return redirect('/')
         else:
             return render_template('reg.html', emails=[user.email for user in User.query.all()])
@@ -148,6 +148,7 @@ def confirm_email():
 
 
 @app.route('/exit')
+@check_access
 def exit():
     session['auth'] = False
     session['account'] = ''
@@ -176,12 +177,24 @@ def edit_user():
         pass
     if request.method == "GET":
         user = User.query.filter_by(id=request.cookies.get('account')).first()
-        return render_template('edit_user.html', user=user)
+        if user:
+            return render_template('edit_user.html', user=user)
+        else:
+            return 'Страница не найдена'
+
+@app.route('/<string:tag>', methods=['GET'])
+@check_access
+def user_profile(tag):
+    if request.method == "GET":
+        user = User.query.filter_by(tag=tag).first()
+        self_user_tag = User.query.filter_by(id=request.cookies.get('account')).first().tag
+
+        return render_template('user.html', user=user, self=(self_user_tag == tag))
 
 
 @socketio.on('edit_profile_save')
 def edit_profile_save(data):
-    # try:
+    try:
         user_id = request.cookies.get('account')
         user = User.query.filter_by(id=user_id, tag=data['tag']).first()
 
@@ -232,14 +245,14 @@ def edit_profile_save(data):
                 'error': 'Пользователь не найден: ошибка доступа'
             }
             socketio.emit('edit_profile_save_result', data)
-    # except Exception as e:
-    #     error_message = str(e)
-    #     print(error_message)
-    #     data = {
-    #         'result': False,
-    #         'error': error_message
-    #     }
-    #     socketio.emit('edit_profile_save_result', data)
+    except Exception as e:
+        error_message = str(e)
+        print(error_message)
+        data = {
+            'result': False,
+            'error': error_message
+        }
+        socketio.emit('edit_profile_save_result', data)
 
 
 if __name__ == '__main__':

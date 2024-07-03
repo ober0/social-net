@@ -129,32 +129,33 @@ document.getElementById('form-main-button').addEventListener('click', function (
         _window.style.boxShadow = '0 0 20px red';
         isValid = false;
     }
-
-    if (/[a-zA-Z0-9]/.test(tag.value)){
-        if (tag.value.length > 2){
-            console.log(1)
-             const data = {
-                 tag: tag.value
-             }
-             fetch('/checkUniqueTag', {
-                 method: 'post',
-                 headers: {'Content-Type': 'application/json'},
-                 body: JSON.stringify(data)
-             })
-                 .then(response => response.json())
-                 .then(result => {
-                     if(!result.result){
-                         isValid = tagErrorFunc('Этот тег уже занят')
-                     }
-                 })
-        }
-        else {
-            isValid = tagErrorFunc('Тег должен состоять минимум из 3 символов')
-        }
-
+    if (/[A-Z]/.test(tag.value)){
+        isValid = tagErrorFunc('Тег может состоять только из маленьких латинских букв и цифр')
     }
     else{
-        isValid = tagErrorFunc('Тег может состоять только из латинских букв и цифр')
+        if (/[a-z0-9]/.test(tag.value)) {
+            if (tag.value.length > 2) {
+                const data = {
+                    tag: tag.value
+                }
+                fetch('/checkUniqueTag', {
+                    method: 'post',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (!result.result) {
+                            isValid = tagErrorFunc('Этот тег уже занят')
+                        }
+                    })
+            } else {
+                isValid = tagErrorFunc('Тег должен состоять минимум из 3 символов')
+            }
+        }
+        else{
+            isValid = tagErrorFunc('Тег может состоять только из маленьких латинских букв и цифр')
+        }
     }
 
 
@@ -185,7 +186,6 @@ document.getElementById('form-main-button').addEventListener('click', function (
                     window.location.href = '/confirm_email'
                 }
                 else if(result.result == 'test'){
-                    alert(1)
                 }
                 else {
                     emailValue.value = ''

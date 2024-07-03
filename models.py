@@ -24,3 +24,5 @@ class User(db.Model):
     show_city = db.Column(db.String(5), default='True')
     show_education = db.Column(db.String(5), default='True')
     all_accept = db.Column(db.String(5))
+    friends_count = db.Column(db.Integer, default=0)
+    subscriptions_count = db.Column(db.Integer, default=0)
