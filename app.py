@@ -188,8 +188,9 @@ def user_profile(tag):
     if request.method == "GET":
         user = User.query.filter_by(tag=tag).first()
         self_user_tag = User.query.filter_by(id=request.cookies.get('account')).first().tag
+        notification_count = 1
 
-        return render_template('user.html', user=user, self=(self_user_tag == tag))
+        return render_template('user.html', user=user, self=(self_user_tag == tag), notification_count=notification_count)
 
 
 @socketio.on('edit_profile_save')

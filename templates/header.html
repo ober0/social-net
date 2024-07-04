@@ -1,0 +1,84 @@
+
+{% block header %}
+<style>
+    .logo{
+        margin-top: -20px;
+        position: absolute;
+        margin-right: 50%;
+    }
+    .search{
+        margin-top: 22px;
+        position: relative;
+        left:18%
+
+    }
+    .notifications{
+        margin-top: 23px;
+        position: absolute;
+        margin-left: 6%;
+
+    }
+    .user1{
+        margin-top: 15px;
+        margin-left: 40%;
+    }
+    #search-main{
+        width: 500px;
+
+    }
+    .badge{
+        background-color: red;
+        border-radius: 50%;
+        position: relative;
+        bottom: 10px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-sm-9">
+        <div class="row">
+            <div class="col-sm-3">
+            <div class="logo">
+                <div style="width: fit-content; cursor: pointer">
+                    <img  width="110px" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" >
+                </div>
+            </div>
+            </div>
+
+            <div class="col-sm-9">
+                <div class="search">
+                    <input id="search-main" type="text" placeholder="Поиск">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="notifications">
+                    <div style="width: fit-content; cursor: pointer">
+                        <img style="width: 30px" src="{{ url_for('static', filename='img/notification_icon.png') }}" alt="">
+                      <div class="badge">{{ notification_count }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="user1">
+                    <div style="width: fit-content; cursor: pointer">
+                        <img style="width: 40px; border-radius: 50%" src="{{ url_for('static', filename='avatars/users/' + user.avatar_path) }}" alt="User Avatar">
+                        <img style="width: 13px;" src="{{ url_for('static', filename='img/bottom.png') }}" alt="">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+<hr>
+
+
+
+{% endblock %}
