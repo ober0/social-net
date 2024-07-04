@@ -1,0 +1,114 @@
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1e1e1e;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+.profile-header {
+    width: 80%;
+    background-color: #333;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+}
+.profile-header .avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: #555;
+}
+.profile-header .info {
+    margin-left: 20px;
+}
+.profile-header .info h1 {
+    margin: 0;
+    font-size: 24px;
+}
+.profile-header .info p {
+    margin: 5px 0;
+    color: #999;
+}
+.content {
+    display: flex;
+    padding: 20px;
+}
+.left-sidebar, .right-sidebar {
+    width: 300px;
+}
+.main-content {
+    flex: 1;
+    margin: 0 20px;
+}
+.user-header-info{
+    position: relative;
+    top:8px;
+
+}
+
+.user-header-info-p{
+    font-size: 14px !important;
+
+}
+
+.user-header-info-p-pointer:hover{
+    text-decoration: underline;
+}
+
+.user-header-button{
+    border-radius: 10px;
+    background-color: #676767;
+    font-size: 14px;
+    border: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    transition: background-color 0.2s;
+}
+
+.user-header-button:hover{
+     background-color: #535353;
+}
+
+.edit-profile{
+     position: absolute;
+     left: 62%;
+     top: 16%;
+}
+
+.message-profile, .friend-profile{
+    position: relative;
+    bottom: 5px;
+    left: 100%;
+    margin-left: 5px;
+}
+
+.about-info{
+    width: 600px;
+    background-color: #393838;
+    padding: 10px;
+    padding-top: 15px;
+    border-radius: 15px;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    top: 20%;
+}
+
+.info-text{
+    position: relative;
+    right: 11%;
+}
+
+
+.hover:hover{
+    text-decoration: underline;
+    cursor: pointer;
+}
+.hide{
+    display: none;
+}

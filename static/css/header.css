@@ -1,0 +1,36 @@
+.logo{
+    margin-top: -20px;
+    position: absolute;
+    margin-right: 50%;
+}
+.search{
+    margin-top: 22px;
+    position: relative;
+    left:20%
+
+}
+.notifications{
+    margin-top: 23px;
+    position: absolute;
+    margin-left: 6%;
+    width: fit-content;
+
+}
+.user1{
+    margin-top: 15px;
+    margin-left: 40%;
+}
+#search-main{
+    width: 500px;
+    border-radius: 5px;
+    border: 1px solid #787878;
+}
+#search-main:hover{
+    background-color: #252525;
+}
+.badge{
+    background-color: red;
+    border-radius: 50%;
+    position: relative;
+    bottom: 10px;
+}

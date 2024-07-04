@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User  # Предполагается, что у вас есть модуль models с описанием базы данных
+from models import db, User, Friends  # Предполагается, что у вас есть модуль models с описанием базы данных
 from config import app
 import random
 import datetime
@@ -115,10 +115,12 @@ def confirm_email():
         msg.html = result
         mail.send(msg)
         session['auth_code'] = code
+        print(session['auth_code'])
 
         return render_template('confirm_email.html', email=email)
     else:
         code = request.json
+        print(code)
         if str(code) == str(session['auth_code']):
             data = session.get('auth_data').split(':%:%:')
             hashed_password = data[2]
@@ -130,6 +132,7 @@ def confirm_email():
                 session['auth'] = True
                 session['account'] = user.id
                 session['auth_data'] = ''
+                print(3)
                 session['auth_code'] = ''
 
                 resp = make_response(jsonify({
@@ -141,7 +144,7 @@ def confirm_email():
 
             except Exception as e:
                 db.session.rollback()
-
+        print(1, session['auth_code'])
         return jsonify({
             'res': False
         }), 401
@@ -187,10 +190,41 @@ def edit_user():
 def user_profile(tag):
     if request.method == "GET":
         user = User.query.filter_by(tag=tag).first()
+        print(user)
         self_user_tag = User.query.filter_by(id=request.cookies.get('account')).first().tag
         notification_count = 1
 
-        return render_template('user.html', user=user, self=(self_user_tag == tag), notification_count=notification_count)
+        month_data = {
+            '1': 'января',
+            '2': 'февраля',
+            '3': 'марта',
+            '4': 'апреля',
+            '5': 'мая',
+            '6': 'июня',
+            '7': 'июля',
+            '8': 'августа',
+            '9': 'сентября',
+            '10': 'октября',
+            '11': 'ноября',
+            '12': 'декабря'
+        }
+
+
+        birthday = str(user.date_of_birthday)
+        birthday_list = birthday.split('-')
+        day = birthday_list[2]
+        month = month_data[birthday_list[1]]
+        year = birthday_list[0]
+
+        birthday_correct = f'{day} {month} {year}'
+
+        _self = 1 if self_user_tag == tag else 0
+        friends = Friends.query.filter_by(user_id=request.cookies.get('account')).all()
+        isFriend = 0
+        for friend in friends:
+            if friend.tag == tag:
+                isFriend = 1
+        return render_template('user.html', user=user, _self=_self, notification_count=notification_count, birthday_correct=birthday_correct, isFriend=isFriend)
 
 
 @socketio.on('edit_profile_save')
@@ -239,7 +273,8 @@ def edit_profile_save(data):
 
 
             db.session.commit()
-            socketio.emit('edit_profile_save_result', {'result': True})
+            tag = user.tag
+            socketio.emit('edit_profile_save_result', {'result': True, 'tag':tag})
         else:
             data = {
                 'result': False,

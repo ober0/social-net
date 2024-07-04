@@ -227,7 +227,8 @@ document.getElementById('sendDataInfo').addEventListener('click', function () {
 
         socket.on('edit_profile_save_result', (data) => {
             if (data.result){
-                window.location.href = '/'
+                let tag = data.tag
+                window.location.href = '/' + tag
             }
             else{
                 let error = document.getElementById('allError')

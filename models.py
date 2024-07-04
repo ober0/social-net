@@ -26,3 +26,9 @@ class User(db.Model):
     all_accept = db.Column(db.String(5))
     friends_count = db.Column(db.Integer, default=0)
     subscriptions_count = db.Column(db.Integer, default=0)
+
+
+class Friends(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
