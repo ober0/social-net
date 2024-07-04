@@ -51,7 +51,8 @@ def check_access(f):
 @app.route('/')
 @check_access
 def index():
-    return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name)
+    me = User.query.filter_by(id=request.cookies.get('account')).first()
+    return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name, me=me)
 
 
 @app.route('/auth', methods=['POST'])
@@ -118,7 +119,7 @@ def confirm_email():
         print(session['auth_code'])
 
         return render_template('confirm_email.html', email=email)
-    else:
+    if request.method == "POST":
         code = request.json
         print(code)
         if str(code) == str(session['auth_code']):
@@ -185,8 +186,8 @@ def edit_user():
         else:
             return 'Страница не найдена'
 
+
 @app.route('/<string:tag>', methods=['GET'])
-@check_access
 def user_profile(tag):
     if request.method == "GET":
         user = User.query.filter_by(tag=tag).first()
@@ -224,7 +225,10 @@ def user_profile(tag):
         for friend in friends:
             if friend.tag == tag:
                 isFriend = 1
-        return render_template('user.html', user=user, _self=_self, notification_count=notification_count, birthday_correct=birthday_correct, isFriend=isFriend)
+
+        me = User.query.filter_by(id=request.cookies.get('account')).first()
+        self_avatar_path = me.avatar_path
+        return render_template('user.html', user=user, _self=_self, notification_count=notification_count, birthday_correct=birthday_correct, isFriend=isFriend, self_avatar_path=self_avatar_path, me=me)
 
 
 @socketio.on('edit_profile_save')

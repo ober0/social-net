@@ -5,14 +5,14 @@ function go_edit_prifile() {
 function go_message() {
     window.location.href = '/messanger'
 }
+document.getElementById('goFriend', function () {
+    window.location.href = '/friends?user=' + this.getAttribute('my_tag')
+})
 
-function goFriends(user_id){
-    window.location.href = '/friends?user=' + user_id
-}
-function goSubs(user_id){
-    console.log('/subscribe?user=' + user_id)
-    window.location.href = '/subscribe?user=' + user_id
-}
+document.getElementById('goSubs', function () {
+    window.location.href = '/subscribe?user=' + this.getAttribute('my_tag')
+})
+
 
 function addFriend(user_id){
     return 0

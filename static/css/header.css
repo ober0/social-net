@@ -11,8 +11,8 @@
 }
 .notifications{
     margin-top: 23px;
-    position: absolute;
-    margin-left: 6%;
+    position: relative;
+    margin-left: 55%;
     width: fit-content;
 
 }

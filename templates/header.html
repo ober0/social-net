@@ -34,8 +34,9 @@
             <div class="col-sm-6">
                 <div class="user1">
                     <div style="width: fit-content; cursor: pointer">
-                        {% if user.avatar_path %}
-                            <img style="width: 40px; height: 40px; border-radius: 50%" src="{{ url_for('static', filename='avatars/users/' + user.avatar_path) }}" alt="User Avatar">
+                        {% if self_avatar_path %}
+
+                            <img style="width: 40px; height: 40px; border-radius: 50%" src="{{ url_for('static', filename='avatars/users/' + self_avatar_path) }}" alt="User Avatar">
                         {% else %}
                             <img style="width: 40px; height: 40px; border-radius: 50%" src="{{ url_for('static', filename='avatars/default.png') }}" alt="User Avatar">
                         {% endif %}
