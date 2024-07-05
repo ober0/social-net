@@ -23,15 +23,16 @@ function remFriend(user_id){
 }
 
 function about(){
-    document.getElementById('body').style.opacity = 0.3;
+    document.getElementById('body').style.opacity = 0.2;
     document.getElementById('about').style.opacity = 1;
     document.getElementById('about').classList.remove('hide')
-
 }
 
 function hideAbout() {
     document.getElementById('body').style.opacity = 1;
     document.getElementById('about').classList.add('hide')
 }
+
+
 
 

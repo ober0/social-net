@@ -1,0 +1,83 @@
+.sec-1-menu-container{
+    display: flex;
+    align-items: center;
+}
+
+.profile-section-1{
+    width: 80%;
+    height: fit-content;
+    padding: 15px;
+    background-color: #222222;
+    border: 1px solid #333;
+    border-radius: 10px;
+
+}
+
+.photo-btnn {
+    padding: 15px;
+}
+
+.music-btn, .video-btn{
+    margin-left: 15px;
+}
+
+.sec1-menu-btn{
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    width: fit-content;
+    font-size: 15px;
+    color:#a6a6a6;
+    transition: background-color 0.3s;
+}
+.sec1-menu-btn:hover{
+    background-color: #3e3e3e;
+}
+
+.sec-1-menu-btn-text{
+    padding-left: 8px;
+    position: relative;
+    top: 1px;
+}
+
+.btn-active{
+    border: 1px solid #333;
+    background-color: #2c2c2c;
+}
+
+.sec1-content-hide{
+    display: none;
+}
+
+.sec-1-content-photo-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+}
+.sec-1-content-photo-element {
+    padding: 5px;
+    box-sizing: border-box;
+}
+.user-section1-button{
+     border-radius: 10px;
+     background-color: #676767;
+     font-size: 14px;
+     border: none;
+     padding-left: 10px;
+     padding-right: 10px;
+     padding-top: 5px;
+     padding-bottom: 5px;
+     transition: background-color 0.2s;
+
+
+}
+
+
+.user-section1-button:hover{
+     background-color: #535353;
+}

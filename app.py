@@ -52,7 +52,8 @@ def check_access(f):
 @check_access
 def index():
     me = User.query.filter_by(id=request.cookies.get('account')).first()
-    return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name, me=me)
+    self_avatar_path = me.avatar_path
+    return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name, me=me, self_avatar_path=self_avatar_path)
 
 
 @app.route('/auth', methods=['POST'])
