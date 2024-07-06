@@ -167,6 +167,7 @@ document.getElementById('cancel-load-photo').addEventListener('click', cancelLoa
 socketio.on('newPhoto_all_result', (data) => {
     if (data.success){
         cancelLoad()
+        location.reload()
     }
     else {
         cancelLoad()

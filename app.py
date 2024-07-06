@@ -246,6 +246,13 @@ def user_profile(tag):
 
         me = User.query.filter_by(id=request.cookies.get('account')).first()
         self_avatar_path = me.avatar_path
+
+        sec1_all_photos = Photos.query.filter_by(user_id=request.cookies.get('account')).order_by(Photos.id.desc()).all()
+
+        if len(sec1_all_photos) > 8:
+            sec1_photos = [sec1_all_photos[i] for i in range(8)]
+        else:
+            sec1_photos = [sec1_all_photos[i] for i in range(len(sec1_all_photos))]
         return render_template('user.html',
                                user=user,
                                _self=_self,
@@ -257,16 +264,7 @@ def user_profile(tag):
                                me=me,
                                friend_request_from_user=friend_request_from_user,
                                friend_request=friend_request,
-                               sec1_photos=[
-                               {'id': 1, 'path_name': '1.png'},
-                               {'id': 2, 'path_name': '2.png'},
-                               {'id': 3, 'path_name': '3.png'},
-                               {'id': 4, 'path_name': '4.png'},
-                                   {'id': 1, 'path_name': '1.png'},
-                                   {'id': 2, 'path_name': '2.png'},
-                                   {'id': 3, 'path_name': '3.png'},
-                                   {'id': 4, 'path_name': '4.png'},
-                               ],
+                               sec1_photos=sec1_photos,
                                sec1_music=[
                                    {'id': 1, 'path_name': '1.png', 'name': 'Песня 1', 'autor': 'Исполнитель 1'},
                                    {'id': 2, 'path_name': '2.png', 'name': 'Песня 2', 'autor': 'Исполнитель 2'},
