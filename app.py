@@ -1,21 +1,27 @@
 import os
 from functools import wraps
 import secrets
-from flask import Flask, session, redirect, render_template, request, jsonify, make_response
+from flask import Flask, session, redirect, render_template, request, jsonify, make_response, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends  # Предполагается, что у вас есть модуль models с описанием базы данных
-from config import app
+from models import db, User, Friends, FriendRequest, Notification
+from config import app, user_sids
 import random
 import datetime
 import imghdr
 
-# Инициализация приложения, базы данных и Socket.IO
+
 db.init_app(app)
 socketio = SocketIO(app)
 mail = Mail(app)
+
+
+def check_notification(user_id):
+    notification = Notification.query.filter_by(user_id=user_id).all()
+    print(len(notification))
+    return notification, len(notification)
 
 
 def check_access(f):
@@ -48,12 +54,15 @@ def check_access(f):
     return decorated_function
 
 
+
+
 @app.route('/')
 @check_access
 def index():
     me = User.query.filter_by(id=request.cookies.get('account')).first()
     self_avatar_path = me.avatar_path
-    return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name, me=me, self_avatar_path=self_avatar_path)
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+    return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name, me=me, self_avatar_path=self_avatar_path, notifications=notifications, notification_count=notifications_count)
 
 
 @app.route('/auth', methods=['POST'])
@@ -155,9 +164,9 @@ def confirm_email():
 @app.route('/exit')
 @check_access
 def exit():
+
     session['auth'] = False
     session['account'] = ''
-
     resp = make_response(redirect('/'))
     resp.set_cookie('account', '')
     resp.set_cookie('auth', 'False')
@@ -194,7 +203,8 @@ def user_profile(tag):
         user = User.query.filter_by(tag=tag).first()
         print(user)
         self_user_tag = User.query.filter_by(id=request.cookies.get('account')).first().tag
-        notification_count = 1
+
+        notifications, notifications_count = check_notification(request.cookies.get('account'))
 
         month_data = {
             '1': 'января',
@@ -224,19 +234,25 @@ def user_profile(tag):
         friends = Friends.query.filter_by(user_id=request.cookies.get('account')).all()
         isFriend = 0
         for friend in friends:
-            if friend.tag == tag:
+            if friend.friend_id == user.id:
                 isFriend = 1
+
+        friend_request_from_user = 1 if FriendRequest.query.filter_by(user_id=request.cookies.get('account')).filter_by(friend_id=user.id).first() else 0
+        friend_request = 1 if FriendRequest.query.filter_by(user_id=user.id).filter_by(friend_id=request.cookies.get('account')).first() else 0
 
         me = User.query.filter_by(id=request.cookies.get('account')).first()
         self_avatar_path = me.avatar_path
         return render_template('user.html',
                                user=user,
                                _self=_self,
-                               notification_count=notification_count,
+                               notifications=notifications,
+                               notification_count=notifications_count,
                                birthday_correct=birthday_correct,
                                isFriend=isFriend,
                                self_avatar_path=self_avatar_path,
                                me=me,
+                               friend_request_from_user=friend_request_from_user,
+                               friend_request=friend_request,
                                sec1_photos=[
                                {'id': 1, 'path_name': '1.png'},
                                {'id': 2, 'path_name': '2.png'},
@@ -264,6 +280,10 @@ def user_profile(tag):
                                    {'id': 1, 'path_name': '1.mkv'},
                                ],
         )
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @socketio.on('edit_profile_save')
@@ -328,6 +348,95 @@ def edit_profile_save(data):
             'error': error_message
         }
         socketio.emit('edit_profile_save_result', data)
+
+
+@socketio.on('addFriend_request')
+def add_friend(data):
+    user_id = request.cookies.get('account')
+    friend_id = data['friend_id']
+    friend = User.query.filter_by(id=friend_id).first()
+    try:
+
+        friend_requests = FriendRequest(user_id=user_id, friend_id=friend_id, user_access='yes')
+        db.session.add(friend_requests)
+        db.session.commit()
+
+        newNotification = Notification(type='newFriendRequest', user_id=friend_id, text=f'Новое предложение дружбы от {friend.name} {friend.second_name}', href=f'/{friend.tag}')
+        db.session.add(newNotification)
+        db.session.commit()
+        socketio.emit('addFriend_request_result', {'success': True})
+
+    except Exception as e:
+        db.session.rollback()
+        socketio.emit('addFriend_request_result', {'success': False, 'error': str(e)} )
+
+@socketio.on('removeFriend')
+def add_friend(data):
+    user_id = request.cookies.get('account')
+    friend_id = data['friend_id']
+
+    try:
+        friend1 = Friends.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
+        friend2 = Friends.query.filter_by(user_id=friend_id).filter_by(friend_id=user_id).first()
+
+        db.session.delete(friend1)
+        db.session.delete(friend2)
+        db.session.commit()
+        socketio.emit('removeFriend_result', {'success': True})
+    except Exception as e:
+        db.session.rollback()
+        socketio.emit('removeFriend_result', {'success': False, 'error': str(e)})
+
+
+@socketio.on('removeFriend_request')
+def remove_friend_request(data):
+    user_id = data['user_id']
+    friend_id = data['friend_id']
+
+    request = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
+    try:
+        db.session.delete(request)
+        db.session.commit()
+        socketio.emit('removeFriend_request_result', {'success': True})
+    except Exception as e:
+        db.session.rollback()
+        socketio.emit('removeFriend_request_result', {'success': False, 'error': str(e)})
+
+
+
+@socketio.on('addFriend')
+def add_friend(data):
+    friend_id = data['friend_id']
+    user_id = data['user_id']
+
+    request = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
+    request.friend_access = 'yes'
+    db.session.commit()
+
+    if request.friend_access == 'yes' and request.user_access == 'yes':
+        db.session.delete(request)
+        db.session.commit()
+
+        try:
+            new_friend1 = Friends(user_id=user_id, friend_id=friend_id)
+            new_friend2 = Friends(user_id=friend_id, friend_id=user_id)
+
+            db.session.add(new_friend1)
+            db.session.add(new_friend2)
+            db.session.commit()
+            socketio.emit('addFriend_result', {'success': True})
+        except Exception as e:
+            db.session.rollback()
+            socketio.emit('addFriend_result', {'success': False, 'error': str(e)})
+
+@socketio.on('join_main_room')
+def join_room_handle(data):
+    account = request.cookies.get('account')
+    join_room(account)
+
+@socketio.on('disconnect')
+def disconnect():
+    leave_room(request.cookies.get('account'))
 
 
 if __name__ == '__main__':

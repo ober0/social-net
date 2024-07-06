@@ -14,3 +14,5 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = mail_username
 app.config['MAIL_PASSWORD'] = mail_password
 app.config['MAIL_DEFAULT_SENDER'] = mail_default_sender
+
+user_sids = {}
