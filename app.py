@@ -247,7 +247,7 @@ def user_profile(tag):
         me = User.query.filter_by(id=request.cookies.get('account')).first()
         self_avatar_path = me.avatar_path
 
-        sec1_all_photos = Photos.query.filter_by(user_id=request.cookies.get('account')).order_by(Photos.id.desc()).all()
+        sec1_all_photos = Photos.query.filter_by(user_id=user.id).order_by(Photos.id.desc()).all()
 
         if len(sec1_all_photos) > 8:
             sec1_photos = [sec1_all_photos[i] for i in range(8)]
