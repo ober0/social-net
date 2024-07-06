@@ -1,3 +1,4 @@
+import base64
 import os
 from functools import wraps
 import secrets
@@ -6,8 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification
-from config import app, user_sids
+from models import db, User, Friends, FriendRequest, Notification, Photos
+from config import app
 import random
 import datetime
 import imghdr
@@ -195,6 +196,9 @@ def edit_user():
             return render_template('edit_user.html', user=user)
         else:
             return 'Страница не найдена'
+
+
+
 
 
 @app.route('/<string:tag>', methods=['GET'])
@@ -428,6 +432,57 @@ def add_friend(data):
         except Exception as e:
             db.session.rollback()
             socketio.emit('addFriend_result', {'success': False, 'error': str(e)})
+
+
+
+
+@socketio.on('newPhoto')
+def new_photo(data):
+    user_id = request.cookies.get('account')
+    file = data['file']
+    filename = data['filename']
+    print(1)
+    if file:
+        socketio.emit('newPhoto_result', {'success': True})
+        # try:
+        #     with open(f'static/users/photos/user{user_id}uniq{secrets.token_hex(8)}-{filename}', 'wb') as f:
+        #         f.write(file)
+        #     new_photo = Photos(user_id=user_id, name=filename, path_name=f'user{user_id}-{filename}')
+        #     db.session.add(new_photo)
+        #     db.session.commit()
+        #     socketio.emit('newPhoto_result', {'success': True})
+        # except Exception as e:
+        #     db.session.rollback()
+        #     socketio.emit('newPhoto_result', {'success': False, 'error': str(e)})
+    else:
+        socketio.emit('newPhoto_result', {'success': False, 'error': 'Файл не найден'})
+
+
+
+@socketio.on('newPhotos_all')
+def new_photos_res(data):
+    files = data['files']
+    filenames = data['filenames']
+    user_id = request.cookies.get('account')
+    try:
+        for i in range(len(files)):
+            file = files[i]
+            _, encoded_data = file.split(',', 1)
+            image_data = base64.b64decode(encoded_data)
+            try:
+                name = f'user{user_id}uniq{secrets.token_hex(8)}-{filenames[i]}'
+                with open(f'static/users/photos/{name}','wb') as f:
+                    f.write(image_data)
+                new_photo = Photos(user_id=user_id, name=filenames[i], path_name=f'{name}')
+                db.session.add(new_photo)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                socketio.emit('newPhoto_all_result', {'success': False, 'error': str(e)})
+                return False
+        socketio.emit('newPhoto_all_result', {'success': True})
+    except Exception as e:
+        socketio.emit('newPhoto_all_result', {'success': False, 'error': str(e)})
 
 @socketio.on('join_main_room')
 def join_room_handle(data):

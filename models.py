@@ -47,3 +47,10 @@ class Notification(db.Model):
     type = db.Column(db.String(80), nullable=True)
     text = db.Column(db.Text, nullable=True)
     href = db.Column(db.String(80), nullable=True)
+
+
+class Photos(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(80), nullable=True)
+    path_name = db.Column(db.String(80), nullable=True)

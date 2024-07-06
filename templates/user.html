@@ -168,6 +168,7 @@
                                     <div style="position: relative;left: 50%;transform: translate(-50%);display: flex; gap:10px; margin-top: 15px">
                                         {% if _self == 1 %}
                                         <input onclick="newPhoto()" style="width: 50%;" type="button" value="Новое фото" class="user-section1-button">
+                                        <input type="file" style="display: none" id="newPhoto-input" accept="image/.jpg, image/.png">
                                         <input tag="{{user.tag}}" id="open-all-photo" style="width: 50%" type="button" value="Показать всё" class="user-section1-button">
                                         {% else %}
                                         <input tag="{{user.tag}}" id="open-all-photo" style="width: 100%;" type="button" value="Показать всё" class="user-section1-button">
@@ -178,6 +179,8 @@
                                     <p style="color: #a6a6a6;">У пользователя еще нет фотографий</p>
                                     {% endif %}
                                 </div>
+
+
 
 
                                 <div id="sec-1-content-music" class="sec1-content-hide">
@@ -381,6 +384,29 @@
 
 
         </div>
+    </div>
+    <div class="hide" id="new-photo-menu">
+        <div style="margin: 15px">Загрузка фото</div>
+        <hr>
+        <div style="margin: 10px">
+            <div id="filesCounter" style="padding: 8px; color: #999999">1 Фото</div>
+            <div id="photo-container">
+
+            </div>
+            <input type="file" style="display: none" id="add_new_photo-input">
+
+            <hr>
+            <div style="display: flex">
+                <p id="add-new-photo" class="new-photo-add-photo-text">Добавить фото</p>
+                <div class="new-photo-buttons">
+                    <input id="cancel-load-photo" class="new-photo-button-cancel user-section1-button" type="button" value="Отмена">
+                    <input id="go-load-photo" class="new-photo-button-save user-section1-button" type="button" value="Сохранить">
+                </div>
+            </div>
+
+        </div>
+
+
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='js/socket-connection.js') }}"></script>
