@@ -37,7 +37,17 @@ video_btn.addEventListener('click', function () {
 document.getElementById('open-all-photo').addEventListener('click', function () {
     window.location.href = '/photos?user=' + this.getAttribute('tag')
 })
+document.getElementById('open-all-music').addEventListener('click', function () {
+    window.location.href = '/music?user=' + this.getAttribute('tag')
+})
+document.getElementById('open-all-video').addEventListener('click', function () {
+    window.location.href = '/video?user=' + this.getAttribute('tag')
+})
 
 function newPhoto() {
     window.location.href = '/photos/add'
+}
+
+function newVideo() {
+    window.location.href = '/video/add'
 }

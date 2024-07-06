@@ -144,7 +144,7 @@
                                     <div class="sec-1-content-photo-container">
                                         {% for photo in sec1_photos %}
                                             <div class="sec-1-content-photo-element">
-                                                <img style="cursor: pointer" onclick="openFullPhoto(photo.id)" width="195px" src="{{ url_for('static', filename='users/photos/' + photo.path_name) }}" alt="">
+                                                <img style="cursor: pointer; border-radius: 10px; max-width: 100%; max-height: 100%;object-fit: cover;"  width="192px" height="192px" src="{{ url_for('static', filename='users/photos/' + photo.path_name) }}" alt="">
                                             </div>
                                         {% endfor %}
 
@@ -162,13 +162,60 @@
                                     {% else %}
                                     <p style="color: #a6a6a6;">У пользователя еще нет фотографий</p>
                                     {% endif %}
+                                </div>
 
-                                </div>
+
                                 <div id="sec-1-content-music" class="sec1-content-hide">
-                                    2
+                                    {% if sec1_music %}
+                                        <div class="sec-1-music-container">
+                                            {% for music in sec1_music %}
+                                            <div onclick="OpenMusic(music.id)" class="sec-1-music-element row">
+                                                <div class="music-photo col-sm-4">
+                                                    <img style="border-radius: 10px; max-width: 100%; max-height: 100%; object-fit: cover;" width="60px" height="60px" src="{{ url_for('static', filename='music_prev/' + music.path_name) }}" alt="">
+                                                </div>
+                                                <div class="music-text col-sm-8">
+                                                    <div class="music-text-name">
+                                                        {{music.name}}
+                                                    </div>
+                                                    <div style="font-size: 14px" class="music-text-autor">
+                                                        <b>{{music.autor}}</b>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+
+                                        </div>
+                                        <input  tag="{{user.tag}}" id="open-all-music" style="width: 100%; margin-top: 10px" type="button" value="Показать всё" class="user-section1-button">
+                                    {% else %}
+                                    <p style="color: #a6a6a6;">У пользователя еще нет музыки</p>
+                                    {% endif %}
                                 </div>
+
+
                                 <div id="sec-1-content-video" class="sec1-content-hide">
-                                    3
+                                    {% if sec1_video %}
+                                    <div class="sec-1-content-video-container">
+                                        {% for video in sec1_video %}
+                                            <div class="sec-1-content-photo-element">
+                                                <video style="cursor: pointer; border-radius: 10px; max-width: 100%; max-height: 100%;object-fit: cover;"  width="250px" height="250px" src="{{ url_for('static', filename='users/videos/' + video.path_name) }}"></video>
+                                                <p style="max-width:230px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{video.name}}weeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee</p>
+                                            </div>
+                                        {% endfor %}
+
+                                    </div>
+
+                                    <div style="position: relative;left: 50%;transform: translate(-50%);display: flex; gap:10px; margin-top: 15px">
+                                        {% if _self == 1 %}
+                                        <input onclick="newVideo()" style="width: 50%;" type="button" value="Новое видео" class="user-section1-button">
+                                        <input tag="{{user.tag}}" id="open-all-video" style="width: 50%" type="button" value="Показать всё" class="user-section1-button">
+                                        {% else %}
+                                        <input tag="{{user.tag}}" id="open-all-video" style="width: 100%;" type="button" value="Показать всё" class="user-section1-button">
+                                        {% endif %}
+                                    </div>
+
+                                    {% else %}
+                                    <p style="color: #a6a6a6;">У пользователя еще нет видеозаписей</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

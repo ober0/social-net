@@ -81,3 +81,47 @@
 .user-section1-button:hover{
      background-color: #535353;
 }
+
+.sec-1-content{
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.sec-1-music-container{
+    margin: 5px;
+    display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 12px;
+}
+
+.sec-1-music-element{
+    padding: 5px;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 10px;
+}
+.sec-1-music-element:hover{
+    background-color: #3e3e3e;
+}
+.music-text-name, .music-text-autor{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.music-text{
+    align-content: center;
+    align-items: center;
+    position: relative;
+    right: 12px;
+}
+
+.sec-1-content-video-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+}

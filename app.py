@@ -67,8 +67,8 @@ def auth():
                     resp = make_response(jsonify({
                         'result': True
                     }), 200)
-                    resp.set_cookie('account', str(session['account']))
-                    resp.set_cookie('auth', str(session['auth']))
+                    resp.set_cookie('account', str(session['account']), max_age=60*60*24*14)
+                    resp.set_cookie('auth', str(session['auth']), max_age=60*60*24*14)
                     return resp
         return jsonify({
             'result': False
@@ -140,8 +140,8 @@ def confirm_email():
                 resp = make_response(jsonify({
                     'res': True
                 }), 200)
-                resp.set_cookie('account', str(session['account']))
-                resp.set_cookie('auth', str(session['auth']))
+                resp.set_cookie('account', str(session['account']), max_age=60*60*24*14)
+                resp.set_cookie('auth', str(session['auth']), max_age=60*60*24*14)
                 return resp
 
             except Exception as e:
@@ -229,7 +229,41 @@ def user_profile(tag):
 
         me = User.query.filter_by(id=request.cookies.get('account')).first()
         self_avatar_path = me.avatar_path
-        return render_template('user.html', user=user, _self=_self, notification_count=notification_count, birthday_correct=birthday_correct, isFriend=isFriend, self_avatar_path=self_avatar_path, me=me)
+        return render_template('user.html',
+                               user=user,
+                               _self=_self,
+                               notification_count=notification_count,
+                               birthday_correct=birthday_correct,
+                               isFriend=isFriend,
+                               self_avatar_path=self_avatar_path,
+                               me=me,
+                               sec1_photos=[
+                               {'id': 1, 'path_name': '1.png'},
+                               {'id': 2, 'path_name': '2.png'},
+                               {'id': 3, 'path_name': '3.png'},
+                               {'id': 4, 'path_name': '4.png'},
+                                   {'id': 1, 'path_name': '1.png'},
+                                   {'id': 2, 'path_name': '2.png'},
+                                   {'id': 3, 'path_name': '3.png'},
+                                   {'id': 4, 'path_name': '4.png'},
+                               ],
+                               sec1_music=[
+                                   {'id': 1, 'path_name': '1.png', 'name': 'Песня 1', 'autor': 'Исполнитель 1'},
+                                   {'id': 2, 'path_name': '2.png', 'name': 'Песня 2', 'autor': 'Исполнитель 2'},
+                                   {'id': 3, 'path_name': '3.png', 'name': 'Песня 3', 'autor': 'Исполнитель 3'},
+                                   {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'},
+                                   {'id': 1, 'path_name': '1.png', 'name': 'Песня 1', 'autor': 'Исполнитель 1'},
+                                   {'id': 2, 'path_name': '2.png', 'name': 'Песня 2', 'autor': 'Исполнитель 2'},
+                                   {'id': 3, 'path_name': '3.png', 'name': 'Песня 3', 'autor': 'Исполнитель 3'},
+                                   {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'},
+                                   {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'}
+                               ],
+                               sec1_video=[
+                                   {'id': 1, 'path_name': '1.mkv'},
+                                   {'id': 1, 'path_name': '1.mkv'},
+                                   {'id': 1, 'path_name': '1.mkv'},
+                               ],
+        )
 
 
 @socketio.on('edit_profile_save')
