@@ -8,7 +8,7 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Friends, FriendRequest, Notification, Photos
-from config import app
+from config import app, action_access
 import random
 import datetime
 import imghdr
@@ -24,6 +24,33 @@ def check_notification(user_id):
     print(len(notification))
     return notification, len(notification)
 
+
+
+def check_status(action):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            try:
+                status = User.query.filter_by(id=request.cookies.get('account')).first().status
+                status_need = action_access[action]
+
+                if status and status_need:
+                    if status_need <= status:
+                        pass
+                    else:
+                        print(1)
+                        return redirect('/')
+                else:
+                    print(2)
+                    return redirect('/')
+
+                return f(*args, **kwargs)
+            except Exception as e:
+                print(e)
+                return redirect('/')
+
+        return decorated_function
+    return decorator
 
 def check_access(f):
     @wraps(f)
@@ -54,6 +81,12 @@ def check_access(f):
 
     return decorated_function
 
+
+
+@app.route('/admin/change_status')
+@check_status('change_status')
+def change_status():
+    return render_template('change_status.html')
 
 
 
@@ -442,16 +475,6 @@ def new_photo(data):
     print(1)
     if file:
         socketio.emit('newPhoto_result', {'success': True})
-        # try:
-        #     with open(f'static/users/photos/user{user_id}uniq{secrets.token_hex(8)}-{filename}', 'wb') as f:
-        #         f.write(file)
-        #     new_photo = Photos(user_id=user_id, name=filename, path_name=f'user{user_id}-{filename}')
-        #     db.session.add(new_photo)
-        #     db.session.commit()
-        #     socketio.emit('newPhoto_result', {'success': True})
-        # except Exception as e:
-        #     db.session.rollback()
-        #     socketio.emit('newPhoto_result', {'success': False, 'error': str(e)})
     else:
         socketio.emit('newPhoto_result', {'success': False, 'error': 'Файл не найден'})
 
@@ -504,7 +527,26 @@ def delete_photo(data):
         socketio.emit('deletePhoto_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
 
 
+@socketio.on('find_user_tag')
+def find_user_tag(data):
+    tag = data['tag']
+    user = User.query.filter_by(tag=tag).first()
+    if user:
+        socketio.emit('find_user_tag_result', {'success': True, 'user_name':f'{user.name} {user.second_name}', 'user_email': user.email, 'user_tag': tag, 'user_status': str(user.status)})
+    else:
+        socketio.emit('find_user_tag_result', {'success': False})
 
+@socketio.on('updateStatus')
+def update_status(data):
+    tag = data['tag']
+    status = int(data['status'])
+    user = User.query.filter_by(tag=tag).first()
+    if user:
+        user.status = status
+        db.session.commit()
+        socketio.emit('updateStatus_result', {'success': True})
+    else:
+        socketio.emit('updateStatus_result', {'success': False})
 
 @socketio.on('join_main_room')
 def join_room_handle(data):

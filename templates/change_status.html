@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin panel - change status</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body{
+            background-color: #1e1e1e !important;
+        }
+
+        .hide{
+            display: block;
+        }
+
+        .content{
+            margin-top: 100px;
+            text-align: center;
+            background-color: #2e2e2e;
+            padding: 12px;
+            width: fit-content;
+            position: relative;
+            left:50%;
+            transform: translate(-50%);
+            border: 1px solid #3e3e3e;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <div style="text-align: center; margin-top: 20px">
+        <div>
+            <h1>Поиск пользователя</h1>
+        </div>
+        <div>
+            <input style="width: 20%" type="text" placeholder="Введите тег" id="find-input">
+            <input onclick="find_user()" style="width: 5%; position: relative" type="button" value="Найти">
+        </div>
+        <div>
+            <p id="error" style="color: red"></p>
+        </div>
+    </div>
+
+    <div id="content" class="content hide">
+        <div style="width: 500px">
+            <h3 id="name"></h3>
+            <h4 id="mail"></h4>
+            <div style="display: flex; width: fit-content; position: relative; left: 50%; transform: translate(-50%)">
+                <h4>@</h4>
+                <h4 id="tag"></h4>
+            </div>
+
+            <br>
+            <label for="options">Статус:</label>
+            <select id="options" name="options">
+                <option value="0">Пользователь</option>
+                <option value="1">Модератор</option>
+                <option value="2">Администратор</option>
+                <option value="3">Руководство</option>
+            </select>
+
+            <input style="margin-top: 10px" onclick="save()" type="button" value="Сохранить">
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
+    <script>
+        const socket = io()
+        function find_user() {
+            let tag = document.getElementById('find-input').value
+            console.log(tag)
+            document.getElementById('error').innerText = ''
+
+            socket.emit('find_user_tag', {tag:tag})
+        }
+        
+        function save() {
+            let tag = document.getElementById('tag').innerText
+            let status = document.getElementById('options').value
+            socket.emit('updateStatus', {tag:tag, status:status})
+        }
+
+        socket.on('find_user_tag_result', (data) => {
+            if (data.success){
+                document.getElementById('content').classList.remove('hide')
+                document.getElementById('name').innerText = data.user_name
+                document.getElementById('mail').innerText = data.user_email
+                document.getElementById('tag').innerText = data.user_tag
+                document.getElementById('options').value = data.user_status
+            }
+            else {
+                document.getElementById('find-input').value = ''
+                document.getElementById('error').innerText = 'Пользователь не найден'
+            }
+        })
+
+        socket.on('updateStatus_result', (data) => {
+            if (data.success){
+                alert('Успешно')
+            }
+            else {
+                alert('Ошибка редактирования')
+            }
+        })
+
+
+    </script>
+</body>
+</html>
