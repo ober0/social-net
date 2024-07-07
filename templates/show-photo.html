@@ -1,0 +1,13 @@
+{% block show_photo %}
+<div class="hide" id="open-photo">
+    <img id="open-photo-img">
+    <div style="background-color: #2c2c2c;  border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; display: flex" >
+        <div style="width: 60%">
+            <p id="photo_name"></p>
+        </div>
+        {% if _self %}
+            <p photo-id="" id="delete-photo">Удалить</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

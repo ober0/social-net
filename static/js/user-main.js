@@ -17,39 +17,54 @@ document.getElementById('goSubs').addEventListener('click', function () {
     window.location.href = '/subscribe?user=' + this.getAttribute('my_tag');
 });
 
-document.getElementById('btn-add-friend').addEventListener('click', function () {
-    socketio.emit('addFriend_request', {
-        friend_id: this.getAttribute('friend_id')
-    });
-})
-
-document.getElementById('btn-remove-friend').addEventListener('click', function () {
-     socketio.emit('removeFriend', {
-        friend_id: this.getAttribute('friend_id')
-    });
-})
-
-document.getElementById('btn-rem-friend-request').addEventListener('click', function () {
-    socketio.emit('removeFriend_request', {
-        user_id: this.getAttribute('user_id'),
-        friend_id: this.getAttribute('friend_id')
+try {
+    document.getElementById('btn-add-friend').addEventListener('click', function () {
+        socketio.emit('addFriend_request', {
+            friend_id: this.getAttribute('friend_id')
+        });
     })
-})
+}catch {}
 
-
-document.getElementById('btn-add-friend-request').addEventListener('click', function () {
-    socketio.emit('addFriend', {
-        user_id: this.getAttribute('user_id'),
-        friend_id: this.getAttribute('friend_id')
+try {
+    document.getElementById('btn-remove-friend').addEventListener('click', function () {
+        socketio.emit('removeFriend', {
+            friend_id: this.getAttribute('friend_id')
+        });
     })
-})
+}catch {}
 
+try {
+    document.getElementById('btn-rem-friend-request').addEventListener('click', function () {
+        socketio.emit('removeFriend_request', {
+            user_id: this.getAttribute('user_id'),
+            friend_id: this.getAttribute('friend_id')
+        })
+    })
+}catch {}
 
-function about() {
-    document.getElementById('body').style.opacity = 0.2;
+try {
+    document.getElementById('btn-add-friend-request').addEventListener('click', function () {
+        socketio.emit('addFriend', {
+            user_id: this.getAttribute('user_id'),
+            friend_id: this.getAttribute('friend_id')
+        })
+    })
+}catch {}
+
+document.getElementById('about-open').addEventListener('click', function (event){
+    event.stopPropagation()
+    document.getElementById('body').style.opacity = 0.1;
     document.getElementById('about').style.opacity = 1;
     document.getElementById('about').classList.remove('hide');
-}
+
+     function handleBodyClick() {
+        hideAbout()
+        document.getElementById('body').removeEventListener('click', handleBodyClick);
+    }
+
+    document.getElementById('body').addEventListener('click', handleBodyClick);
+})
+
 
 function hideAbout() {
     document.getElementById('body').style.opacity = 1;

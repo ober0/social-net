@@ -482,6 +482,28 @@ def new_photos_res(data):
     except Exception as e:
         socketio.emit('newPhoto_all_result', {'success': False, 'error': str(e)})
 
+
+
+@socketio.on('deletePhoto')
+def delete_photo(data):
+    photo_id = data['photo_id']
+
+    photo = Photos.query.filter_by(id=photo_id).first()
+
+    if photo:
+        try:
+            db.session.delete(photo)
+            db.session.commit()
+            socketio.emit('deletePhoto_result', {'success': True})
+        except Exception as e:
+            db.session.rollback()
+            socketio.emit('deletePhoto_result', {'success': False, 'error': str(e)})
+    else:
+        socketio.emit('deletePhoto_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
+
+
+
+
 @socketio.on('join_main_room')
 def join_room_handle(data):
     account = request.cookies.get('account')

@@ -7,6 +7,12 @@ const music_content = document.getElementById('sec-1-content-music')
 const video_content = document.getElementById('sec-1-content-video')
 
 
+function closeWindow(window_id) {
+    document.getElementById('body').style.opacity = 1;
+    document.getElementById(window_id).classList.add('hide');
+}
+
+
 photo_btn.addEventListener('click', function () {
     music_btn.classList.remove('btn-active')
     video_btn.classList.remove('btn-active')
@@ -50,6 +56,10 @@ function newVideo() {
 }
 
 
+function newPhoto() {
+    document.getElementById('newPhoto-input').click()
+}
+
 function cancelLoad() {
     document.getElementById('body').style.opacity = 1;
     document.getElementById('new-photo-menu').classList.add('hide');
@@ -57,36 +67,38 @@ function cancelLoad() {
     filesToRemove.forEach(file => {
         file.remove()
     })
-    document.getElementById('cancel-load-photo').removeEventListener('click', cancelLoad)
+    document.getElementById('filesCounter').innerText = '1 Фото'
 }
 
+try {
 
-function newPhoto() {
-    console.log(1)
-    document.getElementById('newPhoto-input').click()
-}
+    document.getElementById('newPhoto-input').addEventListener('change', function (event) {
+        const file = event.target.files[0];
 
-document.getElementById('newPhoto-input').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-
-    let fileTypesAccess = ['image/png', 'image/jpeg'];
-    if (file) {
-        if (fileTypesAccess.includes(file.type)) {
-            socketio.emit('newPhoto', {
-                file: file,
-                filename: file.name
-            });
-        } else {
-            alert('Недопустимый тип файла. Пожалуйста, выберите файл .png или .jpg')
+        let fileTypesAccess = ['image/png', 'image/jpeg'];
+        if (file) {
+            if (fileTypesAccess.includes(file.type)) {
+                socketio.emit('newPhoto', {
+                    file: file,
+                    filename: file.name
+                });
+            } else {
+                alert('Недопустимый тип файла. Пожалуйста, выберите файл .png или .jpg')
+            }
         }
-    }
-});
-
+    });
+}catch{}
 
 socketio.on('newPhoto_result', (data) => {
     if (data.success){
-        document.getElementById('body').style.opacity = 0.2;
+        document.getElementById('body').style.opacity = 0.1;
         document.getElementById('new-photo-menu').classList.remove('hide');
+        function handleBodyClick() {
+            cancelLoad();
+            document.getElementById('body').removeEventListener('click', handleBodyClick);
+        }
+
+        document.getElementById('body').addEventListener('click', handleBodyClick);
         let file = document.getElementById('newPhoto-input').files[0]
 
         if (file){
@@ -172,5 +184,44 @@ socketio.on('newPhoto_all_result', (data) => {
     else {
         cancelLoad()
         alert('Произошла ошибка загрузки: ' + data.error)
+    }
+})
+
+
+
+
+let photos = document.querySelectorAll('.sec-1-photo')
+photos.forEach(photo => {
+    photo.addEventListener('click', function (event) {
+        event.stopPropagation()
+        document.getElementById('open-photo').classList.remove('hide')
+        document.getElementById('open-photo-img').src = photo.src
+        document.getElementById('photo_name').innerText = photo.getAttribute('filename')
+        document.getElementById('open-photo').style.opacity = 1;
+        document.getElementById('body').style.opacity = 0.1;
+        let photo_id = photo.getAttribute('photo-id')
+
+        document.getElementById('delete-photo').setAttribute('photo-id', photo_id)
+         function handleBodyClick() {
+            closeWindow('open-photo');
+            document.getElementById('body').removeEventListener('click', handleBodyClick);
+        }
+
+        document.getElementById('body').addEventListener('click', handleBodyClick);
+    })
+})
+
+document.getElementById('delete-photo').addEventListener('click', function (){
+    socketio.emit('deletePhoto', {photo_id: this.getAttribute('photo-id')})
+
+})
+
+socketio.on('deletePhoto_result', (data) => {
+    if (data.success){
+        document.getElementById('body').click()
+        location.reload()
+    }
+    else {
+        alert(data.error)
     }
 })
