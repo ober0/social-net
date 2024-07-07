@@ -494,7 +494,9 @@ def delete_photo(data):
         try:
             db.session.delete(photo)
             db.session.commit()
+            os.remove(f'static/users/photos/{photo.path_name}')
             socketio.emit('deletePhoto_result', {'success': True})
+
         except Exception as e:
             db.session.rollback()
             socketio.emit('deletePhoto_result', {'success': False, 'error': str(e)})
