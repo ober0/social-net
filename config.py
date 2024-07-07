@@ -1,6 +1,5 @@
 import secrets
 from flask import Flask
-from flask_mail import Mail, Message
 from smtpData import mail_username, mail_password, mail_default_sender
 
 app = Flask(__name__)

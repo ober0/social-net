@@ -220,7 +220,7 @@
                                     <div class="sec-1-content-video-container">
                                         {% for video in sec1_video %}
                                             <div class="sec-1-content-photo-element">
-                                                <video style="cursor: pointer; border-radius: 10px; max-width: 100%; max-height: 100%;object-fit: cover;"  width="250px" height="250px" src="{{ url_for('static', filename='users/videos/' + video.path_name) }}"></video>
+                                                <video class="sec-1-video" path_name="{{video.path_name}}" name="{{video.name}}" video_id="{{ video.id}}" style="cursor: pointer; border-radius: 10px; max-width: 100%; max-height: 100%;object-fit: cover;"  width="250px" height="250px" src="{{ url_for('static', filename='users/video/' + video.path_name) }}"></video>
                                                 <p style="max-width:230px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{video.name}}</p>
                                             </div>
                                         {% endfor %}
@@ -228,12 +228,7 @@
                                     </div>
 
                                     <div style="position: relative;left: 50%;transform: translate(-50%);display: flex; gap:10px; margin-top: 15px">
-                                        {% if _self == 1 %}
-                                        <input onclick="newVideo()" style="width: 50%;" type="button" value="Новое видео" class="user-section1-button">
-                                        <input tag="{{user.tag}}" id="open-all-video" style="width: 50%" type="button" value="Показать всё" class="user-section1-button">
-                                        {% else %}
-                                        <input tag="{{user.tag}}" id="open-all-video" style="width: 100%;" type="button" value="Показать всё" class="user-section1-button">
-                                        {% endif %}
+                                        <input tag="{{user.tag}}" id="open-all-video" style="width: 100%" type="button" value="Показать всё" class="user-section1-button">
                                     </div>
 
                                     {% else %}
@@ -242,10 +237,6 @@
                                 </div>
                             </div>
                         </div>
-
-
-
-
                     </div>
                 </div>
             </div>
@@ -413,9 +404,13 @@
     </div>
 
 
+
     {% include 'show-photo.html' %}
     {% block show_photo %}
+    {% endblock %}
 
+    {% include 'show-video.html' %}
+    {% block show_video %}
     {% endblock %}
 
 

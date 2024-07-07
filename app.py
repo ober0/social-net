@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification, Photos
+from models import db, User, Friends, FriendRequest, Notification, Photos, Video
 from config import app, action_access
 import random
 import datetime
@@ -286,6 +286,13 @@ def user_profile(tag):
             sec1_photos = [sec1_all_photos[i] for i in range(8)]
         else:
             sec1_photos = [sec1_all_photos[i] for i in range(len(sec1_all_photos))]
+
+        video_all = Video.query.filter_by(user_id=request.cookies.get('account')).all()
+        if len(video_all) > 3:
+            video = [video_all[i] for i in range(3)]
+        else:
+            video = [video_all[i] for i in range(len(video_all))]
+
         return render_template('user.html',
                                user=user,
                                _self=_self,
@@ -309,11 +316,7 @@ def user_profile(tag):
                                    {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'},
                                    {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'}
                                ],
-                               sec1_video=[
-                                   {'id': 1, 'path_name': '1.mkv'},
-                                   {'id': 1, 'path_name': '1.mkv'},
-                                   {'id': 1, 'path_name': '1.mkv'},
-                               ],
+                               sec1_video=video,
         )
 @app.route('/favicon.ico')
 def favicon():
@@ -480,6 +483,7 @@ def new_photo(data):
 
 
 
+
 @socketio.on('newPhotos_all')
 def new_photos_res(data):
     files = data['files']
@@ -527,6 +531,28 @@ def delete_photo(data):
         socketio.emit('deletePhoto_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
 
 
+
+@socketio.on('deleteVideo')
+def delete_video(data):
+    video_id = data['video_id']
+
+    video = Video.query.filter_by(id=video_id).first()
+
+    if video:
+        try:
+            db.session.delete(video)
+            db.session.commit()
+            os.remove(f'static/users/video/{video.path_name}')
+            socketio.emit('deleteVideo_result', {'success': True})
+
+        except Exception as e:
+            db.session.rollback()
+            socketio.emit('deleteVideo_result', {'success': False, 'error': str(e)})
+    else:
+        socketio.emit('deleteVideo_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
+
+
+
 @socketio.on('find_user_tag')
 def find_user_tag(data):
     tag = data['tag']
@@ -547,6 +573,9 @@ def update_status(data):
         socketio.emit('updateStatus_result', {'success': True})
     else:
         socketio.emit('updateStatus_result', {'success': False})
+
+
+
 
 @socketio.on('join_main_room')
 def join_room_handle(data):

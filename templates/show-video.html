@@ -1,7 +1,7 @@
-{% block show_photo %}
+{% block show_video %}
 <style>
 
-#open-photo{
+#open-video{
     width: fit-content;
     padding: 0;
     margin: 0;
@@ -12,13 +12,13 @@
     border-radius: 20px;
 }
 
-#open-photo-img{
+#open-video-img{
      border-top-left-radius: 20px;
      border-top-right-radius: 20px;
 
 }
 
-#delete-photo{
+#delete-video{
     color:#a6a6a6;
     width: fit-content;
     cursor: pointer;
@@ -29,11 +29,11 @@
     transition: color 0.1s;
 }
 
-#delete-photo:hover{
+#delete-video:hover{
     color: whitesmoke;
 }
 
-#photo_name {
+#video_name {
     position: relative;
     padding-top: 10px;
     padding-left: 15px;
@@ -42,17 +42,17 @@
     text-overflow: ellipsis;
 }
 </style>
-
-<div class="hide" id="open-photo">
-    <img id="open-photo-img">
-    <div style="background-color: #2c2c2c;  border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; display: flex" >
+<div class="hide" id="open-video">
+    <video id="opened-video" width="1200px" controls>
+        <source src="" id="open-video-img" type="video/mp4">
+    </video>
+    <div style="background-color: #2c2c2c; margin-top: -7px;  border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; display: flex" >
         <div style="width: 60%">
-            <p id="photo_name"></p>
+            <p id="video_name"></p>
         </div>
         {% if _self %}
-            <p photo-id="" id="delete-photo">Удалить</p>
+            <p video-id="" id="delete-video">Удалить</p>
         {% endif %}
     </div>
 </div>
-
 {% endblock %}
