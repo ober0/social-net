@@ -39,21 +39,23 @@ video_btn.addEventListener('click', function () {
     music_content.classList.add('sec1-content-hide')
     video_content.classList.remove('sec1-content-hide')
 })
+try {
+    document.getElementById('open-all-photo').addEventListener('click', function () {
+        window.location.href = '/photos?user=' + this.getAttribute('tag')
+    })
+}catch {}
+try {
+    document.getElementById('open-all-music').addEventListener('click', function () {
+        window.location.href = '/music?user=' + this.getAttribute('tag')
+    })
+}catch {}
+try {
+    document.getElementById('open-all-video').addEventListener('click', function () {
+        window.location.href = '/video?user=' + this.getAttribute('tag')
+    })
+}catch {}
 
-document.getElementById('open-all-photo').addEventListener('click', function () {
-    window.location.href = '/photos?user=' + this.getAttribute('tag')
-})
-document.getElementById('open-all-music').addEventListener('click', function () {
-    window.location.href = '/music?user=' + this.getAttribute('tag')
-})
-document.getElementById('open-all-video').addEventListener('click', function () {
-    window.location.href = '/video?user=' + this.getAttribute('tag')
-})
 
-
-function newVideo() {
-    window.location.href = '/video/add'
-}
 
 
 function newPhoto() {
@@ -70,24 +72,7 @@ function cancelLoad() {
     document.getElementById('filesCounter').innerText = '1 Фото'
 }
 
-try {
 
-    document.getElementById('newPhoto-input').addEventListener('change', function (event) {
-        const file = event.target.files[0];
-
-        let fileTypesAccess = ['image/png', 'image/jpeg'];
-        if (file) {
-            if (fileTypesAccess.includes(file.type)) {
-                socketio.emit('newPhoto', {
-                    file: file,
-                    filename: file.name
-                });
-            } else {
-                alert('Недопустимый тип файла. Пожалуйста, выберите файл .png или .jpg')
-            }
-        }
-    });
-}catch{}
 
 socketio.on('newPhoto_result', (data) => {
     if (data.success){
@@ -114,7 +99,6 @@ socketio.on('newPhoto_result', (data) => {
                 newImg.setAttribute('filename', file.name)
                 parent.appendChild(newImg)
                 document.getElementById('newPhoto-input').value = ''
-                console.log(2)
             }
             reader.readAsDataURL(file);
         }
@@ -124,6 +108,7 @@ socketio.on('newPhoto_result', (data) => {
         alert(data.error)
     }
 })
+
 
 document.getElementById('add-new-photo').addEventListener('click', function () {
     document.getElementById('add_new_photo-input').click()
@@ -213,7 +198,6 @@ photos.forEach(photo => {
 
 document.getElementById('delete-photo').addEventListener('click', function (){
     socketio.emit('deletePhoto', {photo_id: this.getAttribute('photo-id')})
-
 })
 
 socketio.on('deletePhoto_result', (data) => {
@@ -225,3 +209,72 @@ socketio.on('deletePhoto_result', (data) => {
         alert(data.error)
     }
 })
+
+
+document.getElementById('delete-video').addEventListener('click', function (){
+    socketio.emit('deleteVideo', {video_id: this.getAttribute('video-id')})
+})
+
+socketio.on('deleteVideo_result', (data) => {
+    if (data.success){
+        document.getElementById('body').click()
+        location.reload()
+    }
+    else {
+        alert(data.error)
+    }
+})
+
+
+
+
+let videos = document.querySelectorAll('.sec-1-video')
+console.log(videos.length)
+videos.forEach(video => {
+    video.addEventListener('click', function (event) {
+        event.stopPropagation()
+        document.getElementById('open-video').classList.remove('hide')
+        let url = new URL(video.src)
+
+        document.getElementById('open-video-img').src = url.pathname
+        document.getElementById('opened-video').load()
+        document.getElementById('video_name').innerText = video.getAttribute('name')
+        document.getElementById('open-video').style.opacity = 1;
+        document.getElementById('body').style.opacity = 0.1;
+        let video_id = video.getAttribute('video_id')
+
+        document.getElementById('delete-video').setAttribute('video-id', video_id)
+         function handleBodyClick() {
+            document.getElementById('opened-video').pause();
+            closeWindow('open-video');
+            document.getElementById('body').removeEventListener('click', handleBodyClick);
+        }
+
+        document.getElementById('body').addEventListener('click', handleBodyClick);
+    })
+})
+
+
+
+try {
+
+    document.getElementById('newPhoto-input').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+
+        let fileTypesAccess = ['image/png', 'image/jpeg'];
+        if (file) {
+            if (fileTypesAccess.includes(file.type)) {
+                socketio.emit('newPhoto', {
+                    file: file,
+                    filename: file.name
+                });
+            } else {
+                alert('Недопустимый тип файла. Пожалуйста, выберите файл .png или .jpg')
+            }
+        }
+    });
+}catch{}
+
+
+
+
