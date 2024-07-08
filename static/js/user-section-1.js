@@ -58,6 +58,7 @@ try {
 
 
 
+
 function newPhoto() {
     document.getElementById('newPhoto-input').click()
 }
@@ -78,8 +79,15 @@ socketio.on('newPhoto_result', (data) => {
     if (data.success){
         document.getElementById('body').style.opacity = 0.1;
         document.getElementById('new-photo-menu').classList.remove('hide');
+        function closeWindowPhoto(event){
+            if (event.key == 'Escape'){
+                cancelLoad()
+            }
+        }
+        document.addEventListener('keydown', closeWindowPhoto)
         function handleBodyClick() {
             cancelLoad();
+            document.removeEventListener('keydown', closeWindowPhoto)
             document.getElementById('body').removeEventListener('click', handleBodyClick);
         }
 
@@ -183,6 +191,7 @@ photos.forEach(photo => {
         document.getElementById('open-photo-img').src = photo.src
         document.getElementById('photo_name').innerText = photo.getAttribute('filename')
         document.getElementById('open-photo').style.opacity = 1;
+
         document.getElementById('body').style.opacity = 0.1;
         let photo_id = photo.getAttribute('photo-id')
 
@@ -193,6 +202,13 @@ photos.forEach(photo => {
         }
 
         document.getElementById('body').addEventListener('click', handleBodyClick);
+
+        function closePhoto(event){
+            if (event.key == 'Escape'){
+                handleBodyClick()
+            }
+        }
+        document.addEventListener('keydown', closePhoto)
     })
 })
 
@@ -251,6 +267,13 @@ videos.forEach(video => {
         }
 
         document.getElementById('body').addEventListener('click', handleBodyClick);
+
+        function closeVideo(event){
+            if (event.key == 'Escape'){
+                handleBodyClick()
+            }
+        }
+        document.addEventListener('keydown', closeVideo)
     })
 })
 

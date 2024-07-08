@@ -56,6 +56,7 @@ document.getElementById('about-open').addEventListener('click', function (event)
     document.getElementById('body').style.opacity = 0.1;
     document.getElementById('about').style.opacity = 1;
     document.getElementById('about').classList.remove('hide');
+    document.addEventListener('keydown', hideAboutEsc)
 
      function handleBodyClick() {
         hideAbout()
@@ -69,7 +70,16 @@ document.getElementById('about-open').addEventListener('click', function (event)
 function hideAbout() {
     document.getElementById('body').style.opacity = 1;
     document.getElementById('about').classList.add('hide');
+    document.removeEventListener('keydown', hideAboutEsc)
 }
+
+function hideAboutEsc(event) {
+    if (event.key === 'Escape'){
+        hideAbout()
+    }
+}
+
+
 
 socketio.on('addFriend_request_result', (data) => {
     if (data.success) {
