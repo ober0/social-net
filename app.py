@@ -328,6 +328,7 @@ def favicon():
 
 @socketio.on('edit_profile_save')
 def edit_profile_save(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     try:
         user_id = request.cookies.get('account')
         user = User.query.filter_by(id=user_id, tag=data['tag']).first()
@@ -373,13 +374,13 @@ def edit_profile_save(data):
 
             db.session.commit()
             tag = user.tag
-            socketio.emit('edit_profile_save_result', {'result': True, 'tag':tag})
+            socketio.emit('edit_profile_save_result', {'result': True, 'tag':tag},room=request.cookies.get('account'))
         else:
             data = {
                 'result': False,
                 'error': 'Пользователь не найден: ошибка доступа'
             }
-            socketio.emit('edit_profile_save_result', data)
+            socketio.emit('edit_profile_save_result', data, room=request.cookies.get('account'))
     except Exception as e:
         error_message = str(e)
         print(error_message)
@@ -387,11 +388,12 @@ def edit_profile_save(data):
             'result': False,
             'error': error_message
         }
-        socketio.emit('edit_profile_save_result', data)
+        socketio.emit('edit_profile_save_result', data, room=request.cookies.get('account'))
 
 
 @socketio.on('addFriend_request')
 def add_friend(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     user_id = request.cookies.get('account')
     friend_id = data['friend_id']
     friend = User.query.filter_by(id=friend_id).first()
@@ -404,14 +406,15 @@ def add_friend(data):
         newNotification = Notification(type='newFriendRequest', user_id=friend_id, text=f'Новое предложение дружбы от {friend.name} {friend.second_name}', href=f'/{friend.tag}')
         db.session.add(newNotification)
         db.session.commit()
-        socketio.emit('addFriend_request_result', {'success': True})
+        socketio.emit('addFriend_request_result', {'success': True}, room=request.cookies.get('account'))
 
     except Exception as e:
         db.session.rollback()
-        socketio.emit('addFriend_request_result', {'success': False, 'error': str(e)} )
+        socketio.emit('addFriend_request_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
 @socketio.on('removeFriend')
 def add_friend(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     user_id = request.cookies.get('account')
     friend_id = data['friend_id']
 
@@ -422,39 +425,41 @@ def add_friend(data):
         db.session.delete(friend1)
         db.session.delete(friend2)
         db.session.commit()
-        socketio.emit('removeFriend_result', {'success': True})
+        socketio.emit('removeFriend_result', {'success': True}, room=request.cookies.get('account'))
     except Exception as e:
         db.session.rollback()
-        socketio.emit('removeFriend_result', {'success': False, 'error': str(e)})
+        socketio.emit('removeFriend_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
 
 @socketio.on('removeFriend_request')
 def remove_friend_request(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     user_id = data['user_id']
     friend_id = data['friend_id']
 
-    request = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
+    request1 = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
     try:
-        db.session.delete(request)
+        db.session.delete(request1)
         db.session.commit()
-        socketio.emit('removeFriend_request_result', {'success': True})
+        socketio.emit('removeFriend_request_result', {'success': True}, room=request.cookies.get('account'))
     except Exception as e:
         db.session.rollback()
-        socketio.emit('removeFriend_request_result', {'success': False, 'error': str(e)})
+        socketio.emit('removeFriend_request_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
 
 
 @socketio.on('addFriend')
 def add_friend(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     friend_id = data['friend_id']
     user_id = data['user_id']
 
-    request = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
-    request.friend_access = 'yes'
+    request1 = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
+    request1.friend_access = 'yes'
     db.session.commit()
 
-    if request.friend_access == 'yes' and request.user_access == 'yes':
-        db.session.delete(request)
+    if request1.friend_access == 'yes' and request1.user_access == 'yes':
+        db.session.delete(request1)
         db.session.commit()
 
         try:
@@ -464,30 +469,32 @@ def add_friend(data):
             db.session.add(new_friend1)
             db.session.add(new_friend2)
             db.session.commit()
-            socketio.emit('addFriend_result', {'success': True})
+            socketio.emit('addFriend_result', {'success': True}, room=request.cookies.get('account'))
         except Exception as e:
             db.session.rollback()
-            socketio.emit('addFriend_result', {'success': False, 'error': str(e)})
+            socketio.emit('addFriend_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
 
 
 
 @socketio.on('newPhoto')
 def new_photo(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     user_id = request.cookies.get('account')
     file = data['file']
     filename = data['filename']
     print(1)
     if file:
-        socketio.emit('newPhoto_result', {'success': True})
+        socketio.emit('newPhoto_result', {'success': True}, room=request.cookies.get('account'))
     else:
-        socketio.emit('newPhoto_result', {'success': False, 'error': 'Файл не найден'})
+        socketio.emit('newPhoto_result', {'success': False, 'error': 'Файл не найден'}, room=request.cookies.get('account'))
 
 
 
 
 @socketio.on('newPhotos_all')
 def new_photos_res(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     files = data['files']
     filenames = data['filenames']
     user_id = request.cookies.get('account')
@@ -505,18 +512,18 @@ def new_photos_res(data):
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                socketio.emit('newPhoto_all_result', {'success': False, 'error': str(e)})
+                socketio.emit('newPhoto_all_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
                 return False
-        socketio.emit('newPhoto_all_result', {'success': True})
+        socketio.emit('newPhoto_all_result', {'success': True}, room=request.cookies.get('account'))
     except Exception as e:
-        socketio.emit('newPhoto_all_result', {'success': False, 'error': str(e)})
+        socketio.emit('newPhoto_all_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
 
 
 @socketio.on('deletePhoto')
 def delete_photo(data):
     photo_id = data['photo_id']
-
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     photo = Photos.query.filter_by(id=photo_id).first()
 
     if photo:
@@ -524,18 +531,19 @@ def delete_photo(data):
             db.session.delete(photo)
             db.session.commit()
             os.remove(f'static/users/photos/{photo.path_name}')
-            socketio.emit('deletePhoto_result', {'success': True})
+            socketio.emit('deletePhoto_result', {'success': True}, room=request.cookies.get('account'))
 
         except Exception as e:
             db.session.rollback()
-            socketio.emit('deletePhoto_result', {'success': False, 'error': str(e)})
+            socketio.emit('deletePhoto_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
     else:
-        socketio.emit('deletePhoto_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
+        socketio.emit('deletePhoto_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'}, room=request.cookies.get('account'))
 
 
 
 @socketio.on('deleteVideo')
 def delete_video(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     video_id = data['video_id']
 
     video = Video.query.filter_by(id=video_id).first()
@@ -545,36 +553,38 @@ def delete_video(data):
             db.session.delete(video)
             db.session.commit()
             os.remove(f'static/users/video/{video.path_name}')
-            socketio.emit('deleteVideo_result', {'success': True})
+            socketio.emit('deleteVideo_result', {'success': True}, room=request.cookies.get('account'))
 
         except Exception as e:
             db.session.rollback()
-            socketio.emit('deleteVideo_result', {'success': False, 'error': str(e)})
+            socketio.emit('deleteVideo_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
     else:
-        socketio.emit('deleteVideo_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
+        socketio.emit('deleteVideo_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'}, room=request.cookies.get('account'))
 
 
 
 @socketio.on('find_user_tag')
 def find_user_tag(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     tag = data['tag']
     user = User.query.filter_by(tag=tag).first()
     if user:
-        socketio.emit('find_user_tag_result', {'success': True, 'user_name':f'{user.name} {user.second_name}', 'user_email': user.email, 'user_tag': tag, 'user_status': str(user.status)})
+        socketio.emit('find_user_tag_result', {'success': True, 'user_name':f'{user.name} {user.second_name}', 'user_email': user.email, 'user_tag': tag, 'user_status': str(user.status)}, room=request.cookies.get('account'))
     else:
-        socketio.emit('find_user_tag_result', {'success': False})
+        socketio.emit('find_user_tag_result', {'success': False}, room=request.cookies.get('account'))
 
 @socketio.on('updateStatus')
 def update_status(data):
+    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     tag = data['tag']
     status = int(data['status'])
     user = User.query.filter_by(tag=tag).first()
     if user:
         user.status = status
         db.session.commit()
-        socketio.emit('updateStatus_result', {'success': True})
+        socketio.emit('updateStatus_result', {'success': True}, room=request.cookies.get('account'))
     else:
-        socketio.emit('updateStatus_result', {'success': False})
+        socketio.emit('updateStatus_result', {'success': False}, room=request.cookies.get('account'))
 
 
 @app.route('/search', methods=['POST'])
@@ -629,22 +639,31 @@ def search():
             for user in users_result:
                 if user.avatar_path:
                     user_avatar_paths.append(user.avatar_path)
-                else:
-                    user_avatar_paths.append('none')
+
             user_avatar_paths = [user.avatar_path for user in users_result]
+            user_tags = [user.tag for user in users_result]
 
             group_names = [group.name for group in groups_result]
             group_tags = [group.tag for group in groups_result]
-            group_avatar_paths = [group.avatar_path for group in groups_result]
-            group_subscribers = [group.subscribers for group in groups_result]
 
+            group_avatar_paths = []
+            for group in groups_result:
+                if group.avatar_path:
+                    group_avatar_paths.append(group.avatar_path)
+            group_subscribers = []
+            for group in groups_result:
+                if group.subscribers:
+                    group_subscribers.append(group.subscribers)
+                else:
+                    group_subscribers.append('0')
             search_results = {
                 'success': True,
                 'users': {
                     'names': user_names,
                     'second_names': user_second_names,
                     'city': user_city,
-                    'avatar_paths': user_avatar_paths
+                    'avatar_paths': user_avatar_paths,
+                    'user_tags': user_tags
                 },
                 'groups': {
                     'names': group_names,

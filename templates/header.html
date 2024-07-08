@@ -66,24 +66,27 @@
             <hr>
         </div>
 
-        <b><p style="font-size: 15px; margin-left: 10px">Сообщества</p></b>
-        <div id="group-container">
-            <div class="group">
-                <div style="display: flex">
-                    <div class="group-avatar">
-                        <img id="group-img" class="avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
-                    </div>
-                    <div class="group-description">
-                        <div class="group-name">
-                            <div id="group-name">Сообщество</div>
+        <div id="group-h">
+            <b><p style="font-size: 15px; margin-left: 10px">Сообщества</p></b>
+            <div id="group-container">
+                <div class="group">
+                    <div style="display: flex">
+                        <div class="group-avatar">
+                            <img id="group-img" class="avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
                         </div>
-                        <div class="group-subscribers">
-                            <div id="group-subscribers">10 Подписчиков</div>
+                        <div class="group-description">
+                            <div class="group-name">
+                                <div id="group-name">Сообщество</div>
+                            </div>
+                            <div class="group-subscribers">
+                                <div id="group-subscribers">10 Подписчиков</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
 
     </div>
 </div>

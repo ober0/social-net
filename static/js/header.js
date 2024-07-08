@@ -1,8 +1,9 @@
-function createUser(avatar, name, second_name, city) {
-
-
+function createUser(avatar, name, second_name, city, tag) {
     const peopleDiv = document.createElement('div')
     peopleDiv.className = 'people'
+    peopleDiv.addEventListener('click', function (){
+        window.location.href = '/' + tag
+    })
 
     const flexDiv = document.createElement('div')
     flexDiv.style.display = 'flex'
@@ -47,7 +48,55 @@ function createUser(avatar, name, second_name, city) {
     document.getElementById('people-container').appendChild(peopleDiv)
 }
 
+function createGroup(avatar, name, subscribers, tag){
+    const groupDiv = document.createElement('div')
+    groupDiv.className = 'group'
+    groupDiv.addEventListener('click', function (){
+        window.location.href = '/community/' + tag
+    })
 
+    const flexDiv = document.createElement('div')
+    flexDiv.style.display = 'flex'
+
+    const avatarDiv = document.createElement('div')
+    avatarDiv.className = 'group-avatar'
+
+    const avatarImg = document.createElement('img')
+    avatarImg.className = 'avatar-img'
+    if (avatar != null){
+        avatarImg.src = '/static/avatars/groups/' + avatar
+    }else {
+        avatarImg.src = '/static/avatars/default.png'
+    }
+    avatarImg.alt = 'Фото сообщества'
+    avatarDiv.appendChild(avatarImg)
+
+    const descriptionDiv = document.createElement('div')
+    descriptionDiv.className = 'group-description'
+
+    const nameDiv = document.createElement('div')
+    nameDiv.className = 'group-name'
+
+    const nameContent = document.createElement('div')
+    nameContent.textContent = name
+    nameDiv.appendChild(nameContent)
+    descriptionDiv.appendChild(nameDiv)
+
+    const cityDiv = document.createElement('div')
+    cityDiv.className = 'group-subscribers'
+
+    const cityContent = document.createElement('div')
+    cityContent.textContent = subscribers + ' подписчиков'
+    cityDiv.appendChild(cityContent)
+    descriptionDiv.appendChild(cityDiv)
+
+    flexDiv.appendChild(avatarDiv)
+    flexDiv.appendChild(descriptionDiv)
+
+    groupDiv.appendChild(flexDiv)
+
+    document.getElementById('group-container').appendChild(groupDiv)
+}
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -69,15 +118,28 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.success){
                 let users = data.users
+                let groups = data.groups
 
                 let peoples = document.querySelectorAll('.people')
                 peoples.forEach(el => {
                     el.remove()
                 })
+
+                let groups_ = document.querySelectorAll('.group')
+                groups_.forEach(el => {
+                    el.remove()
+                })
+
                 if (users.names.length == 0){
                     document.getElementById('people-h').style.display = 'none'
                 }else {
                     document.getElementById('people-h').style.display = 'block'
+                }
+
+                if (groups.names.length == 0){
+                    document.getElementById('group-h').style.display = 'none'
+                }else {
+                    document.getElementById('group-h').style.display = 'block'
                 }
                 document.getElementById('search_result').classList.remove('hide')
 
@@ -86,8 +148,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     let city = users.city[i]
                     let name = users.names[i]
                     let second_name = users.second_names[i]
+                    let tag = users.user_tags[i]
+                    createUser(avatar, name, second_name, city, tag)
+                }
 
-                    createUser(avatar, name, second_name, city)
+                for (let i = 0; i < 3 && i < groups.names.length; i++){
+                    let avatar = groups.avatar_paths[i]
+                    let subscribers = groups.subscribers[i]
+                    let name = groups.names[i]
+                    let tag = groups.tags[i]
+
+                    createGroup(avatar, name, subscribers, tag)
                 }
             }
         })
