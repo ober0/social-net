@@ -58,7 +58,7 @@
                                                 <img style="width: 18px" src="{{ url_for('static', filename='img/city.png') }}" alt="">
                                             </div>
                                             <div class="col-sm-10">
-                                                <p class="user-header-info-p" style="position: relative; right: 7px">{{ user.county}}, {{ user.city }}</p>
+                                                <p class="user-header-info-p" style="position: relative; right: 50px">{{ user.county}}, {{ user.city }}</p>
                                             </div>
                                         </div>
                                     {% else %}
@@ -90,22 +90,25 @@
                                 {% if _self == 1 %}
                                     <input onclick="go_edit_prifile()" type="button" class="user-header-button edit-profile" value="Редактировать профиль">
                                 {% else %}
-                                    <input onclick="go_message()" type="button" class="user-header-button message-profile" value="Сообщение">
+
                                     {% if isFriend == 0 %}
                                         {% if friend_request == 1 %}
-                                            <input id="btn-add-friend" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile hide" value="Добавить в друзья">
-                                            <input id="btn-add-friend-request" user_id="{{user.id}}" friend_id="{{me.id}}" type="button" class="user-header-button friend-profile" value="Принять заявку">
-                                            <input id="btn-rem-friend-request" user_id="{{user.id}}" friend_id="{{me.id}}" type="button" class="user-header-button friend-profile" value="Отклонить заявку">
+                                            <input onclick="go_message()" type="button" class="user-header-button message-profile message-if-request" value="Сообщение">
+                                            <input id="btn-add-friend" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile hide " value="Добавить в друзья">
+                                            <input id="btn-add-friend-request" user_id="{{user.id}}" friend_id="{{me.id}}" type="button" class="user-header-button friend-profile message-if-request"  value="Принять заявку">
+                                            <input id="btn-rem-friend-request" user_id="{{user.id}}" friend_id="{{me.id}}" type="button" class="user-header-button friend-profile message-if-request-no" value="Отклонить заявку">
                                         {% elif friend_request_from_user == 1 %}
+                                            <input onclick="go_message()" type="button" class="user-header-button message-profile" value="Сообщение">
                                             <input id="btn-rem-friend-request" user_id="{{me.id}}" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile" value="Отменить заявку">
-                                            <input id="btn-add-friend-request" user_id="{{user.id}}" friend_id="{{me.id}}" type="button" class="user-header-button friend-profile hide" value="Принять заявку">
+                                            <input id="btn-add-friend-request" user_id="{{user.id}}" friend_id="{{me.id}}" type="button" class="user-header-button friend-profile hide " value="Принять заявку">
                                             <input id="btn-add-friend" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile hide" value="Добавить в друзья">
                                         {% else %}
-                                            <input id="btn-add-friend" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile" value="Добавить в друзья">
-                                            <input id="btn-rem-friend-request" user_id="{{me.id}}" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile hide" value="Отменить заявку">
+                                            <input onclick="go_message()" type="button" class="user-header-button message-profile-add" value="Сообщение">
+                                            <input id="btn-add-friend" friend_id="{{user.id}}" type="button" class="user-header-button message-profile-add" value="Добавить в друзья">
+                                            <input id="btn-rem-friend-request" user_id="{{me.id}}" friend_id="{{user.id}}" type="button" class="user-header-button message-profile-add hide" value="Отменить заявку">
                                             <input id="btn-add-friend-request" user_id="{{user.id}}" friend_id="{{me.id}}" type="button" class="user-header-button friend-profile hide" value="Принять заявку">
                                         {% endif %}
-                                            <input id="btn-remove-friend" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile hide" value="Удалить из друзей">
+                                            <input id="btn-remove-friend" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile remove-friend hide" value="Удалить из друзей">
 
                                     {% else %}
                                         <input id="btn-add-friend" friend_id="{{user.id}}" type="button" class="user-header-button friend-profile hide" value="Добавить в друзья">
@@ -158,30 +161,34 @@
                             <div class="sec-1-content">
                                 <div id="sec-1-content-photo">
                                     {% if sec1_photos %}
-                                    <div class="sec-1-content-photo-container">
-                                        {% for photo in sec1_photos %}
-                                            <div class="sec-1-content-photo-element">
-                                                <img photo-id="{{photo.id}}" filename="{{photo.name}}" class="sec-1-photo" style="cursor: pointer; border-radius: 10px; max-width: 100%; max-height: 100%;object-fit: cover;"  width="192px" height="192px" src="{{ url_for('static', filename='users/photos/' + photo.path_name) }}" alt="">
-                                            </div>
-                                        {% endfor %}
+                                        <div class="sec-1-content-photo-container">
+                                            {% for photo in sec1_photos %}
+                                                <div class="sec-1-content-photo-element">
+                                                    <img photo-id="{{photo.id}}" filename="{{photo.name}}" class="sec-1-photo" style="cursor: pointer; border-radius: 10px; max-width: 100%; max-height: 100%;object-fit: cover;"  width="192px" height="192px" src="{{ url_for('static', filename='users/photos/' + photo.path_name) }}" alt="">
+                                                </div>
+                                            {% endfor %}
 
-                                    </div>
+                                        </div>
 
-                                    <div style="position: relative;left: 50%;transform: translate(-50%);display: flex; gap:10px; margin-top: 15px">
-                                        {% if _self == 1 %}
-                                        <input onclick="newPhoto()" style="width: 50%;" type="button" value="Новое фото" class="user-section1-button">
-                                        <input type="file" style="display: none" id="newPhoto-input" accept="image/.jpg, image/.png">
-                                        <input tag="{{user.tag}}" id="open-all-photo" style="width: 50%" type="button" value="Показать всё" class="user-section1-button">
-                                        {% else %}
-                                        <input tag="{{user.tag}}" id="open-all-photo" style="width: 100%;" type="button" value="Показать всё" class="user-section1-button">
-                                        {% endif %}
-                                    </div>
+                                        <div style="position: relative;left: 50%;transform: translate(-50%);display: flex; gap:10px; margin-top: 15px">
+                                            {% if _self == 1 %}
+                                            <input onclick="newPhoto()" style="width: 50%;" type="button" value="Новое фото" class="user-section1-button">
+                                            <input type="file" style="display: none" id="newPhoto-input" accept="image/.jpg, image/.png">
+                                            <input tag="{{user.tag}}" id="open-all-photo" style="width: 50%" type="button" value="Показать всё" class="user-section1-button">
+                                            {% else %}
+                                            <input tag="{{user.tag}}" id="open-all-photo" style="width: 100%;" type="button" value="Показать всё" class="user-section1-button">
+                                            {% endif %}
+                                        </div>
 
                                     {% else %}
-                                    <p style="color: #a6a6a6;">У пользователя еще нет фотографий</p>
-                                    <input onclick="newPhoto()" style="width: 100%;" type="button" value="Новое фото" class="user-section1-button">
-                                    <input type="file" style="display: none" id="newPhoto-input" accept="image/.jpg, image/.png">
-                                    <input tag="{{user.tag}}"  id="open-all-photo" style="width: 50%" type="button" value="Показать всё" class="user-section1-button hide">
+                                        {% if _self == 1 %}
+                                        <p style="color: #a6a6a6;">У Вас еще нет фотографий</p>
+                                        <input onclick="newPhoto()" style="width: 100%;" type="button" value="Новое фото" class="user-section1-button">
+                                        {% else %}
+                                        <p style="color: #a6a6a6;">У пользователя еще нет фотографий</p>
+                                        {% endif %}
+                                        <input type="file" style="display: none" id="newPhoto-input" accept="image/.jpg, image/.png">
+                                        <input tag="{{user.tag}}"  id="open-all-photo" style="width: 50%" type="button" value="Показать всё" class="user-section1-button hide">
                                     {% endif %}
                                 </div>
 
@@ -210,7 +217,11 @@
                                         </div>
                                         <input  tag="{{user.tag}}" id="open-all-music" style="width: 100%; margin-top: 10px" type="button" value="Показать всё" class="user-section1-button">
                                     {% else %}
-                                    <p style="color: #a6a6a6;">У пользователя еще нет музыки</p>
+                                        {% if _self == 1 %}
+                                        <p style="color: #a6a6a6;">У Вас еще нет музыки</p>
+                                        {% else %}
+                                        <p style="color: #a6a6a6;">У пользователя еще нет музыки</p>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
 
@@ -232,7 +243,12 @@
                                     </div>
 
                                     {% else %}
+                                    {% if _self == 1 %}
+                                    <p style="color: #a6a6a6;">У Вас еще нет видеозаписей</p>
+                                    {% else %}
                                     <p style="color: #a6a6a6;">У пользователя еще нет видеозаписей</p>
+                                    {% endif %}
+
                                     {% endif %}
                                 </div>
                             </div>

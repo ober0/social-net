@@ -11,7 +11,6 @@ body {
     background-color: #333;
     padding: 20px;
     display: flex;
-    align-items: center;
     border-radius: 10px;
 }
 .profile-header .avatar {
@@ -22,6 +21,8 @@ body {
 }
 .profile-header .info {
     margin-left: 20px;
+    margin-top: 20px;
+    width: 500px;
 }
 .profile-header .info h1 {
     margin: 0;
@@ -74,17 +75,19 @@ body {
      background-color: #535353;
 }
 
-.edit-profile{
-     position: relative;
-     left: 140%;
-     top: -20px;
+.edit-profile {
+    position: relative;
+    left: -10%;
+    top: 40px;
 }
 
 .message-profile, .friend-profile{
     position: relative;
-    bottom: 20px;
-    left: 80%;
+    top: 40px;
+    left:11%;
+    margin-top: 5px;
     margin-left: 5px;
+
 }
 
 .about-info{
@@ -104,6 +107,10 @@ body {
     right: 11%;
 }
 
+.user-header-info-p{
+    position: relative;
+    right: 47px !important;
+}
 
 .hover:hover{
     text-decoration: underline;
@@ -113,3 +120,111 @@ body {
     display: none;
 }
 
+.message-if-request{
+    position: relative;
+    left: 10% !important;
+    margin-right: 5px;
+}
+
+.message-if-request-no{
+    position: relative;
+    left: 96% !important;
+    transform: translate(-100%);
+    top: 45px !important;
+}
+
+.message-profile-add{
+    position: relative;
+    top:40px;
+    left: 40px;
+    margin-bottom: 5px;
+}
+
+
+
+@media screen and (max-width: 1399px) {
+    .edit-profile {
+        position: relative;
+        left: 150%;
+    }
+    .message-profile, .friend-profile{
+        left: 130%;
+    }
+    .user-header-info-p{
+        position: relative;
+        right: 30px !important;
+    }
+    .user-buttons{
+        position: absolute;
+        width: 350px;
+    }
+    .message-if-request-no{
+        position: relative;
+        left: 202% !important;
+        transform: translate(-100%);
+        top: 50px !important;
+    }
+    .message-if-request{
+        position: relative;
+        left: 133% !important;
+    }
+    .message-profile-add{
+        position: relative;
+        top:40px;
+        left: 130%;
+    }
+
+}
+
+@media screen and (max-width: 1199px) {
+    .edit-profile  {
+        position: relative;
+        left: -1%;
+        top: 170px;
+    }
+    .profile-header {
+        height: 240px;
+    }
+    .user-buttons{
+        position: absolute;
+        width: 450px;
+    }
+    .info{
+        width: 400px;
+    }
+    .message-profile, .friend-profile{
+        left: -1%;
+        top:170px;
+    }
+    .message-profile-add{
+        position: relative;
+        top:170px
+    }
+    .user-header-info-p{
+        position: relative;
+        right: 40px !important;
+    }
+    .message-if-request-no{
+        position: relative;
+        left: 31% !important;
+        transform: translate(-100%);
+        top: 170px !important;
+    }
+    .message-if-request{
+        position: relative;
+        left: 1% !important;
+    }
+    .message-profile-add{
+        position: relative;
+        left: 1%;
+    }
+
+}
+
+
+@media screen and (max-width: 992px) {
+    .user-header-info-p{
+        position: relative;
+        right: 15px !important;
+    }
+}
