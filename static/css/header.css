@@ -34,3 +34,92 @@
     position: relative;
     bottom: 10px;
 }
+
+
+.search_result{
+    width: 22%;
+    height: 400px;
+    background-color: #302c2c;
+    position: fixed;
+    left: 50%;
+    transform: translate(-61%);
+    z-index: 999;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    top: 73px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: fit-content;
+}
+
+.search-content{
+    margin-top: 3px;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+#show-all-result{
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 3px;
+    height: 42px;
+    transition: background-color 0.3s;
+}
+
+#show-all-result:hover {
+    background-color: #3c3737;
+}
+
+.avatar-img{
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+}
+
+.people-name, .group-name{
+    font-size: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.people-city, .group-subscribers{
+    font-size: 14px;
+    color: #a6a6a6;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.people-description, .group-description{
+    margin-left: 10px;
+    margin-top: 4px;
+    width: 75%;
+}
+
+.people, .group{
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 5px;
+    padding: 5px;
+    padding-left: 10px;
+}
+.people:hover, .group:hover{
+    background-color: #3c3737;
+}
+
+#people-container, #group-container{
+    margin-top: -7px;
+}
+
+
+
+
+
+
+
+@media screen and (max-width: 1400px){
+    .search_result{
+        top:94px
+    }
+}

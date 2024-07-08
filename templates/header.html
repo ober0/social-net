@@ -53,6 +53,51 @@
 </div>
 <hr>
 
+<div class="search_result">
+    <div class="search-content">
+        <div id="show-all-result">
+            <p style="position: relative; top: 50%; transform: translate(0,-50%); margin-left: 10px; font-size: 15px">Показать все результаты</p>
+        </div>
+        <hr style="margin-top: -1px">
+        <b><p style="font-size: 15px; margin-left: 10px">Люди</p></b>
+        <div id="people-container">
+            <div class="people">
+                <div style="display: flex">
+                    <div class="people-avatar">
+                        <img id="avatar-img" class="avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
+                    </div>
+                    <div class="people-description">
+                        <div class="people-name">
+                            <div id="people-name">Руслан Онищенко</div>
+                        </div>
+                        <div class="people-city">
+                            <div id="people-city">Москва</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <b><p style="font-size: 15px; margin-left: 10px">Сообщества</p></b>
+        <div id="group-container">
+            <div class="group">
+                <div style="display: flex">
+                    <div class="group-avatar">
+                        <img id="group-img" class="avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
+                    </div>
+                    <div class="group-description">
+                        <div class="group-name">
+                            <div id="group-name">Сообщество</div>
+                        </div>
+                        <div class="group-subscribers">
+                            <div id="group-subscribers">10 Подписчиков</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}

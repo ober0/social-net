@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const socket = io();
-
+    const socket = io()
     socket.emit('join_main_room', {});
 
 });

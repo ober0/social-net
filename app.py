@@ -6,8 +6,9 @@ from flask import Flask, session, redirect, render_template, request, jsonify, m
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
+from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification, Photos, Video
+from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group
 from config import app, action_access
 import random
 import datetime
@@ -352,8 +353,8 @@ def edit_profile_save(data):
             except Exception as e:
                 print(e)
 
-            user.name = data['name']
-            user.second_name = data['second_name']
+            user.name = data['name'].title()
+            user.second_name = data['second_name'].title()
             user.tag = data['tag']
             user.gender = data['gender']
             user.date_of_birthday = date_of_birth
@@ -573,6 +574,73 @@ def update_status(data):
         socketio.emit('updateStatus_result', {'success': True})
     else:
         socketio.emit('updateStatus_result', {'success': False})
+
+
+
+@socketio.on('search')
+def search(data):
+    if data['data']:
+        users_result = []
+        groups_result = []
+        group_tag = ''
+        search_string = f"%{data['data']}%"
+
+        # Поиск тэга
+        user = User.query.filter(User.tag.like(search_string)).first()
+        if user:
+            users_result.append(user)
+
+        # Поиск по имени и фамилии
+        for search_string in [search_string, search_string.title()]:
+            users = User.query.filter(or_(
+                User.name.like(search_string),
+                User.second_name.like(search_string),
+                text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string")
+            )).params(search_string=search_string).all()
+
+        if users:
+            users_result.extend(users)
+
+        # Поиск группы по тегу
+        group = Group.query.filter(Group.tag.like(search_string)).first()
+        if group:
+            group_tag = group
+            groups_result.append(group)
+
+        # Поиск группы по названию
+        groups = Group.query.filter(Group.name.like(search_string)).all()
+        if groups:
+            for group in groups:
+                if group != group_tag:
+                    groups_result.append(group)
+
+        user_names = [user.name for user in users_result]
+        user_second_names = [user.second_name for user in users_result]
+        user_city = [user.city for user in users_result]
+        user_avatar_paths = [user.avatar_path for user in users_result]
+
+        group_names = [group.name for group in groups_result]
+        group_tags = [group.tag for group in groups_result]
+        group_avatar_paths = [group.avatar_path for group in groups_result]
+        group_subscribers = [group.subscribers for group in groups_result]
+
+        search_results = {
+            'success': True,
+            'users': {
+                'names': f'{user_names} {user_second_names}',
+                'city': user_city,
+                'avatar_paths': user_avatar_paths
+            },
+            'groups': {
+                'names': group_names,
+                'tags': group_tags,
+                'avatar_paths': group_avatar_paths,
+                'subscribers': group_subscribers
+            }
+        }
+        socketio.emit('search_result', search_results)
+    else:
+        socketio.emit('search_result', {'success': False})
 
 
 

@@ -28,6 +28,18 @@ class User(db.Model):
     subscriptions_count = db.Column(db.Integer, default=0)
 
 
+
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    avatar_path = db.Column(db.String(120))
+    tag = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(80), nullable=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    subscribers = db.Column(db.Integer, default=0)
+
+
+
+
 class Friends(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
