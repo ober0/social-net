@@ -1,5 +1,6 @@
 import base64
 import os
+import pprint
 from functools import wraps
 import secrets
 from flask import Flask, session, redirect, render_template, request, jsonify, make_response, send_from_directory
@@ -576,73 +577,87 @@ def update_status(data):
         socketio.emit('updateStatus_result', {'success': False})
 
 
+@app.route('/search', methods=['POST'])
+def search():
+    if request.method == 'POST':
+        data = request.json.get('data')
+        if data:
+            users_result = []
+            groups_result = []
+            group_tag = ''
+            search_string = f"%{data}%"
 
-@socketio.on('search')
-def search(data):
-    if data['data']:
-        users_result = []
-        groups_result = []
-        group_tag = ''
-        search_string = f"%{data['data']}%"
+            # Поиск тэга
+            user = User.query.filter(User.tag.like(search_string)).first()
+            if user:
+                users_result.append(user)
 
-        # Поиск тэга
-        user = User.query.filter(User.tag.like(search_string)).first()
-        if user:
-            users_result.append(user)
+            # Поиск по имени и фамилии
+            for search_string in [search_string, search_string.title()]:
+                users = User.query.filter(or_(
+                    User.name.like(search_string),
+                    User.second_name.like(search_string),
+                    text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string")
+                )).params(search_string=search_string).all()
 
-        # Поиск по имени и фамилии
-        for search_string in [search_string, search_string.title()]:
-            users = User.query.filter(or_(
-                User.name.like(search_string),
-                User.second_name.like(search_string),
-                text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string")
-            )).params(search_string=search_string).all()
+            if users:
+                users_result.extend(users)
 
-        if users:
-            users_result.extend(users)
+            # Поиск группы по тегу
+            group = Group.query.filter(Group.tag.like(search_string)).first()
+            if group:
+                group_tag = group
+                groups_result.append(group)
 
-        # Поиск группы по тегу
-        group = Group.query.filter(Group.tag.like(search_string)).first()
-        if group:
-            group_tag = group
-            groups_result.append(group)
+            # Поиск группы по названию
+            groups = Group.query.filter(Group.name.like(search_string)).all()
+            if groups:
+                for group in groups:
+                    if group != group_tag:
+                        groups_result.append(group)
 
-        # Поиск группы по названию
-        groups = Group.query.filter(Group.name.like(search_string)).all()
-        if groups:
-            for group in groups:
-                if group != group_tag:
-                    groups_result.append(group)
+            user_names = [user.name for user in users_result]
+            user_second_names = [user.second_name for user in users_result]
 
-        user_names = [user.name for user in users_result]
-        user_second_names = [user.second_name for user in users_result]
-        user_city = [user.city for user in users_result]
-        user_avatar_paths = [user.avatar_path for user in users_result]
+            user_city = []
+            for user in users_result:
+                if user.show_city == '1':
+                    user_city.append(user.city)
+                else:
+                    user_city.append(' ')
+            user_avatar_paths = []
+            for user in users_result:
+                if user.avatar_path:
+                    user_avatar_paths.append(user.avatar_path)
+                else:
+                    user_avatar_paths.append('none')
+            user_avatar_paths = [user.avatar_path for user in users_result]
 
-        group_names = [group.name for group in groups_result]
-        group_tags = [group.tag for group in groups_result]
-        group_avatar_paths = [group.avatar_path for group in groups_result]
-        group_subscribers = [group.subscribers for group in groups_result]
+            group_names = [group.name for group in groups_result]
+            group_tags = [group.tag for group in groups_result]
+            group_avatar_paths = [group.avatar_path for group in groups_result]
+            group_subscribers = [group.subscribers for group in groups_result]
 
-        search_results = {
-            'success': True,
-            'users': {
-                'names': f'{user_names} {user_second_names}',
-                'city': user_city,
-                'avatar_paths': user_avatar_paths
-            },
-            'groups': {
-                'names': group_names,
-                'tags': group_tags,
-                'avatar_paths': group_avatar_paths,
-                'subscribers': group_subscribers
+            search_results = {
+                'success': True,
+                'users': {
+                    'names': user_names,
+                    'second_names': user_second_names,
+                    'city': user_city,
+                    'avatar_paths': user_avatar_paths
+                },
+                'groups': {
+                    'names': group_names,
+                    'tags': group_tags,
+                    'avatar_paths': group_avatar_paths,
+                    'subscribers': group_subscribers
+                }
             }
-        }
-        socketio.emit('search_result', search_results)
-    else:
-        socketio.emit('search_result', {'success': False})
+            pprint.pprint(search_results)
 
-
+            return jsonify(search_results)
+        else:
+            return jsonify({'success': False})
 
 
 @socketio.on('join_main_room')
