@@ -126,3 +126,10 @@
         top:94px
     }
 }
+
+#no-info{
+    font-size: 15px;
+    position: relative;
+    transform: translate(0, 30%);
+    margin-left: 10px;
+}

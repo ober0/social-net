@@ -98,6 +98,17 @@ function createGroup(avatar, name, subscribers, tag){
     document.getElementById('group-container').appendChild(groupDiv)
 }
 
+function hideSearch(){
+    document.getElementById('search_result').classList.add('hide')
+    document.getElementById('body').removeEventListener('click', hideSearch)
+     document.removeEventListener('keydown', hideSearchEsc)
+}
+
+function hideSearchEsc(event) {
+    if (event.key === 'Escape'){
+        hideSearch()
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     let searchInput = document.getElementById('search-main')
@@ -141,8 +152,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 }else {
                     document.getElementById('group-h').style.display = 'block'
                 }
-                document.getElementById('search_result').classList.remove('hide')
 
+                document.getElementById('search_result').classList.remove('hide')
+                document.getElementById('all-result').classList.remove('hide')
+                document.getElementById('no-info').classList.add('hide')
                 for (let i = 0; i < 3 && i < users.names.length; i++){
                     let avatar = users.avatar_paths[i]
                     let city = users.city[i]
@@ -159,6 +172,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     let tag = groups.tags[i]
 
                     createGroup(avatar, name, subscribers, tag)
+                }
+
+                document.getElementById('search_result').addEventListener('click', function (event) {
+                    event.stopPropagation()
+                })
+
+                document.getElementById('body').addEventListener('click', hideSearch)
+                document.addEventListener('keydown', hideSearchEsc)
+
+                if (groups.names.length == 0 && users.names.length == 0){
+                    document.getElementById('all-result').classList.add('hide')
+                    document.getElementById('no-info').classList.remove('hide')
                 }
             }
         })
