@@ -127,7 +127,9 @@
 
 @media screen and (max-width: 1400px){
     .search_result{
-        top:94px
+        top:72px;
+        width: 27%;
+
     }
 }
 
@@ -146,7 +148,7 @@
     max-height: 500px;
     height: fit-content;
     position: fixed;
-    top: 7.8%;
+    top: 70px;
     left: 60.5%;
     z-index: 999;
 }
@@ -241,6 +243,7 @@
 
 
 
+
 @media screen and (max-width: 1199px) {
     #notifications{
         width: 350px;
@@ -250,6 +253,10 @@
         top:0;
         left: 40px;
     }
+    .search_result{
+        width: 30%;
+        left: 55%;
+    }
 }
 
 @media screen and (max-width: 991px) {
@@ -258,6 +265,13 @@
     }
     #notifications{
         left: 50% !important;
+    }
+    #user-str{
+        display: none;
+    }
+    .search_result{
+        width: 40%;
+        left: 54.5%;
     }
 }
 

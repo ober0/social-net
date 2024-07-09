@@ -277,10 +277,10 @@
                     </div>
                     <div class="col-sm-10 info-text">
                         <div class="row">
-                            <div class="col-sm-4">
+                            <div class="col-sm-5">
                                 <p style="color:#a6a6a6">Пол: </p>
                             </div>
-                            <div class="col-sm-8">
+                            <div class="col-sm-7">
                                 <p class="user-header-info-p" style="position: relative; right: 7px">
                                     {% if user.gender == 'man' %}
                                     Мужчина
@@ -303,10 +303,10 @@
                     </div>
                     <div class="col-sm-10 info-text">
                         <div class="row">
-                            <div class="col-sm-4">
+                            <div class="col-sm-5">
                                 <p style="color:#a6a6a6">Образование: </p>
                             </div>
-                            <div class="col-sm-8">
+                            <div class="col-sm-7">
                                 <p class="user-header-info-p" style="position: relative; right: 7px">{{user.education_place}}  {{user.education_start}}-{{user.education_end}}</p>
                             </div>
                         </div>
@@ -320,10 +320,10 @@
                     </div>
                     <div class="col-sm-10 info-text">
                         <div class="row">
-                            <div class="col-sm-4">
+                            <div class="col-sm-5">
                                 <p style="color:#a6a6a6">Место жительства: </p>
                             </div>
-                            <div class="col-sm-8">
+                            <div class="col-sm-7">
                                <p class="user-header-info-p" style="position: relative; right: 7px">{{ user.county}}, {{ user.city }}</p>
                             </div>
 
@@ -339,10 +339,10 @@
                     </div>
                     <div class="col-sm-10 info-text">
                         <div class="row">
-                            <div class="col-sm-4">
+                            <div class="col-sm-5">
                                 <p style="color:#a6a6a6">День рождения: </p>
                             </div>
-                            <div class="col-sm-8">
+                            <div class="col-sm-7">
                                 <p class="user-header-info-p" style="position: relative; right: 7px">{{ birthday_correct }}</p>
                             </div>
                         </div>
@@ -358,10 +358,10 @@
                 </div>
                 <div id="goFriend" my_tag="{{me.tag}}" class="col-sm-10 info-text hover">
                     <div class="row">
-                        <div style="color:#a6a6a6" class="col-sm-2">
+                        <div style="color:#a6a6a6" class="col-sm-4">
                             Друзей
                         </div>
-                        <div class="col-sm-10 user-header-info-p">
+                        <div class="col-sm-8 user-header-info-p">
                             {% if friends_count %}
                                 {{ friends_count }}
                             {% else %}
@@ -379,10 +379,10 @@
                 </div>
                 <div id="goSubs" my_tag="{{me.tag}}" class="col-sm-10 info-text hover">
                     <div  class="row">
-                        <div style="color:#a6a6a6" class="col-sm-2">
+                        <div style="color:#a6a6a6" class="col-sm-4">
                             Подписок:
                         </div>
-                        <div class="col-sm-10 user-header-info-p">
+                        <div class="col-sm-8 user-header-info-p">
                             {% if subscriptions_count %}
                                 {{ subscriptions_count }}
                             {% else %}

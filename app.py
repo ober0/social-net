@@ -287,6 +287,7 @@ def user_profile(tag):
         else:
             video = [video_all[i] for i in range(len(video_all))]
 
+        friend_count = Friends.query.filter_by(user_id=request.cookies.get('account')).count()
         return render_template('user.html',
                                user=user,
                                _self=_self,
@@ -294,6 +295,7 @@ def user_profile(tag):
                                notification_count=notifications_count,
                                birthday_correct=birthday_correct,
                                isFriend=isFriend,
+                               friends_count=friend_count,
                                self_avatar_path=self_avatar_path,
                                me=me,
                                friend_request_from_user=friend_request_from_user,
@@ -428,25 +430,35 @@ def add_friend(data):
     join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     user_id = request.cookies.get('account')
     friend_id = data['friend_id']
+
+    # try:
     me = User.query.filter_by(id=user_id).first()
-    try:
 
-        friend_requests = FriendRequest(user_id=user_id, friend_id=friend_id, user_access='yes')
-        db.session.add(friend_requests)
-        db.session.commit()
+    friend_requests = FriendRequest(user_id=user_id, friend_id=friend_id, user_access='yes')
+    db.session.add(friend_requests)
+    db.session.commit()
 
-        from_avatar = User.query.filter_by(id=user_id).first().avatar_path
-        user_name = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(id=user_id).first().second_name
-        newNotification = Notification(type='newFriendRequest', user_id=friend_id, from_user_avatar_path=from_avatar, from_user=user_name, date=datetime.datetime.now(), new=1, text=f'Новое предложение дружбы от', href=f'/{me.tag}')
-        db.session.add(newNotification)
-        db.session.commit()
+    from_avatar = User.query.filter_by(id=user_id).first().avatar_path
+    user_name = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(id=user_id).first().second_name
+    newNotification = Notification(type='newFriendRequest', user_id=friend_id, from_user_avatar_path=from_avatar, from_user=user_name, date=datetime.datetime.now(), new=1, text=f'Новое предложение дружбы от', href=f'/{me.tag}')
+    db.session.add(newNotification)
+    db.session.commit()
+    socketio.emit('newNotification', {
+        'success': True,
+        'type': 'newFriendRequest',
+        'user_id': friend_id,
+        'from_user_avatar_path': from_avatar,
+        'from_user': user_name,
+        'date': datetime.datetime.now().strftime('%d.%m.%y в %H:%M'),
+        'new': 1,
+        'text': f'Новое предложение дружбы от',
+        'href': f'/{me.tag}'
+    }, room=friend_id)
+    socketio.emit('addFriend_request_result', {'success': True}, room=request.cookies.get('account'))
 
-        socketio.emit('updateNotifi')
-        socketio.emit('addFriend_request_result', {'success': True}, room=request.cookies.get('account'))
-
-    except Exception as e:
-        db.session.rollback()
-        socketio.emit('addFriend_request_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
+    # except Exception as e:
+    #     db.session.rollback()
+    #     socketio.emit('addFriend_request_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
 @socketio.on('removeFriend')
 def add_friend(data):
@@ -510,6 +522,13 @@ def add_friend(data):
             db.session.rollback()
             socketio.emit('addFriend_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
+        try:
+            notif_to_rem = Notification.query.filter_by(user_id=friend_id).filter_by(type='newFriendRequest').all()
+            for notif in notif_to_rem:
+                db.session.delete(notif)
+                db.session.commit()
+        except:
+            db.session.rollback()
 
 
 

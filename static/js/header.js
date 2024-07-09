@@ -1,3 +1,56 @@
+function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
+    let notification = {
+                href: href,
+                from_user_avatar_path: avatar,
+                type: type,
+                text: text,
+                from_user: from_user,
+                date: date,
+                id: user_id
+            }
+    if (type == "newFriendRequest"){
+        const notifDiv = document.createElement('div')
+        notifDiv.className = 'notification'
+        notifDiv.setAttribute('path', href)
+
+        notifDiv.innerHTML = `
+                <div class="notif-main">
+                    <div class="notif-avatar">
+                        <div id="notif-avatar">
+                            ${notification.from_user_avatar_path ? 
+                                `<img class="notif-avatar" src="/static/avatars/users/${notification.from_user_avatar_path}" alt="">` : 
+                                `<img class="notif-avatar" src="/static/avatars/default.png" alt="">`
+                            }
+                        </div>
+                    </div>
+                    <div class="notif-description">
+                        ${notification.type === 'newFriendRequest' ? 
+                            `<p class="notif-text">${notification.text} <a href="${notification.href}">${notification.from_user}</a></p>` : 
+                            ''
+                        }
+                    </div>
+                </div>
+                <div class="date" style="display: flex">
+                    <p class="gray-text">
+                        ${notification.date}
+                    </p>
+                    <div notifi_id="${notification.id}" id="delete-notifi" style="display: flex">
+                        <img width="20px" height="20px" style="position: relative; top:5px" src="/static/img/trash.png" alt="">
+                        <p class="gray-text"> Удалить</p>
+                    </div>
+                </div>
+            `;
+
+        const hr = document.createElement('hr')
+        hr.style.margin = '0';
+        hr.style.height = '2px'
+
+        document.getElementById('notification-container').appendChild(notifDiv)
+        document.getElementById('notification-container').appendChild(hr)
+    }
+}
+
+
 function createUser(avatar, name, second_name, city, tag) {
     const peopleDiv = document.createElement('div')
     peopleDiv.className = 'people'
@@ -126,6 +179,7 @@ function openNotification(event){
         .then(response => response.json())
         .then(data => {
             if (data.success){
+                document.getElementById('badge').classList.add('hide')
                 document.getElementById('notifi-counter').innerText = 0
             }
 
@@ -158,6 +212,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let searchInput = document.getElementById('search-main')
 
     const soc = io()
+
+    soc.emit('join_main_room', {})
+
+    soc.on('newNotification', (data) => {
+        document.getElementById('badge').classList.remove('hide')
+        document.getElementById('notifi-counter').innerText = Number(document.getElementById('notifi-counter').innerText) + 1
+        document.getElementById('no-notifi-p').classList.add('hide')
+        addNewNotifi(data.date, data.from_user, data.from_user_avatar_path, data.href, data.text, data.type, data.user_id)
+    })
 
     searchInput.addEventListener('input', function () {
         let searchValue = searchInput.value;
@@ -276,6 +339,11 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({notifi: not_id})
         })
             .then(response => response.json())
-            .then(data => {})
+            .then(data => {
+                if (data.success){
+
+                }
+            })
     })
 })
+

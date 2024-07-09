@@ -212,25 +212,26 @@ photos.forEach(photo => {
     })
 })
 
-document.getElementById('delete-photo').addEventListener('click', function (){
-    socketio.emit('deletePhoto', {photo_id: this.getAttribute('photo-id')})
-})
+try {
+    document.getElementById('delete-photo').addEventListener('click', function () {
+        socketio.emit('deletePhoto', {photo_id: this.getAttribute('photo-id')})
+    })
 
-socketio.on('deletePhoto_result', (data) => {
-    if (data.success){
-        document.getElementById('body').click()
-        location.reload()
-    }
-    else {
-        alert(data.error)
-    }
-})
+    socketio.on('deletePhoto_result', (data) => {
+        if (data.success) {
+            document.getElementById('body').click()
+            location.reload()
+        } else {
+            alert(data.error)
+        }
+    })
+}catch {}
 
-
-document.getElementById('delete-video').addEventListener('click', function (){
-    socketio.emit('deleteVideo', {video_id: this.getAttribute('video-id')})
-})
-
+try {
+    document.getElementById('delete-video').addEventListener('click', function () {
+        socketio.emit('deleteVideo', {video_id: this.getAttribute('video-id')})
+    })
+}catch {}
 socketio.on('deleteVideo_result', (data) => {
     if (data.success){
         document.getElementById('body').click()
@@ -245,7 +246,6 @@ socketio.on('deleteVideo_result', (data) => {
 
 
 let videos = document.querySelectorAll('.sec-1-video')
-console.log(videos.length)
 videos.forEach(video => {
     video.addEventListener('click', function (event) {
         event.stopPropagation()
