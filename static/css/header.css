@@ -242,6 +242,64 @@
 }
 
 
+#right-info{
+    background-color: #302c2c;
+    width: 350px;
+    height: fit-content;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding-top: 15px;
+    position: fixed;
+    z-index: 999;
+    top:72px;
+    left: 65.5%;
+}
+.right-user-header{
+    text-align: center;
+}
+
+.right-user-avatar{
+    padding-bottom: 10px;
+}
+
+.right-username{
+    font-size: 17px;
+}
+
+.right-email{
+    color: #a6a6a6;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.right-btn{
+    vertical-align: middle;
+    padding-top: 3px;
+    height: 35px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.right-btn:hover{
+    background-color: #3e3e3e;
+}
+
+#btn-support, #btn-exit {
+    margin-top: 3px;
+}
+
+.right-user-buttons{
+    margin-top: 5px;
+    padding-bottom: 5px;
+}
+
+
+
+
+
+
+
+
 
 
 @media screen and (max-width: 1199px) {
@@ -283,3 +341,5 @@
         left: 40% !important;
     }
 }
+
+

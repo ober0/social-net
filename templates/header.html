@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <div class="user1">
+                <div id='user-right-menu' class="user1">
                     <div style="width: fit-content; cursor: pointer">
                         {% if self_avatar_path %}
 
@@ -104,16 +104,22 @@
 
 
                 <div class="notif-avatar">
-                    <div id="notif-avatar">
+                    <div>
+                        {% if notification.type == 'login-to-account' %}
+                            <img class="notif-avatar" src="{{ url_for('static', filename='img/' + notification.from_user_avatar_path) }}" alt="">
+                        {% elif notification.type == 'newFriendRequest' %}
                         {% if notification.from_user_avatar_path %}
-                        <img class="notif-avatar" src="{{ url_for('static', filename='avatars/users/' + notification.from_user_avatar_path) }}" alt="">
-                        {% else %}
-                        <img class="notif-avatar" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
+                            <img class="notif-avatar" src="{{ url_for('static', filename='avatars/users/' + notification.from_user_avatar_path) }}" alt="">
+                            {% else %}
+                            <img class="notif-avatar" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
                 <div class="notif-description">
-
+                {% if notification.type == 'login-to-account' %}
+                    <p style="font-size: 14px !important; color: #a6a6a6 !important;" class="notif-text">{{ notification.text }} <a href="{{ notification.href }}">{{ notification.from_user }}</a></p>
+                {% endif %}
                 {% if notification.type == 'newFriendRequest' %}
                     <p class="notif-text">{{ notification.text }} <a href="{{ notification.href }}">{{ notification.from_user }}</a></p>
                 {% endif %}
@@ -141,6 +147,45 @@
         <p class="notifi-delete-all">Удалить все</p>
     </div>
 
+</div>
+
+<div id="right-info" class="hide">
+    <div class="right-user-header">
+        <div class="right-user-avatar">
+            {% if self_avatar_path %}
+                <img width="70px" height="70px" style="border-radius: 50%" src="{{ url_for('static', filename='avatars/users/' + self_avatar_path) }}" alt="">
+            {% else %}
+                <img width="70px" height="70px" style="border-radius: 50%" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
+            {% endif %}
+        </div>
+        <div class="right-username">
+            <b>{{ user.name }} {{user.second_name }}</b>
+        </div>
+        <div class="right-email">
+            {{ user.email }}
+        </div>
+    </div>
+    <hr style="margin: 0">
+    <div class="right-user-buttons">
+        <div id="btn-setting" class="right-btn">
+            <div style="margin-left: 15px; margin-top: 5px; display: flex;">
+                <img width="20px" height="20px" src="{{ url_for('static', filename='img/setting.png') }}" alt="Настройки">
+                <p style="margin-left: 10px; font-size: 15px">Настройки</p>
+            </div>
+        </div>
+        <div id="btn-support" class="right-btn">
+            <div style="margin-left: 15px; margin-top: 5px; display: flex">
+                <img width="20px" height="20px" src="{{ url_for('static', filename='img/support.png') }}" alt="Помощь">
+                <p style="margin-left: 10px; font-size: 15px">Помощь</p>
+            </div>
+        </div>
+        <div id="btn-exit" class="right-btn">
+            <div style="margin-left: 15px; margin-top: 5px; display: flex">
+                <img width="20px" height="20px" src="{{ url_for('static', filename='img/exit-right.png') }}" alt="Выйти">
+                <p style="margin-left: 10px; font-size: 15px">Выйти</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
