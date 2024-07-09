@@ -88,6 +88,28 @@ def change_status():
     return render_template('change_status.html')
 
 
+def createNotification(user_id, type, from_user_avatar_path, text, href, date, from_user, room):
+    try:
+        new_notification = Notification(user_id=user_id, type=type, from_user_avatar_path=from_user_avatar_path,
+                                        text=text,
+                                        from_user=from_user, href=href, date=date)
+        db.session.add(new_notification)
+        db.session.commit()
+
+        socketio.emit('newNotification', {
+            'success': True,
+            'type': type,
+            'user_id': user_id,
+            'from_user_avatar_path': from_user_avatar_path,
+            'from_user': from_user,
+            'date': datetime.datetime.now().strftime('%d.%m.%y в %H:%M'),
+            'new': 1,
+            'text': text,
+            'href': href
+        }, room=room)
+    except Exception as e:
+        db.session.rollback()
+
 
 @app.route('/')
 @check_access
@@ -106,24 +128,12 @@ def auth():
                 if check_password_hash(user.password, request.json.get('password')):
                     session['auth'] = True
                     session['account'] = user.id
-                    try:
-                        new_notification = Notification(user_id=user.id, type='login-to-account', from_user_avatar_path='warn.png', text=f'Выполнен вход в аккаунт {user.tag} через браузер {request.headers.get("User-Agent")}. Если это были не Вы - смените пароль в ', from_user='настройках', href='/setting', date=datetime.datetime.now())
-                        db.session.add(new_notification)
-                        db.session.commit()
 
-                        socketio.emit('newNotification', {
-                            'success': True,
-                            'type': 'login-to-account',
-                            'user_id': user.id,
-                            'from_user_avatar_path': 'warn.png',
-                            'from_user': 'настройках',
-                            'date': datetime.datetime.now().strftime('%d.%m.%y в %H:%M'),
-                            'new': 1,
-                            'text': f'Выполнен вход в аккаунт {user.tag} через браузер {request.headers.get("User-Agent")}. Если это были не Вы - смените пароль в ',
-                            'href': '/setting'
-                        }, room=str(user.id))
-                    except Exception as e:
-                        db.session.rollback()
+                    createNotification(user_id=user.id, type='login-to-account', from_user_avatar_path='warn.png',
+                                       text=f'Выполнен вход в аккаунт {user.tag} через браузер {request.headers.get("User-Agent")}. Если это были не Вы - смените пароль в ',
+                                       from_user='настройках', href='/setting', date=datetime.datetime.now(), room=str(user.id))
+
+
 
                     resp = make_response(jsonify({
                         'result': True
@@ -459,20 +469,11 @@ def add_friend(data):
 
         from_avatar = User.query.filter_by(id=user_id).first().avatar_path
         user_name = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(id=user_id).first().second_name
-        newNotification = Notification(type='newFriendRequest', user_id=friend_id, from_user_avatar_path=from_avatar, from_user=user_name, date=datetime.datetime.now(), new=1, text=f'Новое предложение дружбы от', href=f'/{me.tag}')
-        db.session.add(newNotification)
-        db.session.commit()
-        socketio.emit('newNotification', {
-            'success': True,
-            'type': 'newFriendRequest',
-            'user_id': friend_id,
-            'from_user_avatar_path': from_avatar,
-            'from_user': user_name,
-            'date': datetime.datetime.now().strftime('%d.%m.%y в %H:%M'),
-            'new': 1,
-            'text': f'Новое предложение дружбы от',
-            'href': f'/{me.tag}'
-        }, room=friend_id)
+
+        createNotification(user_id=friend_id, type='newFriendRequest', from_user_avatar_path=from_avatar,
+                           text=f'Новое предложение дружбы от',
+                           from_user=user_name, href=f'/{me.tag}', date=datetime.datetime.now(), room=friend_id)
+
         socketio.emit('addFriend_request_result', {'success': True}, room=request.cookies.get('account'))
 
     except Exception as e:
