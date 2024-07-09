@@ -57,8 +57,12 @@ class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     type = db.Column(db.String(80), nullable=True)
+    from_user = db.Column(db.String(80), nullable=True)
+    from_user_avatar_path = db.Column(db.String(120), nullable=True)
     text = db.Column(db.Text, nullable=True)
     href = db.Column(db.String(80), nullable=True)
+    date = db.Column(db.DateTime, nullable=True)
+    new = db.Column(db.Integer, default=1)
 
 
 class Photos(db.Model):

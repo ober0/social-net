@@ -23,8 +23,8 @@ mail = Mail(app)
 
 def check_notification(user_id):
     notification = Notification.query.filter_by(user_id=user_id).all()
-    print(len(notification))
-    return notification, len(notification)
+    notification_new = Notification.query.filter_by(user_id=user_id, new=1).all()
+    return notification, len(notification_new)
 
 
 
@@ -40,15 +40,12 @@ def check_status(action):
                     if status_need <= status:
                         pass
                     else:
-                        print(1)
                         return redirect('/')
                 else:
-                    print(2)
                     return redirect('/')
 
                 return f(*args, **kwargs)
             except Exception as e:
-                print(e)
                 return redirect('/')
 
         return decorated_function
@@ -162,12 +159,10 @@ def confirm_email():
         msg.html = result
         mail.send(msg)
         session['auth_code'] = code
-        print(session['auth_code'])
 
         return render_template('confirm_email.html', email=email)
     if request.method == "POST":
         code = request.json
-        print(code)
         if str(code) == str(session['auth_code']):
             data = session.get('auth_data').split(':%:%:')
             hashed_password = data[2]
@@ -179,7 +174,6 @@ def confirm_email():
                 session['auth'] = True
                 session['account'] = user.id
                 session['auth_data'] = ''
-                print(3)
                 session['auth_code'] = ''
 
                 resp = make_response(jsonify({
@@ -191,7 +185,6 @@ def confirm_email():
 
             except Exception as e:
                 db.session.rollback()
-        print(1, session['auth_code'])
         return jsonify({
             'res': False
         }), 401
@@ -240,7 +233,6 @@ def edit_user():
 def user_profile(tag):
     if request.method == "GET":
         user = User.query.filter_by(tag=tag).first()
-        print(user)
         self_user_tag = User.query.filter_by(id=request.cookies.get('account')).first().tag
 
         notifications, notifications_count = check_notification(request.cookies.get('account'))
@@ -326,6 +318,48 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
+@app.route('/notificationView', methods=["POST"])
+def notificationView():
+    if request.method == "POST":
+        id = request.cookies.get('account')
+        notifications = Notification.query.filter_by(user_id=id, new=1).all()
+        for notification in notifications:
+            notification.new = 0
+            db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False})
+
+
+@app.route('/notificationDelete', methods=["POST"])
+def notificationDelete():
+    if request.method == "POST":
+        id = request.cookies.get('account')
+        notifi_to_del = request.json.get('notifi')
+        if notifi_to_del:
+            if notifi_to_del == 'all':
+                try:
+                    notifications = Notification.query.filter_by(user_id=id, new=0).all()
+                    for notification in notifications:
+                        db.session.delete(notification)
+                    db.session.commit()
+                    return jsonify({'success': True})
+                except Exception as e:
+                    return jsonify({'success': False})
+            else:
+                notification = Notification.query.filter_by(user_id=id, id=int(notifi_to_del)).first()
+                if notification:
+                    try:
+                        db.session.delete(notification)
+                        db.session.commit()
+                        return jsonify({'success': True})
+                    except Exception as e:
+                        return jsonify({'success': False})
+                return jsonify({'success': False})
+
+        return jsonify({'success': False})
+    return jsonify({'success': False})
+
+
 @socketio.on('edit_profile_save')
 def edit_profile_save(data):
     join_room(request.cookies.get('account'), request.cookies.get('user_id'))
@@ -341,7 +375,6 @@ def edit_profile_save(data):
 
                 if avatar:
                     image_type = imghdr.what(None, h=avatar)
-                    print(image_type)
                     filename = f'avatar-user-{request.cookies.get("account")}.{image_type}'
 
                     for i in os.listdir('static/avatars/users'):
@@ -353,7 +386,7 @@ def edit_profile_save(data):
                         f.write(avatar)
                     user.avatar_path = filename
             except Exception as e:
-                print(e)
+                pass
 
             user.name = data['name'].title()
             user.second_name = data['second_name'].title()
@@ -383,7 +416,6 @@ def edit_profile_save(data):
             socketio.emit('edit_profile_save_result', data, room=request.cookies.get('account'))
     except Exception as e:
         error_message = str(e)
-        print(error_message)
         data = {
             'result': False,
             'error': error_message
@@ -396,16 +428,20 @@ def add_friend(data):
     join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     user_id = request.cookies.get('account')
     friend_id = data['friend_id']
-    friend = User.query.filter_by(id=friend_id).first()
+    me = User.query.filter_by(id=user_id).first()
     try:
 
         friend_requests = FriendRequest(user_id=user_id, friend_id=friend_id, user_access='yes')
         db.session.add(friend_requests)
         db.session.commit()
 
-        newNotification = Notification(type='newFriendRequest', user_id=friend_id, text=f'Новое предложение дружбы от {friend.name} {friend.second_name}', href=f'/{friend.tag}')
+        from_avatar = User.query.filter_by(id=user_id).first().avatar_path
+        user_name = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(id=user_id).first().second_name
+        newNotification = Notification(type='newFriendRequest', user_id=friend_id, from_user_avatar_path=from_avatar, from_user=user_name, date=datetime.datetime.now(), new=1, text=f'Новое предложение дружбы от', href=f'/{me.tag}')
         db.session.add(newNotification)
         db.session.commit()
+
+        socketio.emit('updateNotifi')
         socketio.emit('addFriend_request_result', {'success': True}, room=request.cookies.get('account'))
 
     except Exception as e:
@@ -483,7 +519,6 @@ def new_photo(data):
     user_id = request.cookies.get('account')
     file = data['file']
     filename = data['filename']
-    print(1)
     if file:
         socketio.emit('newPhoto_result', {'success': True}, room=request.cookies.get('account'))
     else:

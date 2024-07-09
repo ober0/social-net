@@ -5,12 +5,12 @@ function go_edit_prifile() {
     window.location.href = '/edit_user';
 }
 
-function go_message() {
-    window.location.href = '/messanger';
-}
-
+document.getElementById('goMessage').addEventListener('click', function(){
+    window.location.href = '/messanger?chat=' + this.getAttribute('user-tag')
+})
 document.getElementById('goFriend').addEventListener('click', function () {
     window.location.href = '/friends?user=' + this.getAttribute('my_tag');
+    w
 });
 
 document.getElementById('goSubs').addEventListener('click', function () {

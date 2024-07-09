@@ -110,6 +110,50 @@ function hideSearchEsc(event) {
     }
 }
 
+
+
+
+
+function openNotification(event){
+
+    fetch('/notificationView', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success){
+                document.getElementById('notifi-counter').innerText = 0
+            }
+
+        })
+
+
+    document.getElementById('notifications').classList.remove('hide')
+    event.stopPropagation()
+
+    document.getElementById('notifications').addEventListener('click', function (event) {
+        event.stopPropagation()
+    })
+    function closeNotifiEsc(event) {
+        if (event.key === 'Escape'){
+            closeNotifi()
+        }
+    }
+
+    function closeNotifi(){
+        document.removeEventListener('keydown', closeNotifiEsc)
+        document.getElementById('notifications').classList.add('hide')
+        document.getElementById('open-notifi').addEventListener('click', openNotification)
+    }
+    document.getElementById('body').addEventListener('click', closeNotifi)
+    document.addEventListener('keydown', closeNotifiEsc)
+
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     let searchInput = document.getElementById('search-main')
 
@@ -187,5 +231,51 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         })
+    })
+
+    document.querySelectorAll('.notification').forEach(notif => {
+        notif.addEventListener('click', function (){
+            window.location.href = this.getAttribute('path')
+        })
+    })
+
+    document.getElementById('open-notifi').addEventListener('click', openNotification)
+
+    document.getElementById('notifi-delete-all-div').addEventListener('click', function (){
+        fetch('/notificationDelete', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({notifi: 'all'})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success){
+                    let parentEl = document.getElementById('notification-container')
+                    while (parentEl.firstChild) {
+                        parentEl.removeChild(parentEl.firstChild);
+                    }
+                    document.getElementById('notifications').classList.add('hide')
+                    document.getElementById('open-notifi').addEventListener('click', openNotification)
+                    document.getElementById('no-notifi-p').classList.remove('hide')
+                }
+
+            })
+    })
+
+    document.getElementById('delete-notifi').addEventListener('click', function (event){
+        event.stopPropagation()
+        let not_id = this.getAttribute('notifi_id')
+        this.parentElement.parentElement.remove()
+        fetch('/notificationDelete', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({notifi: not_id})
+        })
+            .then(response => response.json())
+            .then(data => {})
     })
 })

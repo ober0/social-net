@@ -9,7 +9,7 @@
             <div class="col-sm-3">
             <div class="logo">
                 <div style="width: fit-content; cursor: pointer">
-                    <img  width="110px" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" >
+                    <a href="/"><img  width="110px" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" ></a>
                 </div>
             </div>
             </div>
@@ -24,10 +24,14 @@
     <div class="col-sm-3">
         <div class="row">
             <div class="col-sm-6">
-                <div class="notifications">
-                    <div class='notification-hover' style="width: fit-content; cursor: pointer">
+                <div class="notifications" style="margin: 0; position: relative; top:25%; left: 60%">
+                    <div id="open-notifi" class='notification-hover' style="width: fit-content; cursor: pointer; margin: 10px; display: flex">
                         <img style="width: 30px" src="{{ url_for('static', filename='img/notification_icon.png') }}" alt="">
-                      <div class="badge">{{ notification_count }}</div>
+
+                        <div class="badge">
+                            <p id="notifi-counter" style="position: relative; margin: 0; bottom: 1px; right: 2px">{{ notification_count }}</p>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -82,5 +86,61 @@
     </div>
 </div>
 
+
+<div id="notifications" class="hide">
+    <div>
+        {% if notifications | length == 0 %}
+        <p style="margin: 10px;">У вас нет уведомлений</p>
+        {% else %}
+        <p style="margin: 10px;" class="hide" id="no-notifi-p">У вас нет уведомлений</p>
+        {% endif %}
+    </div>
+    <div id="notification-container">
+
+
+        {% for notification in notifications %}
+        <div path="{{notification.href}}" class="notification">
+            <div class="notif-main">
+
+
+                <div class="notif-avatar">
+                    <div id="notif-avatar">
+                        {% if notification.from_user_avatar_path %}
+                        <img class="notif-avatar" src="{{ url_for('static', filename='avatars/users/' + notification.from_user_avatar_path) }}" alt="">
+                        {% else %}
+                        <img class="notif-avatar" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="notif-description">
+
+                {% if notification.type == 'newFriendRequest' %}
+                    <p class="notif-text">{{ notification.text }} <a href="{{ notification.href }}">{{ notification.from_user }}</a></p>
+                {% endif %}
+
+                </div>
+            </div>
+            <div class="date" style="display: flex">
+                <p class="gray-text">
+                    {{notification.date.strftime('%d.%m.%y в %H:%M')}}
+                </p>
+
+                <div notifi_id="{{notification.id}}" id="delete-notifi" style="display: flex">
+                    <img width="20px" height="20px" style="position: relative; top:5px" src="{{ url_for('static', filename='img/trash.png') }}" alt="">
+                    <p class="gray-text">  Удалить</p>
+                </div>
+
+            </div>
+
+        </div>
+        <hr style="margin: 0; height: 2px">
+        {% endfor %}
+    </div>
+
+    <div id="notifi-delete-all-div">
+        <p class="notifi-delete-all">Удалить все</p>
+    </div>
+
+</div>
 
 {% endblock %}
