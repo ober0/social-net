@@ -36,8 +36,8 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <div id='user-right-menu' class="user1">
-                    <div style="width: fit-content; cursor: pointer">
+                <div id='user-right-menu' class="user1" style="cursor: pointer">
+                    <div style="width: fit-content;">
                         {% if self_avatar_path %}
 
                             <img style="width: 40px; height: 40px; border-radius: 50%" src="{{ url_for('static', filename='avatars/users/' + self_avatar_path) }}" alt="User Avatar">

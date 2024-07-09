@@ -202,6 +202,8 @@ function openNotification(event){
 
 
     document.getElementById('notifications').classList.remove('hide')
+    document.getElementById('right-info').classList.add('hide')
+    document.getElementById('search_result').classList.add('hide')
     event.stopPropagation()
 
     document.getElementById('notifications').addEventListener('click', function (event) {
@@ -240,7 +242,27 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
 
-    document.getElementById('user-right-menu').addEventListener('click', function () {
+    document.getElementById('user-right-menu').addEventListener('click', function (event) {
+        document.getElementById('right-info').classList.remove('hide')
+        document.getElementById('search_result').classList.add('hide')
+        document.getElementById('notifications').classList.add('hide')
+        event.stopPropagation()
+
+        function hide_right_menu(){
+            document.getElementById('body').removeEventListener('click', hide_right_menu)
+            document.getElementById('right-info').classList.add('hide')
+            document.removeEventListener('keydown', hide_right_menu_btn)
+        }
+        function hide_right_menu_btn(event) {
+            if (event.key === 'Escape'){
+                hide_right_menu()
+            }
+        }
+        document.addEventListener('keydown', hide_right_menu_btn)
+        document.getElementById('body').addEventListener('click', hide_right_menu)
+        document.getElementById('user-right-menu').addEventListener('click', function (event) {
+            event.stopPropagation()
+        })
 
     })
 
