@@ -9,7 +9,7 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group
+from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post
 from config import app, action_access
 import random
 import datetime
@@ -255,9 +255,76 @@ def edit_user():
             return 'Страница не найдена'
 
 
+@app.route('/addPost', methods=["POST"])
+def addPost():
+    print(1)
+    if request.method == "POST":
+        print(2)
+        text = request.json.get('text')
+        print(text)
+        isPublic = request.json.get('isPublic') == 'true'
+        print(isPublic)
 
+        photos = request.json.get('photos')
+        print(photos)
+        videos = request.json.get('videos')
+        print(videos)
+        print(3)
+        photos_urls = []
+        for photo in photos:
+            base64_str = photo.split(';base64,')[-1]
+            image_binary = base64.b64decode(base64_str)
+            photos_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.png'
+            try:
+                with open(f'static/users/photos/{photos_url}', 'wb') as f:
+                    f.write(image_binary)
+                photos_urls.append(photos_url)
+            except:
+                return jsonify({'result': False})
+        print(4)
+        video_urls = []
+        for video in videos:
+            base64_str = video.split(';base64,')[-1]
+            image_binary = base64.b64decode(base64_str)
+            video_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.mp4'
+            try:
+                with open(f'static/users/photos/{video_url}', 'wb') as f:
+                    f.write(image_binary)
+                video_urls.append(video_url)
+            except:
+                return jsonify({'result': False})
+        _photos_urls = '/'.join(photos_urls)
+        _video_urls = '/'.join(video_urls)
 
+        new_post = Post(user_id=request.cookies.get('account'), text=text, images=_photos_urls, videos=_video_urls, date=datetime.datetime.now().strftime('%d-%m-%Y в %H:%M'))
+        print(5)
+        try:
+            db.session.add(new_post)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'result': False})
+        print(6)
+        if isPublic:
+            if len(photos_urls) > 0:
+                try:
+                    for photos_url in photos_urls:
+                        newPhoto = Photos(user_id=request.cookies.get('account'), path_name=photos_url, name=f'Фото пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
+                        db.session.add(newPhoto)
+                    db.session.commit()
+                except:
+                    pass
 
+            if len(video_urls) > 0:
+                try:
+                    for video_url in video_urls:
+                        newVideo = Video(user_id=request.cookies.get('account'), path_name=video_url, name=f'Фото пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
+                        db.session.add(newVideo)
+                    db.session.commit()
+                except:
+                    pass
+        return jsonify({'result': True})
+    return jsonify({'result': False})
 @app.route('/<string:tag>', methods=['GET'])
 def user_profile(tag):
     if request.method == "GET":

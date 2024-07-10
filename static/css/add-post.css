@@ -1,5 +1,7 @@
 .addpost-header{
     display: flex;
+    margin-bottom: 0;
+
 }
 
 .hide {
@@ -11,6 +13,7 @@
     width: 80%;
     border-radius: 10px;
     padding: 10px;
+    padding-bottom: 0;
 }
 
 .avatar{
@@ -24,7 +27,10 @@
 }
 .addpost-input{
     margin-left: 20px;
-    width: 70%;
+    width: 80%;
+    position: relative;
+    bottom: 10px;
+    cursor: text;
 }
 
 #text-new-input{
@@ -33,18 +39,143 @@
     background-color: #333333;
     height: 55px;
     position: relative;
-    bottom: 5px;
-    width: max-content;
+    bottom: -15px;
+    width: 90%;
     margin: 0;
+    resize: none;
+    overflow-y: hidden;
+    box-sizing: border-box;
 }
+
 #text-new-input:focus{
     outline: none;
 }
 .photo-add, .video-add{
-    margin-left: 5px;
+    margin-left: 10px;
     width: 25px;
     height: 25px;
     color: #a6a6a6;
-    cur
+    cursor: pointer;
+    position: relative;
+    top:14px;
 }
 
+.addpost-photo-img{
+    position: relative;
+    top:-7px;
+    left: 10px;
+    cursor: text;
+}
+
+.addpost-user-content{
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    width: 210px;
+    height: 210px;
+    padding: 10px;
+    border-radius: 10%;
+    margin-bottom: -20px;
+}
+
+
+#photo-content{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 30px;
+}
+
+.removeButtonContainer{
+    position: relative;
+    left: 83.5%;
+    top:30px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    vertical-align: center;
+    background-color: rgba(0, 0, 0, 0.75);
+    border-top-right-radius: 3px;
+    cursor: pointer;
+    z-index: 998;
+}
+
+
+#no-publ{
+    transform: scale(1.3);
+    position: relative;
+    top:1px;
+    margin-right:5px;
+}
+
+.addpost-bottom{
+    margin-top: -1px;
+}
+
+#cancel-addpost{
+    margin: 0;
+    color: #a6a6a6;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#cancel-addpost:hover{
+    text-decoration: underline;
+}
+
+#publicate-post{
+    padding: 0;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    height: 28px;
+    width: 105px;
+    border: none;
+    position: relative;
+    margin-left: 20px;
+}
+@media screen and (max-width: 1400px){
+    .addpost-input{
+        width: 75%;
+    }
+    #photo-content{
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .addpost-user-content{
+        width: 231px;
+        height: 231px;
+    }
+
+}
+@media screen and (max-width: 1200px){
+    .addpost-input{
+        width: 72%;
+    }
+    .addpost-user-content{
+        width: 200px;
+        height: 200px;
+    }
+}
+@media screen and (max-width: 992px){
+    .addpost-input{
+        width: 65%;
+    }
+    #photo-content{
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .addpost-user-content{
+        width: 215px;
+        height: 215px;
+    }
+}
+@media screen and (max-width: 768px){
+    .addpost-photo-img{
+        top: -5px
+    }
+    .addpost-user-content{
+        width: 160px;
+        height: 160px;
+    }
+    .removeButtonContainer{
+        left: 80.5%;
+    }
+}
