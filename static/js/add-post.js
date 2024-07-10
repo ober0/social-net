@@ -175,7 +175,12 @@ document.addEventListener('DOMContentLoaded', function (){
 
             .then(response => response.json())
             .then(data => {
-                console.log(data.result);
+                if (data.result){
+                    location.reload()
+                }
+                else {
+                    alert('Произошла ошибка')
+                }
             })
 
     });

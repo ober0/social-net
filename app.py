@@ -257,19 +257,11 @@ def edit_user():
 
 @app.route('/addPost', methods=["POST"])
 def addPost():
-    print(1)
     if request.method == "POST":
-        print(2)
         text = request.json.get('text')
-        print(text)
-        isPublic = request.json.get('isPublic') == 'true'
-        print(isPublic)
-
+        isPublic = request.json.get('isPublic')
         photos = request.json.get('photos')
-        print(photos)
         videos = request.json.get('videos')
-        print(videos)
-        print(3)
         photos_urls = []
         for photo in photos:
             base64_str = photo.split(';base64,')[-1]
@@ -281,14 +273,13 @@ def addPost():
                 photos_urls.append(photos_url)
             except:
                 return jsonify({'result': False})
-        print(4)
         video_urls = []
         for video in videos:
             base64_str = video.split(';base64,')[-1]
             image_binary = base64.b64decode(base64_str)
             video_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.mp4'
             try:
-                with open(f'static/users/photos/{video_url}', 'wb') as f:
+                with open(f'static/users/video/{video_url}', 'wb') as f:
                     f.write(image_binary)
                 video_urls.append(video_url)
             except:
@@ -297,14 +288,13 @@ def addPost():
         _video_urls = '/'.join(video_urls)
 
         new_post = Post(user_id=request.cookies.get('account'), text=text, images=_photos_urls, videos=_video_urls, date=datetime.datetime.now().strftime('%d-%m-%Y в %H:%M'))
-        print(5)
+
         try:
             db.session.add(new_post)
             db.session.commit()
         except Exception as e:
             db.session.rollback()
             return jsonify({'result': False})
-        print(6)
         if isPublic:
             if len(photos_urls) > 0:
                 try:
@@ -318,7 +308,7 @@ def addPost():
             if len(video_urls) > 0:
                 try:
                     for video_url in video_urls:
-                        newVideo = Video(user_id=request.cookies.get('account'), path_name=video_url, name=f'Фото пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
+                        newVideo = Video(user_id=request.cookies.get('account'), path_name=video_url, name=f'Видео пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
                         db.session.add(newVideo)
                     db.session.commit()
                 except:
@@ -377,7 +367,7 @@ def user_profile(tag):
         else:
             sec1_photos = [sec1_all_photos[i] for i in range(len(sec1_all_photos))]
 
-        video_all = Video.query.filter_by(user_id=request.cookies.get('account')).all()
+        video_all = Video.query.filter_by(user_id=request.cookies.get('account')).order_by(Video.id.desc()).all()
         if len(video_all) > 3:
             video = [video_all[i] for i in range(3)]
         else:
@@ -693,12 +683,14 @@ def delete_video(data):
         try:
             db.session.delete(video)
             db.session.commit()
-            os.remove(f'static/users/video/{video.path_name}')
             socketio.emit('deleteVideo_result', {'success': True}, room=request.cookies.get('account'))
+
 
         except Exception as e:
             db.session.rollback()
             socketio.emit('deleteVideo_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
+
+        os.remove(f'static/users/video/{video.path_name}')
     else:
         socketio.emit('deleteVideo_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'}, room=request.cookies.get('account'))
 
