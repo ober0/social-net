@@ -80,9 +80,11 @@ class Video(db.Model):
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer,  nullable=False)
+    isGroup = db.Column(db.String(10), nullable='0')
     text = db.Column(db.Text, nullable=True)
     images = db.Column(db.Text, nullable=True)
     videos = db.Column(db.Text, nullable=True)
     date = db.Column(db.String(100), nullable=True)
     likes = db.Column(db.Integer, default=0)
+

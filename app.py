@@ -117,7 +117,78 @@ def index():
     me = User.query.filter_by(id=request.cookies.get('account')).first()
     self_avatar_path = me.avatar_path
     notifications, notifications_count = check_notification(request.cookies.get('account'))
-    return render_template('index.html', username=User.query.filter_by(id=session['account']).first().name, me=me, self_avatar_path=self_avatar_path, notifications=notifications, notification_count=notifications_count, user=User.query.filter_by(id=request.cookies.get('account')).first())
+    posts = Post.query.order_by(Post.id.desc()).limit(5).all()
+    avatars = []
+    authors = []
+    _selfs = []
+    posts_files = []
+    for post in posts:
+        post_files = []
+        if post.isGroup == '1':
+            if Group.query.filter_by(id=post.user_id).first().avatar_path:
+                avatars.append(f'groups/{Group.query.filter_by(id=post.user_id).first().avatar_path}')
+            else:
+                avatars.append(f'default.png')
+
+            group_name = Group.query.filter_by(id=post.user_id).first().name
+            authors.append(group_name)
+
+            _selfs.append(0)
+
+            if post.images:
+                post_images = post.images.split('/')
+                for file in post_images:
+                    post_files.append(f'group/photos/{file}')
+
+            if post.videos:
+                post_videos = post.videos.split('/')
+                for file in post_videos:
+                    post_files.append(f'group/video/{file}')
+
+            posts_files.append(post_files)
+
+        else:
+            if User.query.filter_by(id=post.user_id).first().avatar_path:
+                avatars.append(f'users/{User.query.filter_by(id=post.user_id).first().avatar_path}')
+            else:
+                avatars.append(f'default.png')
+
+            username = User.query.filter_by(id=post.user_id).first().name + " " + User.query.filter_by(id=post.user_id).first().second_name
+            authors.append(username)
+
+            if int(post.user_id) == int(request.cookies.get('account')):
+                _selfs.append(1)
+            else:
+                _selfs.append(0)
+
+            post_files = []
+
+            if post.images:
+                post_images = post.images.split('/')
+                for file in post_images:
+                    post_files.append(f'users/photos/{file}')
+
+            if post.videos:
+                post_videos = post.videos.split('/')
+                for file in post_videos:
+                    post_files.append(f'users/video/{file}')
+
+            posts_files.append(post_files)
+
+    print(posts_files)
+    return render_template('index.html',
+                           username=User.query.filter_by(id=session['account']).first().name,
+                           me=me,
+                           self_avatar_path=self_avatar_path,
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           user=User.query.filter_by(id=request.cookies.get('account')).first(),
+                           posts=posts,
+                           avatars=avatars,
+                           authors=authors,
+                           _selfs = _selfs,
+                           posts_files=posts_files
+                           )
 
 
 @app.route('/auth', methods=['POST'])
@@ -276,7 +347,27 @@ def addPost():
 
             _photos_urls = '/'.join(photos_urls)
 
-            new_post = Post(user_id=request.cookies.get('account'), text=text, images=_photos_urls, date=datetime.datetime.now().strftime('%d-%m-%Y в %H:%M'))
+            months = {
+                '01': 'янв',
+                '02': 'фев',
+                '03': 'мар',
+                '04': 'апр',
+                '05': 'май',
+                '06': 'июн',
+                '07': 'июл',
+                '08': 'авг',
+                '09': 'сен',
+                '10': 'окт',
+                '11': 'ноя',
+                '12': 'дек'
+            }
+            time = datetime.datetime.now()
+            day = time.strftime('%d')
+            month = months[time.strftime('%m')]
+            year = time.strftime('%Y')
+
+            date = f'{day} {month} {year}'
+            new_post = Post(user_id=request.cookies.get('account'), text=text, images=_photos_urls, date=date)
 
             try:
                 db.session.add(new_post)
@@ -306,14 +397,13 @@ def addPost():
                 with open(f'static/users/video/{video_url}', 'wb') as f:
                     f.write(image_binary)
             except:
-                print(2)
                 return jsonify({'result': False})
 
 
             last_post = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).first()
             videos = str(last_post.videos)
 
-            if videos != None:
+            if videos != 'None':
                 videos = videos + '/' + video_url
             else:
                 videos = video_url
@@ -323,7 +413,6 @@ def addPost():
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                print(3)
                 return jsonify({'result': False})
 
 
@@ -335,7 +424,6 @@ def addPost():
                     return jsonify({'result': True})
                 except:
                     db.session.rollback()
-                    print(4)
                     return jsonify({'result': False})
 
 
@@ -401,11 +489,41 @@ def user_profile(tag):
         friend_count = Friends.query.filter_by(user_id=request.cookies.get('account')).count()
 
         posts = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).limit(5).all()
+        avatars = []
+        authors = []
+        _selfs = []
+        posts_files = []
+        for post in posts:
+            if User.query.filter_by(id=post.user_id).first().avatar_path:
+                avatars.append(f'users/{User.query.filter_by(id=post.user_id).first().avatar_path}')
+            else:
+                avatars.append(f'default.png')
 
+            username = User.query.filter_by(id=post.user_id).first().name + " " + User.query.filter_by(id=post.user_id).first().second_name
+            authors.append(username)
+
+            if int(post.user_id) == int(request.cookies.get('account')):
+                _selfs.append(1)
+            else:
+                _selfs.append(0)
+            post_files = []
+
+            if post.images:
+                post_images = post.images.split('/')
+                for file in post_images:
+                    post_files.append(f'users/photos/{file}')
+
+            if post.videos:
+                post_videos = post.videos.split('/')
+                for file in post_videos:
+                    post_files.append(f'users/video/{file}')
+
+            posts_files.append(post_files)
 
         return render_template('user.html',
                                user=user,
                                _self=_self,
+                               _selfs=_selfs,
                                notifications=notifications,
                                notification_count=notifications_count,
                                birthday_correct=birthday_correct,
@@ -428,7 +546,10 @@ def user_profile(tag):
                                    {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'}
                                ],
                                sec1_video=video,
-                               posts=posts
+                               posts=posts,
+                               avatars=avatars,
+                               authors=authors,
+                               posts_files=posts_files,
         )
 @app.route('/favicon.ico')
 def favicon():

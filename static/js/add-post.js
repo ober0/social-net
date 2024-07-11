@@ -176,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function (){
             .then(response => response.json())
             .then(data => {
                 if (data.result){
+
                     videos_src.forEach(video => {
                         let video_data = {
                             data: video,
@@ -192,14 +193,13 @@ document.addEventListener('DOMContentLoaded', function (){
 
                             .then(response => response.json())
                             .then(data => {
-                                if (data.success){
 
-                                }
                             })
 
                     })
+                    location.reload()
 
-                    window.location.reload()
+
                 }
                 else {
                     alert('Произошла ошибка')

@@ -1,9 +1,77 @@
 {% block posts %}
 {% for post in posts %}
     <link rel="stylesheet" href="{{url_for('static', filename='css/posts.css') }}">
-        <div class="post">
+        <div class="post" style="margin-top: 25px">
             <div class="post-header">
+                <div class="post-avatar">
+                    <img src="{{url_for('static', filename='avatars/' + avatars[loop.index0]) }}" alt="">
+                </div>
+                <div class="post-author">
+                    <p>{{ authors[loop.index0] }}</p>
+                </div>
+                <div class="post-date">
+                    <p>{{post.date}}</p>
+                </div>
+                {% if _selfs[loop.index0] == 1 %}
+                    <div class="post-rem">
+                        <input id="post-rem" type="button" value="Удалить пост">
+                    </div>
+                {% endif %}
 
+            </div>
+
+            <div class="post-content">
+                <div class="post-text">
+                    <p>{{ post.text }}</p>
+                </div>
+                 <style>
+                         .post-files {
+                            display: grid;
+                            grid-gap: 10px;
+                        }
+
+                        /* Условные стили в зависимости от количества файлов */
+                        {% if posts_files[loop.index0]|length == 4 %}
+                            .post-files {
+                                grid-template-columns: repeat(2, 1fr);
+                            }
+                        {% elif posts_files[loop.index0]|length > 6 %}
+                            .post-files {
+                                grid-template-columns: repeat(4, 1fr);
+                            }
+                        {% elif posts_files[loop.index0]|length == 5 %}
+                            .post-files {
+                                grid-template-columns: repeat(3, 1fr);
+                            }
+                        {% elif posts_files[loop.index0]|length % 3 == 0 %}
+                            .post-files {
+                                grid-template-columns: repeat(3, 1fr);
+                            }
+                        {% else %}
+                            .post-files {
+                                grid-template-columns: repeat(2, 1fr);
+                            }
+                        {% endif %}
+
+
+                </style>
+                <h1>{{posts_files[loop.index0]|length}}</h1>
+                <div class="post-files">
+                    {% for file in posts_files[loop.index0] %}
+                        <div class="post-file">
+
+
+                            {% set filetype = file.split('.')[-1] %}
+                            {% if filetype == 'mp4' %}
+                                <video class="post-file-el" controls>
+                                    <source src="{{ url_for('static', filename=file) }}" type="video/mp4">
+                                </video>
+                            {% else %}
+                                <img class="post-file-el" src="{{ url_for('static', filename=file) }}" alt="">
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 {% endfor %}
