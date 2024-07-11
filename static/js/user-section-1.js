@@ -229,18 +229,35 @@ try {
 
 try {
     document.getElementById('delete-video').addEventListener('click', function () {
-        socketio.emit('deleteVideo', {video_id: this.getAttribute('video-id')})
+        let el = this
+        let videos = document.querySelectorAll('.sec-1-video')
+        videos.forEach(video => {
+            if (video.getAttribute('video_id') == el.getAttribute('video-id')) {
+                video.parentNode.remove()
+                document.getElementById('body').click()
+            }
+        })
+        let data = {
+            video_id: this.getAttribute('video-id')
+        }
+        fetch('/deleteVideo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success){
+                    video.remove()
+                }
+                else {
+                    alert(data.error)
+                }
+            })
     })
 }catch {}
-socketio.on('deleteVideo_result', (data) => {
-    if (data.success){
-        document.getElementById('body').click()
-        location.reload()
-    }
-    else {
-        alert(data.error)
-    }
-})
 
 
 

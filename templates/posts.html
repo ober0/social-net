@@ -1,0 +1,10 @@
+{% block posts %}
+{% for post in posts %}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/posts.css') }}">
+        <div class="post">
+            <div class="post-header">
+
+            </div>
+        </div>
+{% endfor %}
+{% endblock %}

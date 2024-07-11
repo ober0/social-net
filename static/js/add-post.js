@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function (){
             text: text,
             isPublic: isPublic,
             photos: photos_src,
-            videos: videos_src
+            type: 'main'
         }
 
         fetch('/addPost', {
@@ -176,12 +176,37 @@ document.addEventListener('DOMContentLoaded', function (){
             .then(response => response.json())
             .then(data => {
                 if (data.result){
-                    location.reload()
+                    videos_src.forEach(video => {
+                        let video_data = {
+                            data: video,
+                            type: 'video',
+                            isPublic: isPublic
+                        }
+                        fetch('/addPost', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(video_data)
+                        })
+
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success){
+
+                                }
+                            })
+
+                    })
+
+                    window.location.reload()
                 }
                 else {
                     alert('Произошла ошибка')
                 }
             })
+
+
 
     });
 

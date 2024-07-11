@@ -258,62 +258,87 @@ def edit_user():
 @app.route('/addPost', methods=["POST"])
 def addPost():
     if request.method == "POST":
-        text = request.json.get('text')
-        isPublic = request.json.get('isPublic')
-        photos = request.json.get('photos')
-        videos = request.json.get('videos')
-        photos_urls = []
-        for photo in photos:
-            base64_str = photo.split(';base64,')[-1]
-            image_binary = base64.b64decode(base64_str)
-            photos_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.png'
+        if request.json.get('type') == 'main':
+            text = request.json.get('text')
+            isPublic = request.json.get('isPublic')
+            photos = request.json.get('photos')
+            photos_urls = []
+            for photo in photos:
+                base64_str = photo.split(';base64,')[-1]
+                image_binary = base64.b64decode(base64_str)
+                photos_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.png'
+                try:
+                    with open(f'static/users/photos/{photos_url}', 'wb') as f:
+                        f.write(image_binary)
+                    photos_urls.append(photos_url)
+                except:
+                    return jsonify({'result': False})
+
+            _photos_urls = '/'.join(photos_urls)
+
+            new_post = Post(user_id=request.cookies.get('account'), text=text, images=_photos_urls, date=datetime.datetime.now().strftime('%d-%m-%Y в %H:%M'))
+
             try:
-                with open(f'static/users/photos/{photos_url}', 'wb') as f:
-                    f.write(image_binary)
-                photos_urls.append(photos_url)
-            except:
+                db.session.add(new_post)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
                 return jsonify({'result': False})
-        video_urls = []
-        for video in videos:
+            if isPublic:
+                if len(photos_urls) > 0:
+                    try:
+                        for photos_url in photos_urls:
+                            newPhoto = Photos(user_id=request.cookies.get('account'), path_name=photos_url, name=f'Фото пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
+                            db.session.add(newPhoto)
+                        db.session.commit()
+                    except:
+                        pass
+
+            return jsonify({'result': True})
+
+        elif request.json.get('type') == 'video':
+            video = request.json.get('data')
+
             base64_str = video.split(';base64,')[-1]
             image_binary = base64.b64decode(base64_str)
             video_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.mp4'
             try:
                 with open(f'static/users/video/{video_url}', 'wb') as f:
                     f.write(image_binary)
-                video_urls.append(video_url)
             except:
+                print(2)
                 return jsonify({'result': False})
-        _photos_urls = '/'.join(photos_urls)
-        _video_urls = '/'.join(video_urls)
 
-        new_post = Post(user_id=request.cookies.get('account'), text=text, images=_photos_urls, videos=_video_urls, date=datetime.datetime.now().strftime('%d-%m-%Y в %H:%M'))
 
-        try:
-            db.session.add(new_post)
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'result': False})
-        if isPublic:
-            if len(photos_urls) > 0:
+            last_post = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).first()
+            videos = str(last_post.videos)
+
+            if videos != None:
+                videos = videos + '/' + video_url
+            else:
+                videos = video_url
+
+            try:
+                last_post.videos = videos
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(3)
+                return jsonify({'result': False})
+
+
+            if request.json.get('isPublic'):
                 try:
-                    for photos_url in photos_urls:
-                        newPhoto = Photos(user_id=request.cookies.get('account'), path_name=photos_url, name=f'Фото пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
-                        db.session.add(newPhoto)
+                    newVideo = Video(user_id=request.cookies.get('account'), path_name=video_url, name=f'Видео пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
+                    db.session.add(newVideo)
                     db.session.commit()
+                    return jsonify({'result': True})
                 except:
-                    pass
+                    db.session.rollback()
+                    print(4)
+                    return jsonify({'result': False})
 
-            if len(video_urls) > 0:
-                try:
-                    for video_url in video_urls:
-                        newVideo = Video(user_id=request.cookies.get('account'), path_name=video_url, name=f'Видео пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
-                        db.session.add(newVideo)
-                    db.session.commit()
-                except:
-                    pass
-        return jsonify({'result': True})
+
     return jsonify({'result': False})
 @app.route('/<string:tag>', methods=['GET'])
 def user_profile(tag):
@@ -374,6 +399,10 @@ def user_profile(tag):
             video = [video_all[i] for i in range(len(video_all))]
 
         friend_count = Friends.query.filter_by(user_id=request.cookies.get('account')).count()
+
+        posts = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).limit(5).all()
+
+
         return render_template('user.html',
                                user=user,
                                _self=_self,
@@ -399,6 +428,7 @@ def user_profile(tag):
                                    {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'}
                                ],
                                sec1_video=video,
+                               posts=posts
         )
 @app.route('/favicon.ico')
 def favicon():
@@ -672,10 +702,10 @@ def delete_photo(data):
 
 
 
-@socketio.on('deleteVideo')
-def delete_video(data):
-    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
-    video_id = data['video_id']
+@app.route('/deleteVideo', methods=['POST'])
+def delete_video():
+
+    video_id = request.json.get('video_id')
 
     video = Video.query.filter_by(id=video_id).first()
 
@@ -683,16 +713,15 @@ def delete_video(data):
         try:
             db.session.delete(video)
             db.session.commit()
-            socketio.emit('deleteVideo_result', {'success': True}, room=request.cookies.get('account'))
-
+            return jsonify({'success': True})
 
         except Exception as e:
             db.session.rollback()
-            socketio.emit('deleteVideo_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
+            return jsonify({'success': False, 'error': str(e)})
 
         os.remove(f'static/users/video/{video.path_name}')
     else:
-        socketio.emit('deleteVideo_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'}, room=request.cookies.get('account'))
+        return jsonify({'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
 
 
 
