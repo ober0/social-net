@@ -24,39 +24,10 @@
                 <div class="post-text">
                     <p>{{ post.text }}</p>
                 </div>
-                 <style>
-                         .post-files {
-                            display: grid;
-                            grid-gap: 10px;
-                        }
 
-                        /* Условные стили в зависимости от количества файлов */
-                        {% if posts_files[loop.index0]|length == 4 %}
-                            .post-files {
-                                grid-template-columns: repeat(2, 1fr);
-                            }
-                        {% elif posts_files[loop.index0]|length > 6 %}
-                            .post-files {
-                                grid-template-columns: repeat(4, 1fr);
-                            }
-                        {% elif posts_files[loop.index0]|length == 5 %}
-                            .post-files {
-                                grid-template-columns: repeat(3, 1fr);
-                            }
-                        {% elif posts_files[loop.index0]|length % 3 == 0 %}
-                            .post-files {
-                                grid-template-columns: repeat(3, 1fr);
-                            }
-                        {% else %}
-                            .post-files {
-                                grid-template-columns: repeat(2, 1fr);
-                            }
-                        {% endif %}
-
-
-                </style>
                 <h1>{{posts_files[loop.index0]|length}}</h1>
-                <div class="post-files">
+                {% set count = loop.index0 %}
+                <div class="post-files file-{{ posts_files[count]|length }}">
                     {% for file in posts_files[loop.index0] %}
                         <div class="post-file">
 
