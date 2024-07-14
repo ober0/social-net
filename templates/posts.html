@@ -22,9 +22,11 @@
             </div>
 
             <div class="post-content">
+                {% if post.text %}
                 <div class="post-text">
                     {{ post.text }}
                 </div>
+                {% endif %}
 
                 {% set count = loop.index0 %}
                 <div class="post-files file-{{ posts_files[count]|length }}">

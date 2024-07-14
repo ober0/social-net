@@ -51,6 +51,7 @@ def check_status(action):
         return decorated_function
     return decorator
 
+
 def check_access(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -400,7 +401,6 @@ def addPost():
             return jsonify({'result': True})
 
         elif request.json.get('type') == 'video':
-            print(1)
             video = request.json.get('data')
 
             base64_str = video.split(';base64,')[-1]
@@ -584,8 +584,13 @@ def favicon():
 def loadMorePosts():
     if request.method == 'POST':
         startWith = request.json.get('startWith')
-        posts = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).offset(startWith).limit(5).all()
+        all = request.json.get('all')
 
+        if all:
+            posts = Post.query.order_by(Post.id.desc()).offset(startWith).limit(5).all()
+        else:
+            posts = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).offset(
+                startWith).limit(5).all()
 
         usernames = []
         avatars = []
@@ -603,9 +608,9 @@ def loadMorePosts():
             else:
                 texts.append(None)
             if post.images:
-                files_1.append(post.images.split('/'))
+                files_1.extend(post.images.split('/'))
             if post.videos:
-                files_1.append(post.videos.split('/'))
+                files_1.extend(post.videos.split('/'))
             if not post.images and not post.videos:
                 files.append(None)
             else:
@@ -643,10 +648,10 @@ def loadMorePosts():
             'dates': dates,
             'likes': likes,
             'comments': comments,
-            'href': tags
+            'href': tags,
+            'selfs': selfs
         }
 
-        pprint.pprint(posts_json)
         if posts:
             return jsonify(posts_json)
         else:
@@ -1050,7 +1055,6 @@ def search():
                     'subscribers': group_subscribers
                 }
             }
-            pprint.pprint(search_results)
 
             return jsonify(search_results)
         else:

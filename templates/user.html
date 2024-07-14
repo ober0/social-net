@@ -61,7 +61,7 @@
         </div>
 
     </div>
-    <div style="position: relative; top:90px" class="container">
+    <div style="position: relative; top:90px"style="position: relative; top:90px" class="container">
         <div class="col-md-12">
             <div class="user">
                 <div class="row">
@@ -289,9 +289,11 @@
                         {% include 'add-post.html' %}
                         {% block add_post %}{% endblock %}
 
+                        <div id="posts-container">
+                            {% include 'posts.html' %}
+                            {% block posts %}{% endblock %}
+                        </div>
 
-                        {% include 'posts.html' %}
-                        {% block posts %}{% endblock %}
                     </div>
                 </div>
             </div>

@@ -68,9 +68,10 @@
                             {% block add_post %}{% endblock %}
                         </div>
 
-
-                        {% include 'posts.html' %}
-                        {% block posts %}{% endblock %}
+                        <div id="posts-container">
+                            {% include 'posts.html' %}
+                            {% block posts %}{% endblock %}
+                        </div>
                     </div>
                 </div>
             </div>
