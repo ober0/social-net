@@ -164,47 +164,54 @@ document.addEventListener('DOMContentLoaded', function (){
             photos: photos_src,
             type: 'main'
         }
-
-        fetch('/addPost', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-
-            .then(response => response.json())
-            .then(data => {
-                if (data.result){
-
-                    videos_src.forEach(video => {
-                        let video_data = {
-                            data: video,
-                            type: 'video',
-                            isPublic: isPublic
-                        }
-                        fetch('/addPost', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(video_data)
-                        })
-
-                            .then(response => response.json())
-                            .then(data => {
-
-                            })
-
-                    })
-                    location.reload()
-
-
-                }
-                else {
-                    alert('Произошла ошибка')
-                }
+        console.log(videos_src)
+        if (text.length > 0 || photos_src.length > 0 || videos_src.length > 0){
+            fetch('/addPost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
             })
+
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result) {
+                        let fetchPromises = videos_src.map(video => {
+                            let video_data = {
+                                data: video,
+                                type: 'video',
+                                isPublic: isPublic
+                            };
+
+                            return fetch('/addPost', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(video_data)
+                            })
+                            .then(response => response.json())
+                            .then(data => {});
+                        });
+
+
+                        Promise.all(fetchPromises).then(() => {
+                            console.log(3);
+                            window.location.reload();
+                        });
+                    }
+
+
+
+                    else {
+                        alert('Произошла ошибка')
+                    }
+                })
+            }
+        else {
+            alert('Вы ничего не ввели!')
+        }
 
 
 

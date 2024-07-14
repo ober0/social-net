@@ -8,7 +8,7 @@
                 </div>
                 <div class="post-info">
                     <div class="post-author">
-                        <p style="margin-bottom: 0">{{ authors[loop.index0] }}</p>
+                        <a href="/{{ hrefs[loop.index0] }}" style="margin-bottom: 0">{{ authors[loop.index0] }}</a>
                     </div>
                     <div class="post-date">
                         <p style="color: #a6a6a6; font-size: 14px">{{post.date}}</p>
@@ -61,5 +61,6 @@
             </div>
 
         </div>
+<script src="{{ url_for('static', filename='js/loadMorePosts.js') }}"></script>
 {% endfor %}
 {% endblock %}

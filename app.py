@@ -122,6 +122,7 @@ def index():
     authors = []
     _selfs = []
     liked = []
+    hrefs = []
     posts_files = []
     for post in posts:
         post_files = []
@@ -147,7 +148,7 @@ def index():
                     post_files.append(f'group/video/{file}')
 
             posts_files.append(post_files)
-
+            hrefs.append(f'community/{Group.query.filter_by(id=post.user_id).first().tag}')
         else:
             if User.query.filter_by(id=post.user_id).first().avatar_path:
                 avatars.append(f'users/{User.query.filter_by(id=post.user_id).first().avatar_path}')
@@ -176,6 +177,8 @@ def index():
 
             posts_files.append(post_files)
 
+            hrefs.append(f'{User.query.filter_by(id=post.user_id).first().tag}')
+
         liked_1 = Likes.query.filter_by(user_id=request.cookies.get('account'), post_id=post.id).first()
         if liked_1:
             liked.append(1)
@@ -195,7 +198,8 @@ def index():
                            authors=authors,
                            _selfs = _selfs,
                            posts_files=posts_files,
-                           liked = liked
+                           liked = liked,
+                           hrefs = hrefs
                            )
 
 
@@ -396,6 +400,7 @@ def addPost():
             return jsonify({'result': True})
 
         elif request.json.get('type') == 'video':
+            print(1)
             video = request.json.get('data')
 
             base64_str = video.split(';base64,')[-1]
@@ -500,6 +505,7 @@ def user_profile(tag):
         avatars = []
         authors = []
         _selfs = []
+        hrefs = []
         liked = []
         posts_files = []
         for post in posts:
@@ -535,6 +541,7 @@ def user_profile(tag):
             else:
                 liked.append(0)
 
+            hrefs.append(user.tag)
         return render_template('user.html',
                                user=user,
                                _self=_self,
@@ -566,13 +573,85 @@ def user_profile(tag):
                                authors=authors,
                                posts_files=posts_files,
                                liked=liked,
+                               hrefs = hrefs
         )
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/loadMorePosts', methods=['POST'])
+def loadMorePosts():
+    if request.method == 'POST':
+        startWith = request.json.get('startWith')
+        posts = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).offset(startWith).limit(5).all()
 
+
+        usernames = []
+        avatars = []
+        selfs = []
+        tags = []
+        texts = []
+        files = []
+        dates = []
+        likes = []
+        comments = []
+        for post in posts:
+            files_1 = []
+            if post.text:
+                texts.append(post.text)
+            else:
+                texts.append(None)
+            if post.images:
+                files_1.append(post.images.split('/'))
+            if post.videos:
+                files_1.append(post.videos.split('/'))
+            if not post.images and not post.videos:
+                files.append(None)
+            else:
+                files.append(files_1)
+            dates.append(post.date)
+            likes.append(post.likes)
+            comments.append(post.comments)
+
+            if post.isGroup:
+                usernames.append(Group.query.filter_by(id=post.user_id).first().name)
+                selfs.append(0)
+                tags.append('community/' + Group.query.filter_by(id=post.user_id).first().tag)
+                if Group.query.filter_by(id=post.user_id).first().avatar_path:
+                    avatars.append('groups/' + Group.query.filter_by(id=post.user_id).first().avatar_path)
+                else:
+                    avatars.append('default.png')
+            else:
+                usernames.append(f"{User.query.filter_by(id=request.cookies.get('account')).first().name} {User.query.filter_by(id=post.user_id).first().second_name}")
+                if post.user_id == int(request.cookies.get('account')):
+                    selfs.append(1)
+                else:
+                    selfs.append(0)
+                tags.append(User.query.filter_by(id=post.user_id).first().tag)
+                if User.query.filter_by(id=post.user_id).first().avatar_path:
+                    avatars.append('users/' + User.query.filter_by(id=post.user_id).first().avatar_path)
+                else:
+                    avatars.append('default.png')
+
+        posts_json = {
+            'success': True,
+            'usernames': usernames,
+            'avatars': avatars,
+            'text': texts,
+            'files': files,
+            'dates': dates,
+            'likes': likes,
+            'comments': comments,
+            'href': tags
+        }
+
+        pprint.pprint(posts_json)
+        if posts:
+            return jsonify(posts_json)
+        else:
+            return jsonify({'success': False})
+    return 'Страница не найдена'
 @app.route('/notificationView', methods=["POST"])
 def notificationView():
     if request.method == "POST":
