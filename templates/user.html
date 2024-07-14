@@ -15,22 +15,53 @@
         .user{
             margin-top: 5px;
         }
+        .header-content{
+            width: 1296px;
+            position: relative;
+            left: 50%;
+            transform: translate(-50%)
+        }
+        @media screen and (max-width: 1400px){
+            .header-content{
+                width: 1140px;
+            }
+        }
+        @media screen and (max-width: 1300px){
+            .header-content{
+                width: 1116px;
+            }
+        }
+        @media screen and (max-width: 1200px){
+            .header-content{
+                width: 936px;
+            }
+        }
+        @media screen and (max-width: 992px){
+            .header-content{
+                width: 696px;
+            }
+        }
+        @media screen and (max-width: 768px){
+            .header-content{
+                width: 516px;
+            }
+        }
     </style>
     <title>Document</title>
 </head>
 <body data-bs-theme="dark">
     <div id="body">
 
-    <div  class="container">
-        <div class="col-md-12">
+    <div style="position: fixed; z-index: 999; background-color: #1b1b1b; width: 100%; margin-top: -5px">
+        <div class="header-content">
             <header>
                 {% include 'header.html' %}
                 {% block header %}{% endblock %}
             </header>
         </div>
 
-
-
+    </div>
+    <div style="position: relative; top:90px" class="container">
         <div class="col-md-12">
             <div class="user">
                 <div class="row">
