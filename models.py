@@ -87,4 +87,16 @@ class Post(db.Model):
     videos = db.Column(db.Text, nullable=True)
     date = db.Column(db.String(100), nullable=True)
     likes = db.Column(db.Integer, default=0)
+    comments = db.Column(db.Integer, default=0)
 
+class Likes(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+class Comments(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    text = db.Column(db.Text, nullable=True)
+    time = db.Column(db.String(100), nullable=True)

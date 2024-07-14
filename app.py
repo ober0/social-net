@@ -9,7 +9,7 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post
+from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes
 from config import app, action_access
 import random
 import datetime
@@ -121,6 +121,7 @@ def index():
     avatars = []
     authors = []
     _selfs = []
+    liked = []
     posts_files = []
     for post in posts:
         post_files = []
@@ -175,7 +176,13 @@ def index():
 
             posts_files.append(post_files)
 
-    print(posts_files)
+        liked_1 = Likes.query.filter_by(user_id=request.cookies.get('account'), post_id=post.id).first()
+        if liked_1:
+            liked.append(1)
+        else:
+            liked.append(0)
+
+
     return render_template('index.html',
                            username=User.query.filter_by(id=session['account']).first().name,
                            me=me,
@@ -187,7 +194,8 @@ def index():
                            avatars=avatars,
                            authors=authors,
                            _selfs = _selfs,
-                           posts_files=posts_files
+                           posts_files=posts_files,
+                           liked = liked
                            )
 
 
@@ -492,6 +500,7 @@ def user_profile(tag):
         avatars = []
         authors = []
         _selfs = []
+        liked = []
         posts_files = []
         for post in posts:
             if User.query.filter_by(id=post.user_id).first().avatar_path:
@@ -519,6 +528,12 @@ def user_profile(tag):
                     post_files.append(f'users/video/{file}')
 
             posts_files.append(post_files)
+
+            liked_1 = Likes.query.filter_by(user_id=request.cookies.get('account'), post_id=post.id).first()
+            if liked_1:
+                liked.append(1)
+            else:
+                liked.append(0)
 
         return render_template('user.html',
                                user=user,
@@ -550,6 +565,7 @@ def user_profile(tag):
                                avatars=avatars,
                                authors=authors,
                                posts_files=posts_files,
+                               liked=liked,
         )
 @app.route('/favicon.ico')
 def favicon():

@@ -6,26 +6,26 @@
                 <div class="post-avatar">
                     <img src="{{url_for('static', filename='avatars/' + avatars[loop.index0]) }}" alt="">
                 </div>
-                <div class="post-author">
-                    <p>{{ authors[loop.index0] }}</p>
-                </div>
-                <div class="post-date">
-                    <p>{{post.date}}</p>
-                </div>
-                {% if _selfs[loop.index0] == 1 %}
-                    <div class="post-rem">
-                        <input id="post-rem" type="button" value="Удалить пост">
+                <div class="post-info">
+                    <div class="post-author">
+                        <p style="margin-bottom: 0">{{ authors[loop.index0] }}</p>
                     </div>
+                    <div class="post-date">
+                        <p style="color: #a6a6a6; font-size: 14px">{{post.date}}</p>
+                    </div>
+                </div>
+
+                {% if _selfs[loop.index0] == 1 %}
+                    <p class="post-rem">Удалить пост</p>
                 {% endif %}
 
             </div>
 
             <div class="post-content">
                 <div class="post-text">
-                    <p>{{ post.text }}</p>
+                    {{ post.text }}
                 </div>
 
-                <h1>{{posts_files[loop.index0]|length}}</h1>
                 {% set count = loop.index0 %}
                 <div class="post-files file-{{ posts_files[count]|length }}">
                     {% for file in posts_files[loop.index0] %}
@@ -44,6 +44,22 @@
                     {% endfor %}
                 </div>
             </div>
+            <div style="display: flex">
+                <div id="likes">
+                    {% if liked[count] == 0 %}
+                        <img class="like-image" src="{{ url_for('static', filename='img/like_0.png') }}" alt="">
+                    {% elif liked[count] == 1 %}
+                        <img class="like-image" src="{{ url_for('static', filename='img/like_1.png') }}" alt="">
+                    {% endif %}
+
+                    <p id="like-counter">{{ post.likes }}</p>
+                </div>
+                <div id="comments">
+                    <img class="comment-image" src="{{ url_for('static', filename='img/comment.png') }}" alt="">
+                    <p id="comment-counter">{{ post.comments }}</p>
+                </div>
+            </div>
+
         </div>
 {% endfor %}
 {% endblock %}
