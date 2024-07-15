@@ -1,3 +1,42 @@
+function likePost(id, likes_div) {
+    let data = {id: id}
+    fetch('likePost', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({id: id})
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success){
+                likes_div.querySelector('.like-image').style.animation = '';
+                if (data.liked){
+                    let counter = likes_div.querySelector('#like-counter')
+                    counter.innerText = Number(counter.innerText) + 1
+                    counter.style.color = 'red'
+
+                    let image = likes_div.querySelector('.like-image')
+                    image.src = '/static/img/like_1.png'
+                    image.style.animation = 'fade-in 0.5s ease-in-out';
+
+                }
+                else {
+                    let counter = likes_div.querySelector('#like-counter')
+                    counter.innerText = Number(counter.innerText) - 1
+                    counter.style.color = 'white'
+
+                    let image = likes_div.querySelector('.like-image')
+                    image.src = '/static/img/like_0.png'
+                    image.style.animation = 'fade-out 0.5s ease-in-out';
+
+                }
+
+            }
+        })
+}
+
+
 function remPost(post_id){
 
 
@@ -131,14 +170,18 @@ function createPost(postData) {
     }
     let likesDiv = document.createElement('div');
     likesDiv.id = 'likes';
+    likesDiv.addEventListener('click', function () {
+        likePost(postData.id, likesDiv)
+    })
     let likeImg = document.createElement('img');
     likeImg.classList.add('like-image');
-    likeImg.src = `/static/img/like_${postData.likes > 0 ? 1 : 0}.png`;
+    likeImg.src = `/static/img/like_${postData.liked == 1 ? 1 : 0}.png`;
     likeImg.alt = '';
     likesDiv.appendChild(likeImg);
     let likeCounterP = document.createElement('p');
     likeCounterP.id = 'like-counter';
     likeCounterP.textContent = postData.likes;
+    likeCounterP.style.color = `${postData.liked == 1 ? 'red' : 'white'}`
     likesDiv.appendChild(likeCounterP);
     actionsDiv.appendChild(likesDiv);
 
@@ -163,6 +206,7 @@ function createPost(postData) {
 
 
 document.addEventListener('DOMContentLoaded', function () {
+    loadMoreContent(10)
     let remPostButtons = document.querySelectorAll('.post-rem')
     remPostButtons.forEach(btn => {
         btn.addEventListener('click', function () {
@@ -203,7 +247,6 @@ function loadMoreContent(count) {
         .then(data => {
             if (data.success){
                 for (let i = 0; i < data.usernames.length; i++){
-
                     let postData = {
                         username: data.usernames[i],
                         avatar: data.avatars[i],
@@ -214,7 +257,8 @@ function loadMoreContent(count) {
                         comments: data.comments[i],
                         href: data.href[i],
                         self: data.selfs[i],
-                        id: data.ids[i]
+                        id: data.ids[i],
+                        liked: data.liked[i]
                     }
                     createPost(postData)
                 }

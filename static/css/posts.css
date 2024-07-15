@@ -127,7 +127,7 @@
 .like-image, .comment-image {
     width: 30px;
     height: 30px;
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
 .post-content img, .post-content video{
@@ -145,3 +145,33 @@ a{
 a:hover{
     text-decoration: underline;
 }
+
+
+
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    50%{
+        transform: scale(1.2);
+    }
+    100% { opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+    }
+    50%{
+        transform: scale(0.8);
+    }
+    100% { opacity: 0;
+        transform: scale(1);
+    }
+}
+
+

@@ -9,7 +9,7 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Warn
+from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes
 from config import app, action_access
 import random
 import datetime
@@ -580,17 +580,47 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/likePost', methods=['POST'])
+def likePost():
+    if request.method == 'POST':
+        post_id = request.json.get('id')
+
+        like = Likes.query.filter_by(post_id=post_id, user_id=request.cookies.get('account')).first()
+        post = Post.query.filter_by(id=post_id).first()
+        if like:
+            print(-1)
+            post.likes = post.likes - 1
+            try:
+                db.session.delete(like)
+                db.session.commit()
+
+                return jsonify({'success': True, 'liked': False})
+            except:
+                db.session.rollback()
+        else:
+            new_like = Likes(post_id=post_id, user_id=request.cookies.get('account'))
+            print(1)
+            post.likes = post.likes + 1
+            try:
+                db.session.add(new_like)
+                db.session.commit()
+                return jsonify({'success': True, 'liked': True})
+            except:
+                db.session.rollback()
+    else:
+        return 'Страница не найдена'
+
 @app.route('/loadMorePosts', methods=['POST'])
 def loadMorePosts():
     if request.method == 'POST':
         startWith = request.json.get('startWith')
         all = request.json.get('all')
-
+        count = request.json.get('count')
         if all:
-            posts = Post.query.order_by(Post.id.desc()).offset(startWith).limit(5).all()
+            posts = Post.query.order_by(Post.id.desc()).offset(startWith).limit(count).all()
         else:
             posts = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).offset(
-                startWith).limit(5).all()
+                startWith).limit(count).all()
 
         usernames = []
         avatars = []
@@ -600,6 +630,7 @@ def loadMorePosts():
         files = []
         dates = []
         ids = []
+        liked = []
         likes = []
         comments = []
         for post in posts:
@@ -640,6 +671,12 @@ def loadMorePosts():
                 else:
                     avatars.append('default.png')
 
+            like = Likes.query.filter_by(post_id=post.id, user_id=request.cookies.get('account')).first()
+            if like:
+                liked.append(1)
+            else:
+                likes.append(0)
+
             ids.append(post.id)
         posts_json = {
             'success': True,
@@ -652,7 +689,8 @@ def loadMorePosts():
             'comments': comments,
             'href': tags,
             'selfs': selfs,
-            'ids': ids
+            'ids': ids,
+            'liked': liked
         }
 
         if posts:
