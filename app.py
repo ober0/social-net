@@ -9,7 +9,7 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes
+from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Warn
 from config import app, action_access
 import random
 import datetime
@@ -660,6 +660,29 @@ def loadMorePosts():
         else:
             return jsonify({'success': False})
     return 'Страница не найдена'
+
+@app.route('/removePost', methods=['POST'])
+def removePost():
+    if request.method == 'POST':
+        post_id = int(request.json.get('id'))
+
+        try:
+            post = Post.query.filter_by(id=post_id).first()
+            if post:
+                if int(request.cookies.get('account')) == post.user_id and not post.isGroup:
+                    db.session.delete(post)
+                    db.session.commit()
+                    return jsonify({'success': True})
+                else:
+                    return jsonify({'success': False})
+            return jsonify({'success': False})
+
+        except:
+            return jsonify({'success': False})
+    else:
+        return 'Страница не найдена'
+
+
 @app.route('/notificationView', methods=["POST"])
 def notificationView():
     if request.method == "POST":

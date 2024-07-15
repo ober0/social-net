@@ -100,3 +100,8 @@ class Comments(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     text = db.Column(db.Text, nullable=True)
     time = db.Column(db.String(100), nullable=True)
+
+class Warn(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    count = db.Column(db.Integer, default=0)

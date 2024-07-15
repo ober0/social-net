@@ -6,13 +6,20 @@ function remPost(post_id){
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({id: post_id})
     })
         .then(response => response.json())
         .then(data => {
             if (data.success){
-
+                let posts = document.querySelectorAll('.post-rem')
+                posts.forEach(post => {
+                    if (post.getAttribute('post-id') == post_id){
+                        post.parentElement.parentElement.remove()
+                        loadMoreContent(1);
+                    }
+                })
             }
+
         })
 }
 
@@ -171,7 +178,7 @@ let isAtBottom = false;
 window.addEventListener('scroll', function() {
     if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 1) {
         if (!isAtBottom) {
-            loadMoreContent();
+            loadMoreContent(5);
             isAtBottom = true;
         }
     } else {
@@ -179,7 +186,7 @@ window.addEventListener('scroll', function() {
     }
 });
 
-function loadMoreContent() {
+function loadMoreContent(count) {
     let all = false
     if (window.location.pathname == '/'){
         all = true
@@ -190,7 +197,7 @@ function loadMoreContent() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({startWith: postNext, all: all})
+        body: JSON.stringify({startWith: postNext, all: all, count: count})
     })
         .then(response => response.json())
         .then(data => {
