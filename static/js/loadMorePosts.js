@@ -1,3 +1,22 @@
+function remPost(post_id){
+
+
+    fetch('removePost', {
+        method : "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success){
+
+            }
+        })
+}
+
+
 function createPost(postData) {
     let postDiv = document.createElement('div');
     postDiv.classList.add('post');
@@ -36,7 +55,21 @@ function createPost(postData) {
     infoDiv.appendChild(dateDiv);
 
     headerDiv.appendChild(infoDiv);
+
+    if (postData.self == 1) {
+        let pRemove = document.createElement('p')
+        pRemove.classList.add('post-rem')
+        pRemove.innerText = 'Удалить пост'
+        pRemove.setAttribute('post-id', postData.id)
+        pRemove.addEventListener('click', function () {
+            remPost(postData.id)
+        })
+
+        headerDiv.appendChild(pRemove)
+    }
+
     postDiv.appendChild(headerDiv);
+
 
     let contentDiv = document.createElement('div');
     contentDiv.classList.add('post-content');
@@ -117,12 +150,19 @@ function createPost(postData) {
 
     postDiv.appendChild(actionsDiv);
 
-    // Добавляем пост на страницу
+
     document.getElementById('posts-container').appendChild(postDiv);
 }
 
 
-
+document.addEventListener('DOMContentLoaded', function () {
+    let remPostButtons = document.querySelectorAll('.post-rem')
+    remPostButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            remPost(btn.getAttribute('post-id'))
+        })
+    })
+})
 
 
 
@@ -166,7 +206,8 @@ function loadMoreContent() {
                         likes: data.likes[i],
                         comments: data.comments[i],
                         href: data.href[i],
-                        self: data.selfs[i]
+                        self: data.selfs[i],
+                        id: data.ids[i]
                     }
                     createPost(postData)
                 }

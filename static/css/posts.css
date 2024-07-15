@@ -85,7 +85,7 @@
     margin-left: auto;
     color: #a6a6a6;
     cursor: pointer;
-
+    height: fit-content;
 }
 
 .post-rem:hover{

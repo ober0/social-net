@@ -8,7 +8,7 @@
                 </div>
                 <div class="post-info">
                     <div class="post-author">
-                        <a href="/{{ hrefs[loop.index0] }}" style="margin-bottom: 0">{{ authors[loop.index0] }}</a>
+                        <a id="name" href="/{{ hrefs[loop.index0] }}" style="margin-bottom: 0">{{ authors[loop.index0] }}</a>
                     </div>
                     <div class="post-date">
                         <p style="color: #a6a6a6; font-size: 14px">{{post.date}}</p>
@@ -16,7 +16,7 @@
                 </div>
 
                 {% if _selfs[loop.index0] == 1 %}
-                    <p class="post-rem">Удалить пост</p>
+                    <p class="post-rem" post-id="{{post.id}}">Удалить пост</p>
                 {% endif %}
 
             </div>

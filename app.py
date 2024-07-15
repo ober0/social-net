@@ -599,6 +599,7 @@ def loadMorePosts():
         texts = []
         files = []
         dates = []
+        ids = []
         likes = []
         comments = []
         for post in posts:
@@ -639,6 +640,7 @@ def loadMorePosts():
                 else:
                     avatars.append('default.png')
 
+            ids.append(post.id)
         posts_json = {
             'success': True,
             'usernames': usernames,
@@ -649,7 +651,8 @@ def loadMorePosts():
             'likes': likes,
             'comments': comments,
             'href': tags,
-            'selfs': selfs
+            'selfs': selfs,
+            'ids': ids
         }
 
         if posts:
