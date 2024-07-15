@@ -663,7 +663,7 @@ def loadMorePosts():
                 else:
                     avatars.append('default.png')
             else:
-                usernames.append(f"{User.query.filter_by(id=request.cookies.get('account')).first().name} {User.query.filter_by(id=post.user_id).first().second_name}")
+                usernames.append(f"{User.query.filter_by(id=post.user_id).first().name} {User.query.filter_by(id=post.user_id).first().second_name}")
                 if post.user_id == int(request.cookies.get('account')):
                     selfs.append(1)
                 else:
@@ -709,7 +709,12 @@ def removePost():
 
         try:
             post = Post.query.filter_by(id=post_id).first()
+
             if post:
+                likes = Likes.query.filter_by(post_id=post_id).first()
+                for like in likes:
+                    db.session.delete(like)
+                db.session.delete(post)
                 if int(request.cookies.get('account')) == post.user_id and not post.isGroup:
                     db.session.delete(post)
                     db.session.commit()

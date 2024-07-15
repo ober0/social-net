@@ -198,7 +198,9 @@ document.addEventListener('DOMContentLoaded', function (){
 
                         Promise.all(fetchPromises).then(() => {
                             console.log(3);
+                            window.scrollTo()
                             window.location.reload();
+
                         });
                     }
 
