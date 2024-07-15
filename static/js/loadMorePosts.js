@@ -232,8 +232,12 @@ window.addEventListener('scroll', function() {
 
 function loadMoreContent(count) {
     let all = false
+    let tag = null
     if (window.location.pathname == '/'){
         all = true
+    }
+    else {
+        tag = window.location.pathname.split('/')[1]
     }
     let postNext = document.querySelectorAll('.post').length
     fetch('/loadMorePosts', {
@@ -241,7 +245,7 @@ function loadMoreContent(count) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({startWith: postNext, all: all, count: count})
+        body: JSON.stringify({startWith: postNext, all: all, count: count, tag:tag})
     })
         .then(response => response.json())
         .then(data => {

@@ -285,10 +285,10 @@
                             </div>
                         </div>
                         <br>
-
-                        {% include 'add-post.html' %}
-                        {% block add_post %}{% endblock %}
-
+                        {% if _self %}
+                            {% include 'add-post.html' %}
+                            {% block add_post %}{% endblock %}
+                        {% endif %}
                         <div id="posts-container">
                             {% include 'posts.html' %}
                             {% block posts %}{% endblock %}

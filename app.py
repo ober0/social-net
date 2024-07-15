@@ -617,9 +617,12 @@ def loadMorePosts():
         all = request.json.get('all')
         count = request.json.get('count')
         if all:
+            print(count)
             posts = Post.query.order_by(Post.id.desc()).offset(startWith).limit(count).all()
         else:
-            posts = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).offset(
+            print(request.json.get('tag'))
+            user_id = User.query.filter_by(tag=request.json.get('tag')).first().id
+            posts = Post.query.filter_by(user_id=user_id).order_by(Post.id.desc()).offset(
                 startWith).limit(count).all()
 
         usernames = []
