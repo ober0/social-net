@@ -37,6 +37,36 @@ function likePost(id, likes_div) {
 }
 
 
+function openFile(type, src, event) {
+    event.stopPropagation()
+    document.getElementById('body').style.opacity = 0.1
+    if (type == 'image'){
+        document.getElementById('open-photo').classList.remove('hide')
+        document.getElementById('open-photo-img').src = src
+        document.getElementById('photo_name').innerText = ''
+        document.getElementById('open-photo').style.opacity = 1;
+        try{
+           document.getElementById('delete-photo').classList.add('hide')
+        }catch {}
+
+
+        function handleBodyClick1() {
+            document.getElementById('body').style.opacity = 1;
+            document.getElementById('open-photo').classList.add('hide');
+            document.getElementById('body').removeEventListener('click', handleBodyClick1);
+        }
+
+        document.getElementById('body').addEventListener('click', handleBodyClick1);
+
+        function closePhoto1(event){
+            if (event.key == 'Escape'){
+                handleBodyClick1()
+            }
+        }
+        document.addEventListener('keydown', closePhoto1)
+    }
+}
+
 function remPost(post_id){
 
 
@@ -153,6 +183,11 @@ function createPost(postData) {
                 imgEl.classList.add('post-file-el');
                 imgEl.src = `/static/users/photos/${file}`;
                 imgEl.alt = '';
+                imgEl.addEventListener('click', function (event) {
+                    openFile(type='image', src=imgEl.src, event)
+                })
+
+
                 fileDiv.appendChild(imgEl);
             }
 
@@ -226,7 +261,9 @@ window.addEventListener('scroll', function() {
             isAtBottom = true;
         }
     } else {
-        isAtBottom = false;
+        setTimeout(function () {
+            isAtBottom = false;
+        }, 500)
     }
 });
 
@@ -251,6 +288,7 @@ function loadMoreContent(count) {
         .then(data => {
             if (data.success){
                 for (let i = 0; i < data.usernames.length; i++){
+
                     let postData = {
                         username: data.usernames[i],
                         avatar: data.avatars[i],
@@ -264,8 +302,10 @@ function loadMoreContent(count) {
                         id: data.ids[i],
                         liked: data.liked[i]
                     }
+                    console.log(postData)
                     createPost(postData)
                 }
             }
         })
 }
+

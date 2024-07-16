@@ -191,6 +191,7 @@ photos.forEach(photo => {
         document.getElementById('open-photo-img').src = photo.src
         document.getElementById('photo_name').innerText = photo.getAttribute('filename')
         document.getElementById('open-photo').style.opacity = 1;
+        document.getElementById('delete-photo').classList.remove('hide')
 
         document.getElementById('body').style.opacity = 0.1;
         let photo_id = photo.getAttribute('photo-id')

@@ -441,7 +441,9 @@ def addPost():
 
 
     return jsonify({'result': False})
+
 @app.route('/<string:tag>', methods=['GET'])
+@check_access
 def user_profile(tag):
     if request.method == "GET":
         user = User.query.filter_by(tag=tag).first()
@@ -542,6 +544,7 @@ def user_profile(tag):
                 liked.append(0)
 
             hrefs.append(user.tag)
+
         return render_template('user.html',
                                user=user,
                                _self=_self,
@@ -588,7 +591,6 @@ def likePost():
         like = Likes.query.filter_by(post_id=post_id, user_id=request.cookies.get('account')).first()
         post = Post.query.filter_by(id=post_id).first()
         if like:
-            print(-1)
             post.likes = post.likes - 1
             try:
                 db.session.delete(like)
@@ -599,7 +601,6 @@ def likePost():
                 db.session.rollback()
         else:
             new_like = Likes(post_id=post_id, user_id=request.cookies.get('account'))
-            print(1)
             post.likes = post.likes + 1
             try:
                 db.session.add(new_like)
@@ -617,10 +618,8 @@ def loadMorePosts():
         all = request.json.get('all')
         count = request.json.get('count')
         if all:
-            print(count)
             posts = Post.query.order_by(Post.id.desc()).offset(startWith).limit(count).all()
         else:
-            print(request.json.get('tag'))
             user_id = User.query.filter_by(tag=request.json.get('tag')).first().id
             posts = Post.query.filter_by(user_id=user_id).order_by(Post.id.desc()).offset(
                 startWith).limit(count).all()
@@ -678,9 +677,10 @@ def loadMorePosts():
             if like:
                 liked.append(1)
             else:
-                likes.append(0)
+                liked.append(0)
 
             ids.append(post.id)
+        print(liked)
         posts_json = {
             'success': True,
             'usernames': usernames,
@@ -711,15 +711,17 @@ def removePost():
             post = Post.query.filter_by(id=post_id).first()
 
             if post:
-                likes = Likes.query.filter_by(post_id=post_id).first()
+                likes = Likes.query.filter_by(post_id=post_id).all()
                 for like in likes:
                     db.session.delete(like)
                 db.session.delete(post)
                 if int(request.cookies.get('account')) == post.user_id and not post.isGroup:
                     db.session.delete(post)
                     db.session.commit()
+
                     return jsonify({'success': True})
                 else:
+
                     return jsonify({'success': False})
             return jsonify({'success': False})
 
