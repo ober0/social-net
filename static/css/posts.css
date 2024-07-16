@@ -174,4 +174,83 @@ a:hover{
     }
 }
 
+.com-avatar-img{
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+.comment-content {
+    display: flex;
+    max-width: 600px;
+    margin-top: 15px;
+}
 
+.comment-content p {
+    margin-top: 5px;
+}
+
+.comment-content .com-text p {
+    word-wrap: break-word;
+    white-space: pre-line;
+    width: 80%;
+}
+.cont{
+    position: relative;
+    left: 10px;
+}
+
+#showNext{
+    cursor: pointer;
+}
+#showNext:hover{
+    text-decoration: underline;
+}
+.commentInput{
+    display: flex;
+    margin-top: 25px;
+    padding-right: 10px;
+}
+.commentInput {
+    display: flex;
+}
+.commentInput textarea {
+    font-size: 16px;
+    resize: none;
+    overflow: hidden;
+    min-height: 35px;
+    width:35%;
+    min-width: 400px;
+    margin-left: 20px;
+    background-color: #4c4c4c;
+    border: none;
+    border-radius: 10px;
+    padding-left: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+
+    color: white;
+}
+.commentInput textarea:focus {
+    outline: none;
+    border: none;
+}
+.send-btn{
+    width: 35px;
+    height: 35px;
+    margin: 5px;
+}
+.send-div{
+    cursor: pointer;
+    align-items: center;
+    height: 45px;
+    width: 45px;
+    text-align: center;
+    margin-left: 15px;
+}
+
+#deleteComment{
+    cursor: pointer;
+}
+#deleteComment:hover{
+    text-decoration: underline;
+}

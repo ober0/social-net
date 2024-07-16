@@ -9,7 +9,7 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes
+from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Comments
 from config import app, action_access
 import random
 import datetime
@@ -255,6 +255,70 @@ def reg():
             'result': False
         }), 401
 
+@app.route('/loadComments', methods = ['POST'])
+def loadComments():
+    if request.method == 'POST':
+        offset = request.json.get('offset')
+        postId = request.json.get('postId')
+        comments = Comments.query.filter_by(post_id=postId).order_by(Comments.id.desc()).offset(offset).limit(5).all()
+
+        usernames = []
+        avatar_paths = []
+        texts = []
+        times = []
+        selfs = []
+        hrefs = []
+        ids = []
+        for comment in comments:
+            user = User.query.filter_by(id=comment.user_id).first()
+            usernames.append(user.name + " " + user.second_name)
+            if user.avatar_path:
+                avatar_paths.append(user.avatar_path)
+            else:
+                avatar_paths.append('../default.png')
+            texts.append(comment.text)
+            times.append(comment.time)
+            selfs.append(str(comment.user_id) == request.cookies.get('account'))
+            hrefs.append(user.tag)
+            ids.append(comment.id)
+
+        post = Post.query.filter_by(id=postId).all()
+
+
+        data = {
+            'success': True,
+            'usernames': usernames,
+            'avatar_paths': avatar_paths,
+            'texts': texts,
+            'times': times,
+            'selfs': selfs,
+            'hrefs': hrefs,
+            'ids': ids
+        }
+
+        return jsonify(data)
+
+@app.route('/deleteComment', methods=['POST'])
+def deleteComment():
+    if request.method == "POST":
+        commentId = request.json.get('id')
+
+        comment = Comments.query.filter_by(id=commentId).first()
+        post_id = comment.post_id
+        try:
+            db.session.delete(comment)
+            db.session.commit()
+
+            post = Post.query.filter_by(id=post_id).first()
+            post.comments -= 1
+            db.session.commit()
+
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False})
+
+
 
 @app.route('/confirm_email', methods=['GET', 'POST'])
 def confirm_email():
@@ -263,6 +327,7 @@ def confirm_email():
         email = data[1]
         code = random.randint(100000, 999999)
         msg = Message('Код подтверждения', recipients=[email])
+        print(code)
         with open('templates/send.html', 'r', encoding='utf-8') as f:
             text = f.read()
             textSplit = text.split('//////')
@@ -791,7 +856,7 @@ def edit_profile_save(data):
                     filename = f'avatar-user-{request.cookies.get("account")}.{image_type}'
 
                     for i in os.listdir('static/avatars/users'):
-                        if i.startswith("avatar-user-1"):
+                        if i.startswith(f"avatar-user-{user_id}"):
                             file_path = os.path.join('static/avatars/users', i)
                             os.remove(file_path)
 
