@@ -1,0 +1,365 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body{
+            color: white;
+        }
+    .post{
+    background-color: #333;
+    width: 80%;
+    border-radius: 10px;
+    padding: 15px;
+    padding-top: 10px;
+}
+.post p{
+    margin-bottom: 0;
+}
+.post-files {
+    display: grid;
+    grid-gap: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.file-1{
+    grid-template-columns: repeat(1, 1fr);
+}
+.file-2{
+    grid-template-columns: repeat(2, 1fr);
+}
+.file-3{
+    grid-template-columns: repeat(3, 1fr);
+}
+.file-4{
+    grid-template-columns: repeat(2, 1fr);
+}
+.file-5{
+    grid-template-columns: repeat(3, 1fr);
+}
+.file-6{
+    grid-template-columns: repeat(3, 1fr);
+}
+.file-7{
+    grid-template-columns: repeat(4, 1fr);
+}
+.file-8{
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.file-8 .post-file-el, .file-7 .post-file-el{
+    height: 196.44px;
+}
+
+.file-6 .post-file-el, .file-5 .post-file-el, .file-3 .post-file-el{
+    height: 266.92px;
+}
+
+.file-2 .post-file-el{
+    height: 330.89px;
+}
+
+.post-file-el{
+    max-width: 100%;
+    max-height: 900px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.post-header{
+    display: flex;
+    margin-top: 10px;
+}
+
+.post-avatar img{
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+}
+
+
+#post-rem{
+    font-size: 14px;
+    border-radius: 10px;
+    border: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.post-rem{
+    position: relative;
+    top:7px;
+    margin-left: auto;
+    color: #a6a6a6;
+    cursor: pointer;
+    height: fit-content;
+}
+
+.post-rem:hover{
+    text-decoration: underline;
+}
+.post-info p{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.post-info{
+    padding-left: 16px;
+    padding-top: 8px;
+}
+
+.comments{
+    margin-left: 10px;
+}
+
+#likes, #comments{
+    width: fit-content;
+    height: fit-content;
+    border-radius: 30px;
+    background-color: #3e3e3e;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-right: 10px;
+}
+#likes:hover, #comments:hover{
+    background-color: #494848;
+}
+
+.like-image, .comment-image {
+    width: 30px;
+    height: 30px;
+    margin-right: 8px;
+}
+
+.post-content img, .post-content video{
+    border-radius: 10px;
+}
+.post-text{
+    white-space: pre-line;
+    height: auto;
+}
+
+a{
+    color: white;
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: underline;
+}
+
+
+
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    50%{
+        transform: scale(1.2);
+    }
+    100% { opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+    }
+    50%{
+        transform: scale(0.8);
+    }
+    100% { opacity: 0;
+        transform: scale(1);
+    }
+}
+
+</style>
+
+
+</head>
+<body>
+ <div class="post" style="margin-top: 25px">
+    <div class="post-header">
+        <div class="post-avatar">
+            <img src="../static/avatars/default.png" alt="">
+        </div>
+        <div class="post-info">
+            <div class="post-author">
+                <p style="margin-bottom: 0">Руслан Онищенко</p>
+            </div>
+            <div class="post-date">
+                <p style="color: #a6a6a6; font-size: 14px">1.1.1221</p>
+            </div>
+        </div>
+
+        <p class="post-rem">Удалить пост</p>
+
+
+    </div>
+
+    <div class="post-content">
+        <div class="post-text">
+            Текст поста
+        </div>
+
+        <div class="post-files file-1">
+            <img class="post-file-el" src="../static/users/photos/1 - c63c58f9435ebc05f07373b0cf673609.png" alt="">
+        </div>
+    </div>
+    <div style="display: flex">
+        <div id="likes">
+
+            <img class="like-image" src="../static/img/like_0.png" alt="">
+
+
+            <p id="like-counter">1</p>
+        </div>
+        <div id="comments">
+            <img class="comment-image" src="../static/img/comment.png" alt="">
+            <p id="comment-counter">1</p>
+        </div>
+    </div>
+
+    <style>
+
+        .com-avatar-img{
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+        }
+        .comment-content {
+            display: flex;
+            max-width: 600px;
+            margin-top: 15px;
+        }
+
+        .comment-content p {
+            margin-top: 5px;
+        }
+
+        .comment-content .com-text p {
+            word-wrap: break-word;
+            white-space: pre-line;
+            width: 80%;
+        }
+        .cont{
+            position: relative;
+            left: 10px;
+        }
+
+        #showNext{
+            cursor: pointer;
+        }
+        #showNext:hover{
+            text-decoration: underline;
+        }
+        .commentInput{
+            display: flex;
+            margin-top: 25px;
+            padding-right: 10px;
+        }
+        .commentInput {
+            display: flex;
+        }
+        .commentInput textarea {
+            font-size: 16px;
+            resize: none;
+            overflow: hidden;
+            min-height: 35px;
+            width:30%;
+            margin-left: 20px;
+            background-color: #4c4c4c;
+            border: none;
+            border-radius: 10px;
+            padding-left: 10px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+
+            color: white;
+        }
+        .commentInput textarea:focus {
+            outline: none;
+            border: none;
+        }
+        .send-btn{
+            width: 35px;
+            height: 35px;
+            padding: 5px;
+        }
+        .send-div{
+            cursor: pointer;
+            align-items: center;
+            height: 45px;
+            width: 45px;
+            text-align: center;
+            margin-left: 15px;
+        }
+    </style>
+    <div class="" id="comments-block">
+        <hr style="margin-top: 20px">
+
+        <div id="comments-container">
+            <div class="comment-content">
+                <div class="com-avatar">
+                    <img class='com-avatar-img' src="../static/avatars/default.png" alt="">
+                </div>
+                <div class="cont">
+                    <div class="com-name">
+                        <b><p>Руслан Онищенко</p></b>
+                    </div>
+                    <div class="com-text">
+                        <p>Текст
+                        ewqeекст поcccccccccccccewfwerfwefwerfwerекст поcccccccccccccewfwerfwefwerfwerекст поcccccccccccccewfwerfwefwerfwerекст поcccccccccccccewfwerfwefwerfwer
+
+                        e
+                        wqewqeqw</p>
+                    </div>
+                    <div class="com-date">
+                        <p style="color: #a6a6a6; font-size: 14px">10.01.23</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <p id="showNext">Показать следующие комментарии</p>
+        <div class="commentInput">
+            <img class='com-avatar-img' src="../static/avatars/default.png" alt="">
+            <textarea name="comm" id="comment-input" rows="1"></textarea>
+            <div class="send-div">
+                <img class='send-btn' src="../static/img/send.png" alt="">
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+</div>
+
+<script>
+    const textarea = document.getElementById('comment-input');
+    textarea.addEventListener('input', autoResize);
+
+    function autoResize() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    }
+</script>
+
+</body>
+</html>
+
+
