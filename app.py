@@ -3,6 +3,8 @@ import os
 import pprint
 from functools import wraps
 import secrets
+from tokenize import Comment
+
 from flask import Flask, session, redirect, render_template, request, jsonify, make_response, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
@@ -19,6 +21,7 @@ import imghdr
 db.init_app(app)
 socketio = SocketIO(app)
 mail = Mail(app)
+
 
 
 def check_notification(user_id):
@@ -88,6 +91,39 @@ def check_access(f):
 def change_status():
     return render_template('change_status.html')
 
+@app.route('/comments/add', methods=['POST'])
+def add_comment():
+    comment = request.json.get('comment')
+    post_id = request.json.get('post_id')
+    time = datetime.datetime.now().strftime('%d.%m.%Y в %H:%M')
+    new_comment = Comments(text=comment, post_id=post_id, user_id=request.cookies.get('account'), time=time)
+    try:
+        db.session.add(new_comment)
+
+        post = Post.query.filter_by(id=post_id).first()
+        post.comments += 1
+
+        db.session.commit()
+
+        user = User.query.filter_by(id=request.cookies.get('account')).first()
+        username = user.name + " " + user.second_name
+        data = {
+            'success': True,
+            'usernames': [username],
+            'avatars': [user.avatar_path],
+            'texts': [comment],
+            'times': [datetime.datetime.now().strftime('%d.%m.%y в %H:%M')],
+            'selfs': [True],
+            'hrefs': ['/' + user.tag],
+            'ids': [new_comment.id]
+        }
+        print(data)
+
+        return jsonify(data)
+
+    except:
+        db.session.rollback()
+        return jsonify({'success': False})
 
 def createNotification(user_id, type, from_user_avatar_path, text, href, date, from_user, room):
     try:
@@ -283,7 +319,8 @@ def loadComments():
             ids.append(comment.id)
 
         post = Post.query.filter_by(id=postId).all()
-
+        avatar = User.query.filter_by(id=request.cookies.get('account')).first().avatar_path
+        selfAvatar = avatar
 
         data = {
             'success': True,
@@ -293,7 +330,8 @@ def loadComments():
             'times': times,
             'selfs': selfs,
             'hrefs': hrefs,
-            'ids': ids
+            'ids': ids,
+            'selfAvatar': selfAvatar
         }
 
         return jsonify(data)
@@ -806,6 +844,7 @@ def notificationView():
             db.session.commit()
         return jsonify({'success': True})
     return jsonify({'success': False})
+
 
 
 @app.route('/notificationDelete', methods=["POST"])

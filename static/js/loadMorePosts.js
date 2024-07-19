@@ -1,4 +1,35 @@
-function createComment(commentsData, i, commentsContainerDiv, commentCounterP) {
+function sendComment(comment, post_id) {
+    fetch('comments/add',{
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({comment:comment, post_id:post_id})
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success){
+                console.log(data)
+                console.log('/comments/add success')
+                let commentsData = {
+                    usernames: data.usernames,
+                    usernames: data.usernames,
+                    avatars: data.avatars,
+                    texts: data.texts,
+                    times: data.times,
+                    selfs: data.selfs,
+                    hrefs: data.hrefs,
+                    ids: data.ids,
+                }
+                console.log(commentsData)
+
+                createComment(commentsData, 0, document.getElementById('comments-container'), document.getElementById('comment-counter'), true)
+            }
+        })
+}
+
+function createComment(commentsData, i, commentsContainerDiv, commentCounterP, isTop) {
+    console.log(commentsData)
     let ids = commentsData.ids[i]
     let username = commentsData.usernames[i]
     let avatar = commentsData.avatars[i]
@@ -67,6 +98,7 @@ function createComment(commentsData, i, commentsContainerDiv, commentCounterP) {
                 })
         })
 
+
         comDate.appendChild(deleteComment);
     }
 
@@ -80,7 +112,12 @@ function createComment(commentsData, i, commentsContainerDiv, commentCounterP) {
     commentContent.appendChild(comAvatar);
     commentContent.appendChild(cont);
 
-    commentsContainerDiv.appendChild(commentContent);
+    if (!isTop) {
+        commentsContainerDiv.appendChild(commentContent);
+    }
+    else {
+        commentsContainerDiv.prepend(commentContent)
+    }
 }
 
 
@@ -179,7 +216,7 @@ function remPost(post_id){
 }
 
 
-function createPost(postData, commentsData) {
+function createPost(postData, commentsData, selfAvatar) {
     let postDiv = document.createElement('div');
     postDiv.classList.add('post');
     postDiv.style.marginTop = '25px';
@@ -307,6 +344,9 @@ function createPost(postData, commentsData) {
     actionsDiv.appendChild(likesDiv);
 
     let commentsDiv = document.createElement('div');
+    commentsDiv.addEventListener('click', function () {
+
+    })
     commentsDiv.id = 'comments';
     let commentImg2 = document.createElement('img');
     commentImg2.classList.add('comment-image');
@@ -328,7 +368,12 @@ function createPost(postData, commentsData) {
 
 
     const commentBlockDiv = document.createElement('div')
-    // commentBlockDiv.classList.add('hide')
+    commentBlockDiv.classList.add('hide')
+
+
+    commentsDiv.addEventListener('click', function () {
+        commentBlockDiv.classList.remove('hide')
+    })
 
     const hrElm = document.createElement('hr')
     hrElm.style.marginTop = '20px'
@@ -338,7 +383,7 @@ function createPost(postData, commentsData) {
     commentsContainerDiv.id = 'comments-container'
 
     for (let i = 0; i < commentsData.usernames.length; i++){
-        createComment(commentsData, i, commentsContainerDiv, commentCounterP)
+        createComment(commentsData, i, commentsContainerDiv, commentCounterP, false)
     }
 
     commentBlockDiv.appendChild(hrElm)
@@ -358,7 +403,15 @@ function createPost(postData, commentsData) {
 
     let commentImg1 = document.createElement("img");
     commentImg1.classList.add("com-avatar-img");
-    commentImg1.src = "../static/avatars/default.png";
+
+    if (selfAvatar){
+        commentImg1.src = `../static/avatars/users/${selfAvatar}`;
+    }
+    else {
+        commentImg1.src = "../static/avatars/default.png";
+    }
+
+
     commentImg1.alt = "";
 
     let textarea = document.createElement("textarea");
@@ -366,8 +419,21 @@ function createPost(postData, commentsData) {
     textarea.id = "comment-input";
     textarea.rows = "1";
 
+    textarea.addEventListener('input', autoResize);
+
+    function autoResize() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    }
+
+
     let sendDiv = document.createElement("div");
     sendDiv.classList.add("send-div");
+    sendDiv.addEventListener('click', function () {
+        sendComment(textarea.value, postData.id)
+    })
+
+
 
     let sendBtn = document.createElement("img");
     sendBtn.classList.add("send-btn");
@@ -471,8 +537,9 @@ function loadMoreContent(count) {
                                     hrefs: data.hrefs,
                                     ids: data.ids
                                 }
+                                let selfAvatar = data.selfAvatar
                                 console.log(commentsData)
-                                createPost(postData, commentsData)
+                                createPost(postData, commentsData, selfAvatar)
                             }
                         })
 
