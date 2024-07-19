@@ -295,9 +295,10 @@ def reg():
 def loadComments():
     if request.method == 'POST':
         offset = request.json.get('offset')
+        print(offset)
         postId = request.json.get('postId')
         comments = Comments.query.filter_by(post_id=postId).order_by(Comments.id.desc()).offset(offset).limit(5).all()
-
+        print(comments)
         usernames = []
         avatar_paths = []
         texts = []
@@ -331,8 +332,10 @@ def loadComments():
             'selfs': selfs,
             'hrefs': hrefs,
             'ids': ids,
-            'selfAvatar': selfAvatar
+            'selfAvatar': selfAvatar,
+            'post_id': postId
         }
+
 
         return jsonify(data)
 
