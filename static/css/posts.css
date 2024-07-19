@@ -174,7 +174,6 @@ a:hover{
     }
 }
 
-
 .com-avatar-img{
     width: 45px;
     height: 45px;
@@ -238,7 +237,7 @@ a:hover{
 .send-btn{
     width: 35px;
     height: 35px;
-    padding: 5px;
+    margin: 5px;
 }
 .send-div{
     cursor: pointer;
@@ -247,4 +246,11 @@ a:hover{
     width: 45px;
     text-align: center;
     margin-left: 15px;
+}
+
+#deleteComment{
+    cursor: pointer;
+}
+#deleteComment:hover{
+    text-decoration: underline;
 }

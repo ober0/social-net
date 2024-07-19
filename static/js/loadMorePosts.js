@@ -1,3 +1,130 @@
+function sendComment(comment,commentsContainerDiv, commentCounterP, post_id) {
+    if (commentsContainerDiv.parentElement.parentElement.querySelector('#comment-input').value.length > 0) {
+        fetch('comments/add', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({comment: comment, post_id: post_id})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let commentsData = {
+                        usernames: data.usernames,
+                        usernames: data.usernames,
+                        avatars: data.avatars,
+                        texts: data.texts,
+                        times: data.times,
+                        selfs: data.selfs,
+                        hrefs: data.hrefs,
+                        ids: data.ids,
+                    }
+                    commentCounterP.innerText = Number(commentCounterP.innerText) + 1
+                    commentsContainerDiv.parentElement.parentElement.querySelector('#comment-input').value = ''
+
+                    createComment(commentsData, 0, commentsContainerDiv, commentCounterP, true)
+                }
+            })
+    }
+
+}
+
+function createComment(commentsData, i, commentsContainerDiv, commentCounterP, isTop) {
+
+    let ids = commentsData.ids[i]
+    let username = commentsData.usernames[i]
+    let avatar = commentsData.avatars[i]
+    let text = commentsData.texts[i]
+    let self = commentsData.selfs[i]
+    let data = commentsData.times[i]
+    let href = commentsData.hrefs[i]
+
+    let commentContent = document.createElement("div");
+    commentContent.classList.add("comment-content");
+    commentContent.classList.add('style-' + commentsData.post_id)
+
+    let comAvatar = document.createElement("div");
+    comAvatar.classList.add("com-avatar");
+
+    let avatarImg = document.createElement("img");
+    avatarImg.classList.add("com-avatar-img");
+    avatarImg.src = "/static/avatars/users/" + avatar;
+    avatarImg.alt = "";
+
+    let cont = document.createElement("div");
+    cont.classList.add("cont");
+
+    let comName = document.createElement("div");
+    comName.classList.add("com-name");
+
+    let nameText = document.createElement("b");
+    nameText.innerHTML = "<a href='/" + href + "'>" + "<p>" + username + "</p></a>";
+
+    let comText = document.createElement("div");
+    comText.classList.add("com-text");
+    comText.innerHTML = "<p>" + text + "</p>";
+
+    let comDate = document.createElement("div");
+    comDate.classList.add("com-date");
+
+    let deleteDate = document.createElement("p");
+    deleteDate.style.color = "#a6a6a6";
+    deleteDate.style.fontSize = "14px";
+    deleteDate.innerHTML = data;
+
+    comAvatar.appendChild(avatarImg);
+    comName.appendChild(nameText);
+    comDate.appendChild(deleteDate);
+
+    if (self) {
+        let deleteComment = document.createElement("p");
+        deleteComment.id = "deleteComment";
+        deleteComment.innerHTML = "Удалить";
+        deleteComment.style.color = '#a6a6a6'
+        deleteComment.style.fontSize = '15px'
+        deleteComment.addEventListener('click', function (){
+            fetch('deleteComment', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({id: ids})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success){
+                        deleteComment.parentElement.parentElement.parentElement.remove()
+                        let comCount = commentCounterP.innerText
+                        commentCounterP.innerText = Number(comCount) - 1
+
+                    }
+                })
+        })
+
+
+        comDate.appendChild(deleteComment);
+    }
+
+
+
+
+    cont.appendChild(comName);
+    cont.appendChild(comText);
+    cont.appendChild(comDate);
+
+    commentContent.appendChild(comAvatar);
+    commentContent.appendChild(cont);
+
+    if (!isTop) {
+        commentsContainerDiv.appendChild(commentContent);
+    }
+    else {
+        commentsContainerDiv.prepend(commentContent)
+    }
+}
+
+
 function likePost(id, likes_div) {
     let data = {id: id}
     fetch('likePost', {
@@ -93,7 +220,7 @@ function remPost(post_id){
 }
 
 
-function createPost(postData) {
+function createPost(postData, commentsData, selfAvatar) {
     let postDiv = document.createElement('div');
     postDiv.classList.add('post');
     postDiv.style.marginTop = '25px';
@@ -221,21 +348,142 @@ function createPost(postData) {
     actionsDiv.appendChild(likesDiv);
 
     let commentsDiv = document.createElement('div');
+    commentsDiv.addEventListener('click', function () {
+
+    })
     commentsDiv.id = 'comments';
-    let commentImg = document.createElement('img');
-    commentImg.classList.add('comment-image');
-    commentImg.src = '/static/img/comment.png';
-    commentImg.alt = '';
-    commentsDiv.appendChild(commentImg);
+    let commentImg2 = document.createElement('img');
+    commentImg2.classList.add('comment-image');
+    commentImg2.src = '/static/img/comment.png';
+    commentImg2.alt = '';
+
     let commentCounterP = document.createElement('p');
     commentCounterP.id = 'comment-counter';
     commentCounterP.textContent = postData.comments;
+
+    commentsDiv.appendChild(commentImg2)
     commentsDiv.appendChild(commentCounterP);
     actionsDiv.appendChild(commentsDiv);
 
     postDiv.appendChild(actionsDiv);
 
 
+
+    const commentBlockDiv = document.createElement('div')
+    commentBlockDiv.classList.add('hide')
+
+
+    commentsDiv.addEventListener('click', function () {
+        commentBlockDiv.classList.remove('hide')
+    })
+
+    const hrElm = document.createElement('hr')
+    hrElm.style.marginTop = '20px'
+    commentBlockDiv.appendChild(hrElm)
+
+    const commentsContainerDiv = document.createElement('div')
+    commentsContainerDiv.id = 'comments-container'
+
+    for (let i = 0; i < commentsData.usernames.length; i++){
+        createComment(commentsData, i, commentsContainerDiv, commentCounterP, false)
+    }
+
+    commentBlockDiv.appendChild(hrElm)
+    commentBlockDiv.appendChild(commentsContainerDiv)
+
+    if (postData.comments > commentBlockDiv.querySelectorAll('.comment-content').length){
+        let showNext = document.createElement("p");
+        showNext.id = "showNext";
+        showNext.innerHTML = "Показать следующие комментарии";
+        showNext.style.marginTop = '15px'
+        showNext.addEventListener('click', function () {
+            let offset = document.querySelectorAll('.style-' + postData.id).length
+
+            fetch('loadComments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({offset: offset, postId: postData.id})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success){
+                        let commentsData = {
+                            usernames: data.usernames,
+                            avatars: data.avatar_paths,
+                            texts: data.texts,
+                            times: data.times,
+                            selfs: data.selfs,
+                            hrefs: data.hrefs,
+                            ids: data.ids,
+                            post_id: data.post_id
+                        }
+
+                        let selfAvatar = data.selfAvatar
+                        for (let i = 0; i < commentsData.usernames.length; i++){
+                            createComment(commentsData, i, commentsContainerDiv, commentCounterP, false)
+                        }
+
+                    }
+                })
+        })
+        commentBlockDiv.appendChild(showNext)
+    }
+
+
+    let commentInput = document.createElement("div");
+    commentInput.classList.add("commentInput");
+
+    let commentImg1 = document.createElement("img");
+    commentImg1.classList.add("com-avatar-img");
+
+    if (selfAvatar){
+        commentImg1.src = `../static/avatars/users/${selfAvatar}`;
+    }
+    else {
+        commentImg1.src = "../static/avatars/default.png";
+    }
+
+
+    commentImg1.alt = "";
+
+    let textarea = document.createElement("textarea");
+    textarea.name = "comm";
+    textarea.id = "comment-input";
+    textarea.rows = "1";
+
+    textarea.addEventListener('input', autoResize);
+
+    function autoResize() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    }
+
+
+    let sendDiv = document.createElement("div");
+    sendDiv.classList.add("send-div");
+    sendDiv.addEventListener('click', function () {
+        sendComment(textarea.value,commentsContainerDiv, commentCounterP, postData.id)
+    })
+
+
+
+    let sendBtn = document.createElement("img");
+    sendBtn.classList.add("send-btn");
+    sendBtn.src = "../static/img/send.png";
+    sendBtn.alt = "";
+
+
+    commentInput.appendChild(commentImg1);
+    commentInput.appendChild(textarea);
+    sendDiv.appendChild(sendBtn);
+    commentInput.appendChild(sendDiv);
+
+    commentBlockDiv.appendChild(commentInput)
+
+
+    postDiv.appendChild(commentBlockDiv)
     document.getElementById('posts-container').appendChild(postDiv);
 }
 
@@ -302,8 +550,33 @@ function loadMoreContent(count) {
                         id: data.ids[i],
                         liked: data.liked[i]
                     }
-                    console.log(postData)
-                    createPost(postData)
+
+                    fetch('loadComments', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({postId: postData.id, offset: 0})
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success){
+                                let commentsData = {
+                                    usernames: data.usernames,
+                                    avatars: data.avatar_paths,
+                                    texts: data.texts,
+                                    times: data.times,
+                                    selfs: data.selfs,
+                                    hrefs: data.hrefs,
+                                    ids: data.ids,
+                                    post_id: data.post_id
+                                }
+                                let selfAvatar = data.selfAvatar
+                                createPost(postData, commentsData, selfAvatar)
+                            }
+                        })
+
+
                 }
             }
         })
