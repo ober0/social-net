@@ -4,5 +4,13 @@
 <script src="{{ url_for('static', filename='js/loadMorePosts.js') }}"></script>
 
 
+<script>
+    const textarea = document.getElementById('comment-input');
+    textarea.addEventListener('input', autoResize);
 
+    function autoResize() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    }
+</script>
 {% endblock %}
