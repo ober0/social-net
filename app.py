@@ -1,4 +1,5 @@
 import base64
+import logging
 import os
 from functools import wraps
 import secrets
@@ -18,6 +19,9 @@ import imghdr
 db.init_app(app)
 socketio = SocketIO(app)
 mail = Mail(app)
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 
 # Получение уведомлений и количества новых уведомлений
@@ -115,7 +119,7 @@ def add_comment():
             'hrefs': ['/' + user.tag],
             'ids': [new_comment.id]
         }
-        print(data)
+        
 
         return jsonify(data)
 
@@ -152,73 +156,6 @@ def index():
     me = User.query.filter_by(id=request.cookies.get('account')).first()
     self_avatar_path = me.avatar_path
     notifications, notifications_count = check_notification(request.cookies.get('account'))
-    posts = Post.query.order_by(Post.id.desc()).limit(5).all()
-    avatars = []
-    authors = []
-    _selfs = []
-    liked = []
-    hrefs = []
-    posts_files = []
-    for post in posts:
-        post_files = []
-        if post.isGroup == '1':
-            if Group.query.filter_by(id=post.user_id).first().avatar_path:
-                avatars.append(f'groups/{Group.query.filter_by(id=post.user_id).first().avatar_path}')
-            else:
-                avatars.append(f'default.png')
-
-            group_name = Group.query.filter_by(id=post.user_id).first().name
-            authors.append(group_name)
-
-            _selfs.append(0)
-
-            if post.images:
-                post_images = post.images.split('/')
-                for file in post_images:
-                    post_files.append(f'group/photos/{file}')
-
-            if post.videos:
-                post_videos = post.videos.split('/')
-                for file in post_videos:
-                    post_files.append(f'group/video/{file}')
-
-            posts_files.append(post_files)
-            hrefs.append(f'community/{Group.query.filter_by(id=post.user_id).first().tag}')
-        else:
-            if User.query.filter_by(id=post.user_id).first().avatar_path:
-                avatars.append(f'users/{User.query.filter_by(id=post.user_id).first().avatar_path}')
-            else:
-                avatars.append(f'default.png')
-
-            username = User.query.filter_by(id=post.user_id).first().name + " " + User.query.filter_by(id=post.user_id).first().second_name
-            authors.append(username)
-
-            if int(post.user_id) == int(request.cookies.get('account')):
-                _selfs.append(1)
-            else:
-                _selfs.append(0)
-
-            post_files = []
-
-            if post.images:
-                post_images = post.images.split('/')
-                for file in post_images:
-                    post_files.append(f'users/photos/{file}')
-
-            if post.videos:
-                post_videos = post.videos.split('/')
-                for file in post_videos:
-                    post_files.append(f'users/video/{file}')
-
-            posts_files.append(post_files)
-
-            hrefs.append(f'{User.query.filter_by(id=post.user_id).first().tag}')
-
-        liked_1 = Likes.query.filter_by(user_id=request.cookies.get('account'), post_id=post.id).first()
-        if liked_1:
-            liked.append(1)
-        else:
-            liked.append(0)
 
     section = request.args.get('section')
     if not section:
@@ -231,13 +168,6 @@ def index():
                            notifications=notifications,
                            notification_count=notifications_count,
                            user=User.query.filter_by(id=request.cookies.get('account')).first(),
-                           posts=posts,
-                           avatars=avatars,
-                           authors=authors,
-                           _selfs = _selfs,
-                           posts_files=posts_files,
-                           liked = liked,
-                           hrefs = hrefs,
                            section=section
                            )
 
@@ -297,10 +227,10 @@ def reg():
 def loadComments():
     if request.method == 'POST':
         offset = request.json.get('offset')
-        print(offset)
+        
         postId = request.json.get('postId')
         comments = Comments.query.filter_by(post_id=postId).order_by(Comments.id.desc()).offset(offset).limit(5).all()
-        print(comments)
+        
         usernames = []
         avatar_paths = []
         texts = []
@@ -370,7 +300,7 @@ def confirm_email():
         email = data[1]
         code = random.randint(100000, 999999)
         msg = Message('Код подтверждения', recipients=[email])
-        print(code)
+        
         with open('templates/send.html', 'r', encoding='utf-8') as f:
             text = f.read()
             textSplit = text.split('//////')
@@ -722,15 +652,37 @@ def likePost():
 @app.route('/loadMorePosts', methods=['POST'])
 def loadMorePosts():
     if request.method == 'POST':
+        
         startWith = request.json.get('startWith')
         all = request.json.get('all')
         count = request.json.get('count')
         if all:
-            posts = Post.query.order_by(Post.id.desc()).offset(startWith).limit(count).all()
+            section = request.args.get('section')
+            if section == 'null':
+                section = 'new'
+
+            if section == 'new':
+                posts = Post.query.order_by(Post.id.desc()).offset(
+                startWith).limit(count).all()
+            elif section == 'popular':
+                posts = Post.query.order_by(Post.likes.desc()).offset(
+                startWith).limit(count).all()
+                
+            elif section == 'friends':
+                friends = Friends.query.filter_by(user_id=request.cookies.get('account')).all()
+                friends_ids = [i.friend_id for i in friends]
+                print(friends_ids)
+                posts = Post.query.filter(Post.isGroup != '1').filter(Post.user_id.in_(friends_ids)).order_by(
+                    Post.id.desc()).offset(startWith).limit(count).all()
+            elif section == 'people':
+                posts = Post.query.filter(Post.isGroup == None).order_by(Post.id.desc()).offset(startWith).limit(count).all()
+            elif section == 'community':
+                posts = Post.query.filter(Post.isGroup == '1').order_by(Post.id.desc()).offset(startWith).limit(count).all()
+            
         else:
             user_id = User.query.filter_by(tag=request.json.get('tag')).first().id
-            posts = Post.query.filter_by(user_id=user_id).order_by(Post.id.desc()).offset(
-                startWith).limit(count).all()
+            posts = Post.query.filter_by(user_id=user_id).order_by(Post.id.desc()).offset(startWith).limit(count).all()
+
 
         usernames = []
         avatars = []
@@ -788,7 +740,7 @@ def loadMorePosts():
                 liked.append(0)
 
             ids.append(post.id)
-        print(liked)
+        
         posts_json = {
             'success': True,
             'usernames': usernames,

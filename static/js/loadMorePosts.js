@@ -514,71 +514,90 @@ window.addEventListener('scroll', function() {
         }, 500)
     }
 });
-
-function loadMoreContent(count) {
-    let all = false
-    let tag = null
-    if (window.location.pathname == '/'){
-        all = true
+async function loadMoreContent(count) {
+    let all = false;
+    let tag = null;
+    if (window.location.pathname == '/') {
+        all = true;
+    } else {
+        tag = window.location.pathname.split('/')[1];
     }
-    else {
-        tag = window.location.pathname.split('/')[1]
-    }
-    let postNext = document.querySelectorAll('.post').length
-    fetch('/loadMorePosts', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({startWith: postNext, all: all, count: count, tag:tag})
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success){
-                for (let i = 0; i < data.usernames.length; i++){
 
-                    let postData = {
-                        username: data.usernames[i],
-                        avatar: data.avatars[i],
-                        text: data.text[i],
-                        files: data.files[i],
-                        date: data.dates[i],
-                        likes: data.likes[i],
-                        comments: data.comments[i],
-                        href: data.href[i],
-                        self: data.selfs[i],
-                        id: data.ids[i],
-                        liked: data.liked[i]
-                    }
+    const currenrUrl = window.location.href;
+    const urlParams = new URLSearchParams(window.location.search);
+    let section = urlParams.get('section');
 
-                    fetch('loadComments', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
+    let postNext = document.querySelectorAll('.post').length;
+
+    try {
+        const response = await fetch(`/loadMorePosts?section=${section}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ startWith: postNext, all: all, count: count, tag: tag })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const commentFetchPromises = data.usernames.map(async (username, i) => {
+                let postData = {
+                    username: data.usernames[i],
+                    avatar: data.avatars[i],
+                    text: data.text[i],
+                    files: data.files[i],
+                    date: data.dates[i],
+                    likes: data.likes[i],
+                    comments: data.comments[i],
+                    href: data.href[i],
+                    self: data.selfs[i],
+                    id: data.ids[i],
+                    liked: data.liked[i]
+                };
+
+
+                const commentsResponse = await fetch('loadComments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ postId: postData.id, offset: 0 })
+                });
+
+                const commentsData = await commentsResponse.json();
+
+                if (commentsData.success) {
+                    return {
+                        postData,
+                        commentsData: {
+                            usernames: commentsData.usernames,
+                            avatars: commentsData.avatar_paths,
+                            texts: commentsData.texts,
+                            times: commentsData.times,
+                            selfs: commentsData.selfs,
+                            hrefs: commentsData.hrefs,
+                            ids: commentsData.ids,
+                            post_id: commentsData.post_id
                         },
-                        body: JSON.stringify({postId: postData.id, offset: 0})
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success){
-                                let commentsData = {
-                                    usernames: data.usernames,
-                                    avatars: data.avatar_paths,
-                                    texts: data.texts,
-                                    times: data.times,
-                                    selfs: data.selfs,
-                                    hrefs: data.hrefs,
-                                    ids: data.ids,
-                                    post_id: data.post_id
-                                }
-                                let selfAvatar = data.selfAvatar
-                                createPost(postData, commentsData, selfAvatar)
-                            }
-                        })
-
-
+                        selfAvatar: commentsData.selfAvatar
+                    };
                 }
-            }
-        })
+
+                return null;
+            });
+
+            const results = await Promise.all(commentFetchPromises);
+
+            results.forEach(result => {
+                if (result) {
+                    createPost(result.postData, result.commentsData, result.selfAvatar);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
+
 
