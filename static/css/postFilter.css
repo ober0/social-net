@@ -1,0 +1,24 @@
+.filter-container{
+    background-color: #333;
+    padding: 10px;
+    border-radius: 10px;
+}
+.filter-element{
+    cursor: pointer;
+    border-radius: 10px;
+    word-break: break-all;
+}
+.filter-element:hover{
+    background-color: #4a4a4a;
+}
+
+.filter-element p{
+    padding: 10px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin:5px;
+}
+.active{
+    background-color: #4a4a4a;
+}
+

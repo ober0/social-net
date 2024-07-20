@@ -318,7 +318,7 @@
                     <div class="col-sm-2">
                         <img style="width: 20px" src="{{ url_for('static', filename='img/man.png') }}" alt="">
                     </div>
-                    <div class="col-sm-10 info-text">
+                    <div class="col-sm-8 info-text">
                         <div class="row">
                             <div class="col-sm-5">
                                 <p style="color:#a6a6a6">Пол: </p>
@@ -330,12 +330,13 @@
                                     {% elif user.gender == 'woman' %}
                                     Женщина
                                     {% else %}
-                                    user.gender
+                                    Скрыт
                                     {% endif %}
                                 </p>
                             </div>
                         </div>
                     </div>
+
                 </div>
 
 

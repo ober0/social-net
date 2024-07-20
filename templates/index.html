@@ -62,7 +62,7 @@
                         {% include 'left-menu.html' %}
                         {% block left_menu %}{% endblock %}
                     </div>
-                    <div class="col-sm-10">
+                    <div class="col-sm-8">
                         <div class="add-post">
                             {% include 'add-post.html' %}
                             {% block add_post %}{% endblock %}
@@ -73,6 +73,12 @@
                             {% block posts %}{% endblock %}
                         </div>
                         <br>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="postFilter">
+                            {% include 'post_filter.html' %}
+                            {% block filer %}{% endblock %}
+                        </div>
                     </div>
                 </div>
             </div>

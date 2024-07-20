@@ -1,10 +1,7 @@
 import base64
 import os
-import pprint
 from functools import wraps
 import secrets
-from tokenize import Comment
-
 from flask import Flask, session, redirect, render_template, request, jsonify, make_response, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
@@ -23,14 +20,14 @@ socketio = SocketIO(app)
 mail = Mail(app)
 
 
-
+# Получение уведомлений и количества новых уведомлений
 def check_notification(user_id):
     notification = Notification.query.filter_by(user_id=user_id).order_by(Notification.id.desc()).all()
     notification_new = Notification.query.filter_by(user_id=user_id, new=1).all()
     return notification, len(notification_new)
 
 
-
+#Проверка на код доступа
 def check_status(action):
     def decorator(f):
         @wraps(f)
@@ -55,6 +52,7 @@ def check_status(action):
     return decorator
 
 
+#Проверка на вход в аккаунт
 def check_access(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -222,6 +220,9 @@ def index():
         else:
             liked.append(0)
 
+    section = request.args.get('section')
+    if not section:
+        section = 'new'
 
     return render_template('index.html',
                            username=User.query.filter_by(id=session['account']).first().name,
@@ -236,7 +237,8 @@ def index():
                            _selfs = _selfs,
                            posts_files=posts_files,
                            liked = liked,
-                           hrefs = hrefs
+                           hrefs = hrefs,
+                           section=section
                            )
 
 
