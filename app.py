@@ -223,7 +223,7 @@ def reg():
             'result': False
         }), 401
 
-@app.route('/loadComments', methods = ['POST'])
+@app.route('/comments/load', methods = ['POST'])
 def loadComments():
     if request.method == 'POST':
         offset = request.json.get('offset')
@@ -271,7 +271,7 @@ def loadComments():
 
         return jsonify(data)
 
-@app.route('/deleteComment', methods=['POST'])
+@app.route('/comments/delete', methods=['POST'])
 def deleteComment():
     if request.method == "POST":
         commentId = request.json.get('id')
@@ -377,7 +377,7 @@ def edit_user():
             return 'Страница не найдена'
 
 
-@app.route('/addPost', methods=["POST"])
+@app.route('/post/add', methods=["POST"])
 def addPost():
     if request.method == "POST":
         if request.json.get('type') == 'main':
@@ -621,7 +621,7 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-@app.route('/likePost', methods=['POST'])
+@app.route('/post/like', methods=['POST'])
 def likePost():
     if request.method == 'POST':
         post_id = request.json.get('id')
@@ -649,7 +649,7 @@ def likePost():
     else:
         return 'Страница не найдена'
 
-@app.route('/loadMorePosts', methods=['POST'])
+@app.route('/posts/load-more', methods=['POST'])
 def loadMorePosts():
     if request.method == 'POST':
         
@@ -672,7 +672,7 @@ def loadMorePosts():
                 friends = Friends.query.filter_by(user_id=request.cookies.get('account')).all()
                 friends_ids = [i.friend_id for i in friends]
                 print(friends_ids)
-                posts = Post.query.filter(Post.isGroup != '1').filter(Post.user_id.in_(friends_ids)).order_by(
+                posts = Post.query.filter(Post.isGroup == None).filter(Post.user_id.in_(friends_ids)).order_by(
                     Post.id.desc()).offset(startWith).limit(count).all()
             elif section == 'people':
                 posts = Post.query.filter(Post.isGroup == None).order_by(Post.id.desc()).offset(startWith).limit(count).all()
@@ -762,7 +762,7 @@ def loadMorePosts():
             return jsonify({'success': False})
     return 'Страница не найдена'
 
-@app.route('/removePost', methods=['POST'])
+@app.route('/post/remove', methods=['POST'])
 def removePost():
     if request.method == 'POST':
         post_id = int(request.json.get('id'))
@@ -791,7 +791,7 @@ def removePost():
         return 'Страница не найдена'
 
 
-@app.route('/notificationView', methods=["POST"])
+@app.route('/notification/view', methods=["POST"])
 def notificationView():
     if request.method == "POST":
         id = request.cookies.get('account')
@@ -804,7 +804,7 @@ def notificationView():
 
 
 
-@app.route('/notificationDelete', methods=["POST"])
+@app.route('/notification/delete', methods=["POST"])
 def notificationDelete():
     if request.method == "POST":
         id = request.cookies.get('account')
@@ -1058,7 +1058,7 @@ def delete_photo(data):
 
 
 
-@app.route('/deleteVideo', methods=['POST'])
+@app.route('/video/delete', methods=['POST'])
 def delete_video():
 
     video_id = request.json.get('video_id')

@@ -84,7 +84,7 @@ function createComment(commentsData, i, commentsContainerDiv, commentCounterP, i
         deleteComment.style.color = '#a6a6a6'
         deleteComment.style.fontSize = '15px'
         deleteComment.addEventListener('click', function (){
-            fetch('deleteComment', {
+            fetch('comments/delete', {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -127,7 +127,7 @@ function createComment(commentsData, i, commentsContainerDiv, commentCounterP, i
 
 function likePost(id, likes_div) {
     let data = {id: id}
-    fetch('likePost', {
+    fetch('post/like', {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -197,7 +197,7 @@ function openFile(type, src, event) {
 function remPost(post_id){
 
 
-    fetch('removePost', {
+    fetch('post/remove', {
         method : "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -399,7 +399,7 @@ function createPost(postData, commentsData, selfAvatar) {
         showNext.addEventListener('click', function () {
             let offset = document.querySelectorAll('.style-' + postData.id).length
 
-            fetch('loadComments', {
+            fetch('comments/load', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -530,7 +530,7 @@ async function loadMoreContent(count) {
     let postNext = document.querySelectorAll('.post').length;
 
     try {
-        const response = await fetch(`/loadMorePosts?section=${section}`, {
+        const response = await fetch(`/posts/load-more?section=${section}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -557,7 +557,7 @@ async function loadMoreContent(count) {
                 };
 
 
-                const commentsResponse = await fetch('loadComments', {
+                const commentsResponse = await fetch('comments/load', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -184,7 +184,7 @@ function hideSearchEsc(event) {
 
 function openNotification(event){
 
-    fetch('/notificationView', {
+    fetch('/notification/view', {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('open-notifi').addEventListener('click', openNotification)
 
     document.getElementById('notifi-delete-all-div').addEventListener('click', function (){
-        fetch('/notificationDelete', {
+        fetch('/notification/delete', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -384,26 +384,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
             })
     })
-
-    document.getElementById('delete-notifi').addEventListener('click', function (event){
-        event.stopPropagation()
-        let not_id = this.getAttribute('notifi_id')
-        this.parentElement.parentElement.remove()
-        fetch('/notificationDelete', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({notifi: not_id})
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success){
-
-                }
+    try {
+        document.getElementById('delete-notifi').addEventListener('click', function (event) {
+            event.stopPropagation()
+            let not_id = this.getAttribute('notifi_id')
+            this.parentElement.parentElement.remove()
+            fetch('/notification/delete', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({notifi: not_id})
             })
-    })
-    
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+
+                    }
+                })
+        })
+    }catch {}
 
 
 

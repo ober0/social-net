@@ -241,7 +241,7 @@ try {
         let data = {
             video_id: this.getAttribute('video-id')
         }
-        fetch('/deleteVideo', {
+        fetch('/video/delete', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

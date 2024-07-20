@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function (){
         }
         console.log(videos_src)
         if (text.length > 0 || photos_src.length > 0 || videos_src.length > 0){
-            fetch('/addPost', {
+            fetch('/post/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function (){
                                 isPublic: isPublic
                             };
 
-                            return fetch('/addPost', {
+                            return fetch('/post/add', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
