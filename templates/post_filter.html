@@ -1,15 +1,26 @@
 {% block filter %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/postFilter.css') }}">
+
 <div class="filter-container">
-  <div filter="new" class="filter-element {% if section == 'new' %}active{% endif %}">
-      <p>Новые</p>
-  </div>
-  <div filter="popular" class="filter-element {% if section == 'popular' %}active{% endif %}">
-      <p>Популярные </p>
-  </div>
-  <div filter="friends" class="filter-element {% if section == 'friends' %}active{% endif %}">
-      <p>Новости друзей</p>
-  </div>
+    <div filter="new" class="filter-element {% if section == 'new' %}active{% endif %}">
+        <p>Новые</p>
+    </div>
+    <div filter="popular" class="filter-element {% if section == 'popular' %}active{% endif %}">
+        <p>Популярные </p>
+    </div>
+    <div filter="friends" class="filter-element {% if section == 'friends' %}active{% endif %}">
+        <p>Новости друзей</p>
+    </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let buttons = document.querySelectorAll('.filter-element')
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                window.location.href = '/?section=' + button.getAttribute('filter')
+            })
+        })
+    })
+</script>
 {% endblock %}
