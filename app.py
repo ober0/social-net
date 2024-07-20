@@ -430,7 +430,7 @@ def addPost():
                 if len(photos_urls) > 0:
                     try:
                         for photos_url in photos_urls:
-                            newPhoto = Photos(user_id=request.cookies.get('account'), path_name=photos_url, name=f'Фото пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
+                            newPhoto = Photos(user_id=request.cookies.get('account'), path_name=photos_url, name=f'Фото пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}', inPost='True')
                             db.session.add(newPhoto)
                         db.session.commit()
                     except:
@@ -469,7 +469,7 @@ def addPost():
 
             if request.json.get('isPublic'):
                 try:
-                    newVideo = Video(user_id=request.cookies.get('account'), path_name=video_url, name=f'Видео пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}')
+                    newVideo = Video(user_id=request.cookies.get('account'), path_name=video_url, name=f'Видео пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}', inPost="True")
                     db.session.add(newVideo)
                     db.session.commit()
                     return jsonify({'result': True})
@@ -681,7 +681,7 @@ def loadMorePosts():
             
         else:
             user_id = User.query.filter_by(tag=request.json.get('tag')).first().id
-            posts = Post.query.filter_by(user_id=user_id).order_by(Post.id.desc()).offset(startWith).limit(count).all()
+            posts = Post.query.filter_by(user_id=user_id).filter_by(isGroup=None).order_by(Post.id.desc()).offset(startWith).limit(count).all()
 
 
         usernames = []
@@ -1047,7 +1047,8 @@ def delete_photo(data):
         try:
             db.session.delete(photo)
             db.session.commit()
-            os.remove(f'static/users/photos/{photo.path_name}')
+            if photo.inPost == 'False':
+                os.remove(f'static/users/photos/{photo.path_name}')
             socketio.emit('deletePhoto_result', {'success': True}, room=request.cookies.get('account'))
 
         except Exception as e:
@@ -1074,8 +1075,8 @@ def delete_video():
         except Exception as e:
             db.session.rollback()
             return jsonify({'success': False, 'error': str(e)})
-
-        os.remove(f'static/users/video/{video.path_name}')
+        if video.inPost == 'False':
+            os.remove(f'static/users/video/{video.path_name}')
     else:
         return jsonify({'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
 
