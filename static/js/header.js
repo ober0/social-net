@@ -269,6 +269,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     })
 
+    document.getElementById('btn-edit').addEventListener('click', function () {
+        window.location.href = '/edit_user'
+    })
+
     document.getElementById('btn-setting').addEventListener('click', function () {
         window.location.href = '/setting'
     })

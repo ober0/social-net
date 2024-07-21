@@ -30,9 +30,23 @@ try {
 
 try {
     document.getElementById('btn-remove-friend').addEventListener('click', function () {
-        socketio.emit('removeFriend', {
-            friend_id: this.getAttribute('friend_id')
-        });
+        const data = {friend_id: this.getAttribute('friend_id')}
+        fetch('friend/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('btn-add-friend').classList.remove('hide');
+                    document.getElementById('btn-remove-friend').classList.add('hide');
+                } else {
+                    console.log(data.error);
+                }
+            })
     })
 }catch {}
 
@@ -94,14 +108,7 @@ socketio.on('addFriend_request_result', (data) => {
     }
 });
 
-socketio.on('removeFriend_result', (data) => {
-    if (data.success) {
-        document.getElementById('btn-add-friend').classList.remove('hide');
-        document.getElementById('btn-remove-friend').classList.add('hide');
-    } else {
-        console.log(data.error);
-    }
-});
+
 
 socketio.on('removeFriend_request_result', (data) => {
     if (data.success){

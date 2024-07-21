@@ -188,8 +188,8 @@ def friends():
     user = User.query.filter_by(tag=tag).first()
     _self = (tag == User.query.filter_by(id=request.cookies.get('account')).first().tag)
 
-    friends = Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).all()
-    friends_count = len(friends)
+    friends = Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).limit(20).all()
+    friends_count = len(Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).all())
 
     friend_names = []
     friend_learn = []
@@ -197,9 +197,10 @@ def friends():
     friend_hrefs = []
     friend_tags = []
     for friend in friends:
-        friend_data = User.query.filter_by(id=friend.user_id).first()
+        friend_data = User.query.filter_by(id=friend.friend_id).first()
+        print(friend_data.tag)
         friend_names.append(f'{friend_data.name} {friend_data.second_name}')
-        if friend_data.show_education == "True":
+        if friend_data.show_education == '1':
             friend_learn.append(friend_data.education_place)
         else:
             friend_learn.append(None)
@@ -235,7 +236,8 @@ def friends():
                            _self=_self,
                            notifications=notifications,
                            notification_count=notifications_count,
-                           section = section
+                           section = section,
+                           self_avatar_path = User.query.filter_by(id=request.cookies.get('account')).first().avatar_path,
                            )
 
 
@@ -992,12 +994,14 @@ def add_friend(data):
         db.session.rollback()
         socketio.emit('addFriend_request_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
-@socketio.on('removeFriend')
-def add_friend(data):
-    join_room(request.cookies.get('account'), request.cookies.get('user_id'))
+@app.route('/friend/remove', methods=['POST'])
+def add_friend():
     user_id = request.cookies.get('account')
-    friend_id = data['friend_id']
-
+    friend_id = request.json.get('friend_id')
+    if not friend_id:
+        friend_tag = request.json.get('friend_tag')
+        friend_id = User.query.filter_by(tag=friend_tag).first().id
+    print(friend_id)
     try:
         friend1 = Friends.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
         friend2 = Friends.query.filter_by(user_id=friend_id).filter_by(friend_id=user_id).first()
@@ -1005,10 +1009,10 @@ def add_friend(data):
         db.session.delete(friend1)
         db.session.delete(friend2)
         db.session.commit()
-        socketio.emit('removeFriend_result', {'success': True}, room=request.cookies.get('account'))
+        return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        socketio.emit('removeFriend_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
+        return jsonify({'success': False, 'error': str(e)})
 
 
 @socketio.on('removeFriend_request')

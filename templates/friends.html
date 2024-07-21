@@ -6,6 +6,7 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/friends.css')}}">
     <title>Document</title>
     <style>
         body{
@@ -66,36 +67,50 @@
                     {% if section == 'friends' %}
                         <div class="friends-block">
                             <div class="friends-header">
-                                <p class="friends-counter">{{ friends_count }} друзей</p>
-                                <input class="friends-input" type="text" name="friends-search" id="friends-search" placeholder="Поиск друзей">
+                                <div class="friends-counter-div">
+                                    <p class="friends-counter">Всего друзей: {{ friends_count }}</p>
+                                </div>
+
+                                <input id="friends-input" type="text" name="friends-search" id="friends-search" placeholder="Поиск друзей">
                             </div>
-                            <div class="frinds-container">
+                            <hr style="margin-left: -20px; margin-right: -20px; margin-top: 20px">
+                            <div class="friends-container">
                                 {% for i in range(friends_data['friend_names'] | length) %}
                                     {% set name = friends_data['friend_names'][i] %}
                                     {% set learn = friends_data['friend_learn'][i] %}
                                     {% set avatar_path = friends_data['friend_avatar_path'][i] %}
                                     {% set href = friends_data['friend_hrefs'][i] %}
                                     {% set tag = friends_data['friend_tags'][i] %}
-
-                                    <div class="friends-avatar">
-                                        <a href="{{href}}"><img src="{{ url_for('static', filename='avatars/' + avatar_path) }}" alt=""></a>
-                                    </div>
-                                    <div class="friends-info">
-                                        <div class="name">
-                                            <a class="friends-name" href="{{href}}">{{ name }}</a>
-                                        </div>
-                                        {% if learn %}
-                                            <div class="learn">
-                                                {{learn}}
+                                    <div class="friend-body">
+                                        <div class="friends-content">
+                                            <div class="friends-avatar">
+                                                <a href="{{href}}"><img src="{{ url_for('static', filename='avatars/' + avatar_path) }}" alt=""></a>
                                             </div>
-                                        {% endif %}
-                                        <div class="friends-btn">
-                                            <p tag="{{tag}}" id="friend-send-message">Написать сообщение</p>
-                                            <p tag={{tag}} id="friend-remove">Удалить из друзей</p>
+                                            <div class="friends-info">
+                                                <div class="name">
+                                                    <b><a class="friends-name" href="{{href}}">{{ name }}</a></b>
+                                                </div>
+                                                {% if learn %}
+                                                    <div class="learn">
+                                                        {{learn}}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="friends-btn">
+                                                    <p tag="{{tag}}" id="friend-send-message">Написать сообщение</p>
+                                                    <div class="pixel"></div>
+                                                    <p tag={{tag}} id="friend-remove">Удалить из друзей</p>
+                                                </div>
+                                            </div>
+
                                         </div>
+                                        <hr>
                                     </div>
-                                    <hr>
+
+
                                 {% endfor %}
+                            </div>
+                            <div class="no-friend {% if friends_count > 0 %} hide {% endif %}">
+                                Ни одного друга не найдено :(
                             </div>
                         </div>
                     {% endif %}
@@ -103,34 +118,6 @@
                     </div>
                     {% if _self == True %}
                         <div class="col-sm-3">
-                            <style>
-                                .filter-container{
-                                    background-color: #333;
-                                    padding: 10px;
-                                    border-radius: 10px;
-                                }
-                                .filter-element{
-                                    cursor: pointer;
-                                    border-radius: 10px;
-                                    word-break: break-all;
-                                }
-                                .filter-element:hover{
-                                    background-color: #4a4a4a;
-                                }
-
-                                .filter-element p{
-                                    padding: 10px;
-                                    padding-top: 7px;
-                                    padding-bottom: 7px;
-                                    margin:5px;
-                                    font-size: 15px;
-                                }
-                                .active{
-                                    background-color: #4a4a4a;
-                                }
-
-                            </style>
-
                             <div class="filter-container">
                                 <div section="friends" class="filter-element {% if section == 'friends' %}active{% endif %}">
                                     <p>Мои друзья</p>
@@ -166,6 +153,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/header.js') }}"></script>
+<script src="{{ url_for('static', filename='js/friends.js') }}"></script>
 
 </body>
 </html>

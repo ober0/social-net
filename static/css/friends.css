@@ -1,0 +1,110 @@
+.filter-container{
+    background-color: #333;
+    padding: 10px;
+    border-radius: 10px;
+}
+.filter-element{
+    cursor: pointer;
+    border-radius: 10px;
+    word-break: break-all;
+}
+.filter-element:hover{
+    background-color: #4a4a4a;
+}
+
+.filter-element p{
+    padding: 10px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin:5px;
+    font-size: 15px;
+}
+.active{
+    background-color: #4a4a4a;
+}
+
+.friends-block{
+    background-color:#333;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#friends-input{
+    border-radius: 10px;
+    background-color: #333;
+    border: 1px solid #575757;
+    width: 100%;
+    padding: 7px;
+    padding-left: 10px;
+    font-size: 14px;
+}
+#friends-input:focus{
+    outline: 0;
+}
+
+.friends-counter{
+    color: #a6a6a6;
+    font-size: 15px;
+    margin: 0;
+}
+.friends-counter-div{
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 1px solid #575757;
+    border-radius: 10px;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+.friends-content{
+    display: flex;
+    gap: 20px;
+}
+.friends-info{
+    padding-top: 3px;
+}
+.friends-info * {
+    margin-top: 5px;
+}
+.friends-avatar img{
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+}
+
+.friends-name{
+    color: white;
+    text-decoration: none;
+}
+.friends-name:hover{
+    text-decoration: underline;
+}
+.friends-btn{
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    height: fit-content;
+}
+.friends-btn p{
+    margin: 0;
+    cursor: pointer;
+}
+.friends-btn p:hover{
+    text-decoration: underline;
+}
+
+
+.pixel{
+    background-color: #a6a6a6;
+    width: 2px;
+    height: 2px;
+    margin: 0px !important;
+}
+
+.learn{
+    color: #a6a6a6;
+}
+.no-friend{
+    width: 100%;
+    text-align: center;
+}
