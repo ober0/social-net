@@ -65,6 +65,7 @@
                     </div>
                     <div class="col-sm-7">
                     {% if section == 'friends' %}
+
                         <div class="friends-block">
                             <div class="friends-header">
                                 <div class="friends-counter-div">
@@ -84,7 +85,9 @@
                                     <div class="friend-body">
                                         <div class="friends-content">
                                             <div class="friends-avatar">
-                                                <a href="{{href}}"><img src="{{ url_for('static', filename='avatars/' + avatar_path) }}" alt=""></a>
+                                                <a href="{{href}}">
+                                                    <img src="{{ url_for('static', filename='avatars/' + avatar_path) }}" alt="">
+                                                </a>
                                             </div>
                                             <div class="friends-info">
                                                 <div class="name">
@@ -113,6 +116,7 @@
                                 Ни одного друга не найдено :(
                             </div>
                         </div>
+                        <script src="{{ url_for('static', filename='js/friends.js') }}"></script>
                     {% endif %}
 
                     </div>
@@ -153,7 +157,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/header.js') }}"></script>
-<script src="{{ url_for('static', filename='js/friends.js') }}"></script>
+
 
 </body>
 </html>

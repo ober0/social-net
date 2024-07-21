@@ -182,13 +182,12 @@ def friends():
     section = request.args.get('section')
     if not section:
         section = 'friends'
-    print(section)
 
     tag = request.args.get('user')
     user = User.query.filter_by(tag=tag).first()
     _self = (tag == User.query.filter_by(id=request.cookies.get('account')).first().tag)
 
-    friends = Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).limit(20).all()
+    friends = Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).limit(15).all()
     friends_count = len(Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).all())
 
     friend_names = []
@@ -198,7 +197,7 @@ def friends():
     friend_tags = []
     for friend in friends:
         friend_data = User.query.filter_by(id=friend.friend_id).first()
-        print(friend_data.tag)
+
         friend_names.append(f'{friend_data.name} {friend_data.second_name}')
         if friend_data.show_education == '1':
             friend_learn.append(friend_data.education_place)
@@ -242,6 +241,48 @@ def friends():
 
 
 
+
+@app.route('/friends/load-more', methods=['POST'])
+def load_more_friends():
+    offset = request.json.get('count')
+    user_tag = request.json.get('user_tag')
+    user = User.query.filter_by(tag=user_tag).first()
+    try:
+        friends = Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).offset(offset).limit(15).all()
+
+        friend_names = []
+        friend_learn = []
+        friend_avatar_path = []
+        friend_hrefs = []
+        friend_tags = []
+
+        for friend in friends:
+            friend_data = User.query.filter_by(id=friend.friend_id).first()
+            friend_names.append(f'{friend_data.name} {friend_data.second_name}')
+            if friend_data.show_education == '1':
+                friend_learn.append(friend_data.education_place)
+            else:
+                friend_learn.append(None)
+            avatar_path = friend_data.avatar_path
+            if not avatar_path:
+                avatar_path = 'default.png'
+            else:
+                avatar_path = f'users/{avatar_path}'
+            friend_avatar_path.append(avatar_path)
+            friend_hrefs.append('/' + friend_data.tag)
+            friend_tags.append(friend_data.tag)
+
+        friends_data = {
+            'success': True,
+            'names': friend_names,
+            'learns': friend_learn,
+            'avatar_paths': friend_avatar_path,
+            'hrefs': friend_hrefs,
+            'tags': friend_tags
+        }
+        return jsonify(friends_data)
+    except Exception as e:
+        return jsonify({'success': False})
 
 @app.route('/auth', methods=['POST'])
 def auth():
@@ -742,7 +783,6 @@ def loadMorePosts():
             elif section == 'friends':
                 friends = Friends.query.filter_by(user_id=request.cookies.get('account')).all()
                 friends_ids = [i.friend_id for i in friends]
-                print(friends_ids)
                 posts = Post.query.filter(Post.isGroup == None).filter(Post.user_id.in_(friends_ids)).order_by(
                     Post.id.desc()).offset(startWith).limit(count).all()
             elif section == 'people':
@@ -1001,7 +1041,6 @@ def add_friend():
     if not friend_id:
         friend_tag = request.json.get('friend_tag')
         friend_id = User.query.filter_by(tag=friend_tag).first().id
-    print(friend_id)
     try:
         friend1 = Friends.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
         friend2 = Friends.query.filter_by(user_id=friend_id).filter_by(friend_id=user_id).first()
