@@ -121,7 +121,7 @@
                     <p style="font-size: 14px !important; color: #a6a6a6 !important;" class="notif-text">{{ notification.text }} <a href="{{ notification.href }}">{{ notification.from_user }}</a></p>
                 {% endif %}
                 {% if notification.type == 'newFriendRequest' %}
-                    <p class="notif-text">{{ notification.text }} <a href="{{ notification.href }}">{{ notification.from_user }}</a></p>
+                    <p class="notif-text">{{ notification.text }} <b><a href="{{ notification.href }}">{{ notification.from_user }}</a></b></p>
                 {% endif %}
 
                 </div>

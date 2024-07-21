@@ -127,6 +127,10 @@ def add_comment():
         db.session.rollback()
         return jsonify({'success': False})
 
+
+
+
+
 def createNotification(user_id, type, from_user_avatar_path, text, href, date, from_user, room):
     try:
         new_notification = Notification(user_id=user_id, type=type, from_user_avatar_path=from_user_avatar_path,
@@ -170,6 +174,71 @@ def index():
                            user=User.query.filter_by(id=request.cookies.get('account')).first(),
                            section=section
                            )
+
+
+@app.route('/friends')
+@check_access
+def friends():
+    section = request.args.get('section')
+    if not section:
+        section = 'friends'
+    print(section)
+
+    tag = request.args.get('user')
+    user = User.query.filter_by(tag=tag).first()
+    _self = (tag == User.query.filter_by(id=request.cookies.get('account')).first().tag)
+
+    friends = Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).all()
+    friends_count = len(friends)
+
+    friend_names = []
+    friend_learn = []
+    friend_avatar_path = []
+    friend_hrefs = []
+    friend_tags = []
+    for friend in friends:
+        friend_data = User.query.filter_by(id=friend.user_id).first()
+        friend_names.append(f'{friend_data.name} {friend_data.second_name}')
+        if friend_data.show_education == "True":
+            friend_learn.append(friend_data.education_place)
+        else:
+            friend_learn.append(None)
+        avatar_path = friend_data.avatar_path
+        if not avatar_path:
+            avatar_path = 'default.png'
+        else:
+            avatar_path = f'users/{avatar_path}'
+        friend_avatar_path.append(avatar_path)
+        friend_hrefs.append('/' + friend_data.tag)
+        friend_tags.append(friend_data.tag)
+    friends_data = {
+        'friend_names': friend_names,
+        'friend_learn': friend_learn,
+        'friend_avatar_path': friend_avatar_path,
+        'friend_hrefs': friend_hrefs,
+        'friend_tags': friend_tags
+    }
+
+    incoming_requests = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).order_by(FriendRequest.id.desc()).all()
+    outgoing_requests = FriendRequest.query.filter_by(user_id=request.cookies.get('account')).order_by(FriendRequest.id.desc()).all()
+
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+
+    return render_template('friends.html',
+                           me=User.query.filter_by(id=request.cookies.get('account')).first(),
+                           user=User.query.filter_by(id=request.cookies.get('account')).first(),
+                           user_page = user,
+                           incoming_requests=incoming_requests,
+                           outgoing_requests=outgoing_requests,
+                           friends_data=friends_data,
+                           friends_count=friends_count,
+                           _self=_self,
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           section = section
+                           )
+
+
 
 
 @app.route('/auth', methods=['POST'])

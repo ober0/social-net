@@ -11,6 +11,9 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
     const notifDiv = document.createElement('div')
     notifDiv.className = 'notification'
     notifDiv.setAttribute('path', href)
+    notifDiv.addEventListener('click', function () {
+        window.location.href = notification.href
+    })
 
     notifDiv.innerHTML = `
         <div class="notif-main">
@@ -32,7 +35,7 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
             </div>
             <div class="notif-description">
                 ${notification.type === 'newFriendRequest' ? 
-                    `<p class="notif-text">${notification.text} <a href="${notification.href}">${notification.from_user}</a></p>` : 
+                    `<p class="notif-text">${notification.text} <b> <a href="${notification.href}">${notification.from_user}</a></b></p>` : 
                     ''
                 }
                 

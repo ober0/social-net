@@ -252,7 +252,8 @@
     position: fixed;
     z-index: 999;
     top:72px;
-    left: 65.5%;
+    left: 100%;
+    transform: translate(-100%);
 }
 .right-user-header{
     text-align: center;
