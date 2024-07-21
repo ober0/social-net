@@ -108,3 +108,17 @@
     width: 100%;
     text-align: center;
 }
+
+
+.img-load {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    transform: translate(-50%);
+}
+
+.input-container{
+    display: flex;
+    align-items: center;
+    justify-content: right;
+}

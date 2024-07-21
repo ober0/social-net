@@ -247,8 +247,29 @@ def load_more_friends():
     offset = request.json.get('count')
     user_tag = request.json.get('user_tag')
     user = User.query.filter_by(tag=user_tag).first()
+
+    filter = request.args.get('filter')
+
     try:
-        friends = Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).offset(offset).limit(15).all()
+        if not filter:
+            friends = Friends.query.filter_by(user_id=user.id).order_by(Friends.id.desc()).offset(offset).limit(15).all()
+        else:
+            search_string = f"%{filter}%"
+            for search_string in [search_string, search_string.title()]:
+                users = User.query.filter(or_(
+                    User.name.like(search_string),
+                    User.second_name.like(search_string),
+                    text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string")
+                )).params(search_string=search_string).all()
+            user_ids = [user.id for user in users]
+
+            users = User.query.filter(User.tag.like(search_string)).all()
+            user_ids2 = [user.id for user in users]
+
+            user_ids.extend(user_ids2)
+
+            friends = Friends.query.filter_by(user_id=user.id).filter(Friends.friend_id.in_(user_ids)).all()
+
 
         friend_names = []
         friend_learn = []

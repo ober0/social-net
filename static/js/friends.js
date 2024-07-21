@@ -127,6 +127,9 @@ document.addEventListener('DOMContentLoaded', function (){
         sendMessageP.setAttribute('tag', tag);
         sendMessageP.id = 'friend-send-message';
         sendMessageP.textContent = 'Написать сообщение';
+        sendMessageP.addEventListener('click', function () {
+            window.location.href = 'chats/' + this.getAttribute('tag')
+        })
 
         let pixelDiv = document.createElement('div');
         pixelDiv.classList.add('pixel');
@@ -135,6 +138,27 @@ document.addEventListener('DOMContentLoaded', function (){
         removeFriendP.setAttribute('tag', tag);
         removeFriendP.id = 'friend-remove';
         removeFriendP.textContent = 'Удалить из друзей';
+        removeFriendP.addEventListener('click', function () {
+            fetch('friend/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({friend_tag: this.getAttribute('tag')})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.closest('.friend-body').remove()
+                        document.querySelector('.friends-counter').innerText = `Всего друзей: ${Number(document.querySelector('.friends-counter').innerText.split(': ')[1]) - 1}`
+                        if (document.querySelector('.friends-counter').innerText.split(': ')[1] == '0'){
+                            document.querySelector('.no-friend').classList.remove('hide')
+                        }
+                    } else {
+                        console.log(data.error);
+                    }
+                })
+        })
 
         friendsBtn.appendChild(sendMessageP);
         friendsBtn.appendChild(pixelDiv);
@@ -151,4 +175,53 @@ document.addEventListener('DOMContentLoaded', function (){
         document.querySelector('.friends-container').appendChild(friendBody);
     }
 
+
+
+    document.getElementById('friends-input').addEventListener('input', function () {
+        document.querySelector('.img-load').classList.remove('hide')
+        let filter = this.value
+        if (filter == ''){
+            document.querySelector('.no-friend').classList.add('hide')
+            loadMoreFriends()
+            document.querySelector('.img-load').classList.add('hide')
+        }
+        else {
+            setTimeout(function () {
+                fetch('friends/load-more?filter=' + filter, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({user_tag: user_tag})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelectorAll('.friend-body').forEach(friend => {
+                            friend.remove()
+                        })
+                        document.querySelector('.img-load').classList.add('hide')
+                        if (data.success){
+                            if (data.names.length > 0) {
+                                document.querySelector('.no-friend').classList.add('hide')
+                                for (let i = 0; i < data.names.length; i++) {
+                                    let friends_data = {
+                                        name: data.names[i],
+                                        learn: data.learns[i],
+                                        avatar_path: data.avatar_paths[i],
+                                        href: data.hrefs[i],
+                                        tag: data.tags[i]
+                                    }
+
+                                    createFriendDiv(friends_data)
+                                }
+                            }
+                            else {
+                                document.querySelector('.no-friend').classList.remove('hide')
+                            }
+                        }
+                    })
+            },200)
+
+        }
+    })
 })

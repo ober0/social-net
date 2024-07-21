@@ -72,7 +72,10 @@
                                     <p class="friends-counter">Всего друзей: {{ friends_count }}</p>
                                 </div>
 
-                                <input id="friends-input" type="text" name="friends-search" id="friends-search" placeholder="Поиск друзей">
+                                <div class="input-container">
+                                    <input id="friends-input" type="text" name="friends-search" placeholder="Поиск друзей">
+                                    <img class="img-load hide" src="{{ url_for('static', filename='img/load.gif') }}" alt="Загрузка">
+                                </div>
                             </div>
                             <hr style="margin-left: -20px; margin-right: -20px; margin-top: 20px">
                             <div class="friends-container">
