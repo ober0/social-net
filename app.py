@@ -89,7 +89,7 @@ def check_access(f):
 
 
 
-@app.route('/admin/change_status')
+('/admin/change_status')
 @check_status('change_status')
 def change_status():
     return render_template('change_status.html')
@@ -166,6 +166,7 @@ def index():
     if not section:
         section = 'new'
 
+    incoming_requests_count = FriendRequest.query.filter_by(friend_id=me.id).count()
     return render_template('index.html',
                            username=User.query.filter_by(id=session['account']).first().name,
                            me=me,
@@ -173,7 +174,8 @@ def index():
                            notifications=notifications,
                            notification_count=notifications_count,
                            user=User.query.filter_by(id=request.cookies.get('account')).first(),
-                           section=section
+                           section=section,
+                           incoming_requests_count = incoming_requests_count
                            )
 
 
@@ -703,7 +705,7 @@ def user_profile(tag):
             '12': 'декабря'
         }
 
-
+        incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
         birthday = str(user.date_of_birthday)
         birthday_list = birthday.split('-')
         day = birthday_list[2]
@@ -813,7 +815,8 @@ def user_profile(tag):
                                authors=authors,
                                posts_files=posts_files,
                                liked=liked,
-                               hrefs = hrefs
+                               hrefs = hrefs,
+                               incoming_requests_count=incoming_requests_count
         )
 @app.route('/favicon.ico')
 def favicon():

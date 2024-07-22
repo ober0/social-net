@@ -38,8 +38,13 @@ document.addEventListener('DOMContentLoaded', function (){
                     this.closest('.friend-body').remove()
                     let req_counter = document.getElementById('all_req_counter')
                     req_counter.innerText = Number(req_counter.innerText) - 1
+
+                    let req_counter_left = document.getElementById('all_req_counter-left-menu')
+                    req_counter_left.innerText = Number(req_counter_left.innerText) - 1
+
                     if (Number(req_counter.innerText) < 1){
                         req_counter.parentElement.classList.add('hide')
+                        req_counter_left.parentElement.classList.add('hide')
                         document.querySelector('.no-friend').classList.remove('hide')
                     }
                 }
