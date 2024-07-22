@@ -254,12 +254,38 @@ def friends():
     }
 
 
-
-
-
-
-
     outgoing_requests = FriendRequest.query.filter_by(user_id=request.cookies.get('account')).order_by(FriendRequest.id.desc()).all()
+    friend_names = []
+    friend_learn = []
+    friend_avatar_path = []
+    friend_hrefs = []
+    friend_tags = []
+    outgoing_requests_user_ids = [req.friend_id for req in outgoing_requests]
+    outgoing_requests_count = len(outgoing_requests)
+    users = User.query.filter(User.id.in_(outgoing_requests_user_ids)).all()
+
+    for user2 in users:
+        friend_names.append(user2.name + " " + user2.second_name)
+        if user2.show_education == '1':
+            friend_learn.append(user2.education_place)
+        else:
+            friend_learn.append(None)
+        avatar_path = user2.avatar_path
+        if not avatar_path:
+            avatar_path = 'default.png'
+        else:
+            avatar_path = f'users/{avatar_path}'
+        friend_avatar_path.append(avatar_path)
+        friend_hrefs.append('/' + user2.tag)
+        friend_tags.append(user2.tag)
+
+    request_outgoing_data = {
+        'friend_names': friend_names,
+        'friend_learn': friend_learn,
+        'friend_avatar_path': friend_avatar_path,
+        'friend_hrefs': friend_hrefs,
+        'friend_tags': friend_tags
+    }
 
     notifications, notifications_count = check_notification(request.cookies.get('account'))
     return render_template('friends.html',
@@ -268,7 +294,8 @@ def friends():
                            user_page = user,
                            request_all_data = request_all_data,
                            incoming_requests_count = incoming_requests_count,
-                           outgoing_requests=outgoing_requests,
+                           request_outgoing_data = request_outgoing_data,
+                           outgoing_requests_count = outgoing_requests_count,
                            friends_data=friends_data,
                            friends_count=friends_count,
                            _self=_self,
@@ -1136,15 +1163,31 @@ def rem_friend_request():
     if user_tag:
         friend_id = request.cookies.get('account')
         user_id = User.query.filter_by(tag=user_tag).first().id
+        isCancel = False
     else:
-        user_id = request.cookies.get('user_id')
+        user_id = request.cookies.get('account')
         friend_tag = request.json.get('friend_tag')
         friend_id = User.query.filter_by(tag=friend_tag).first().id
+        isCancel = True
 
     request1 = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
     try:
         db.session.delete(request1)
         db.session.commit()
+        if isCancel:
+            try:
+                from_user = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(
+                    id=user_id).first().second_name
+                print(from_user)
+                print(user_id)
+                notif_to_rem = Notification.query.filter_by(user_id=friend_id, from_user=from_user).filter_by(
+                    type='newFriendRequest').all()
+                for notif in notif_to_rem:
+                    db.session.delete(notif)
+                    db.session.commit()
+            except:
+                db.session.rollback()
+
         return jsonify({'success': True})
     except:
         db.session.rollback()
@@ -1225,7 +1268,9 @@ def add_friend(data):
             socketio.emit('addFriend_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
 
         try:
-            notif_to_rem = Notification.query.filter_by(user_id=friend_id).filter_by(type='newFriendRequest').all()
+            from_user = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(id=user_id).first().second_name
+            print(from_user)
+            notif_to_rem = Notification.query.filter_by(user_id=friend_id, from_user=from_user).filter_by(type='newFriendRequest').all()
             for notif in notif_to_rem:
                 db.session.delete(notif)
                 db.session.commit()

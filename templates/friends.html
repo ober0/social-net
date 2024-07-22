@@ -165,6 +165,49 @@
                             </div>
                         </div>
                         <script src="{{ url_for('static', filename='js/all-friends-request.js') }}"></script>
+                    {% elif section == 'out_requests' and _self == True %}
+                        <div class="friends-block">
+                            <div class="friends-container">
+                                {% for i in range(request_outgoing_data['friend_names'] | length) %}
+                                    {% set name = request_outgoing_data['friend_names'][i] %}
+                                    {% set learn = request_outgoing_data['friend_learn'][i] %}
+                                    {% set avatar_path = request_outgoing_data['friend_avatar_path'][i] %}
+                                    {% set href = request_outgoing_data['friend_hrefs'][i] %}
+                                    {% set tag = request_outgoing_data['friend_tags'][i] %}
+                                    <div class="friend-body">
+                                        <div class="friends-content">
+                                            <div class="friends-avatar">
+                                                <a href="{{href}}">
+
+                                                    <img src="{{ url_for('static', filename='avatars/' + avatar_path) }}" alt="">
+                                                </a>
+                                            </div>
+                                            <div class="friends-info">
+                                                <div class="name">
+                                                    <b><a class="friends-name" href="{{href}}">{{ name }}</a></b>
+                                                </div>
+                                                {% if learn %}
+                                                    <div class="learn">
+                                                        {{learn}}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="friends-btn">
+                                                    <p tag={{tag}} class="request-btn" id="cancel-request">Отменить заявку</p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <hr>
+                                    </div>
+
+
+                                {% endfor %}
+                            </div>
+                            <div class="no-friend {% if outgoing_requests_count > 0 %} hide {% endif %}">
+                                Нет отправленных заявок
+                            </div>
+                        </div>
+                        <script src="{{ url_for('static', filename='js/out-friends-request.js') }}"></script>
                     {% endif %}
 
                     </div>
