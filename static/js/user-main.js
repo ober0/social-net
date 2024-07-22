@@ -17,7 +17,7 @@ document.getElementById('goFriend').addEventListener('click', function () {
 });
 
 document.getElementById('goSubs').addEventListener('click', function () {
-    window.location.href = '/subscribe?user=' + this.getAttribute('my_tag');
+    window.location.href = '/groups?user=' + this.getAttribute('my_tag');
 });
 
 try {

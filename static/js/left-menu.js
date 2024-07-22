@@ -16,7 +16,7 @@ document.getElementById('friends').addEventListener('click', function () {
 })
 
 document.getElementById('soob').addEventListener('click', function () {
-    window.location.href = '/groops?user=' + this.getAttribute('my_tag')
+    window.location.href = '/groups?user=' + this.getAttribute('my_tag')
 })
 
 

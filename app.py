@@ -10,7 +10,8 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Comments
+from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Comments, \
+    Subscribe
 from config import app, action_access
 import random
 import datetime
@@ -177,6 +178,76 @@ def index():
                            section=section,
                            incoming_requests_count = incoming_requests_count
                            )
+
+
+
+@app.route('/groups')
+@check_access
+def groops():
+    user_tag = request.args.get('user')
+    user = User.query.filter_by(tag=user_tag).first()
+
+    groops_subs = Subscribe.query.filter_by(user_id=user.id).limit(15).all()
+    groops_data_count = Subscribe.query.filter_by(user_id=user.id).count()
+
+    groops_ids = [i.group_id for i in groops_subs]
+    print(groops_ids)
+    # groops = Group.query.filter(Group.id.in_(groops_ids)).all()
+
+    groops = []
+    for sub in groops_subs:
+        groops.append(Group.query.filter_by(id=sub.group_id).first())
+    print(groops)
+
+
+    titles = []
+    hrefs = []
+    tags = []
+    avatar_paths = []
+    subscribers = []
+
+    for group in groops:
+        titles.append(group.name)
+        hrefs.append(f'/community/{group.tag}')
+        tags.append(group.tag)
+        avatar_path = group.avatar_path
+        if not avatar_path:
+            avatar_path = 'default.png'
+        else:
+            avatar_path = f'groups/{group.avatar_path}'
+        avatar_paths.append(avatar_path)
+        if group.subscribers:
+            subscribers.append(group.subscribers)
+        else:
+            subscribers.append(0)
+    groops_data = {
+        'titles': titles,
+        'hrefs': hrefs,
+        'tags': tags,
+        'avatar_paths': avatar_paths,
+        'subscribers': subscribers
+    }
+
+    print(groops_data)
+    _self = (str(user.id) == request.cookies.get('account'))
+
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+
+    incoming_requests = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).order_by(
+        FriendRequest.id.desc()).all()
+
+    return render_template('user-groops.html',
+                           groops_data=groops_data,
+                           _self=_self,
+                           groops_data_count=groops_data_count,
+                           me=User.query.filter_by(id=request.cookies.get('account')).first(),
+                           user=User.query.filter_by(id=request.cookies.get('account')).first(),
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           self_avatar_path = User.query.filter_by(id=request.cookies.get('account')).first().avatar_path,
+                           incoming_requests_count=len(incoming_requests),
+                           )
+
 
 
 @app.route('/friends')
@@ -784,6 +855,8 @@ def user_profile(tag):
 
             hrefs.append(user.tag)
 
+        subscriptions_count = User.query.filter_by(tag=tag).first().subscriptions_count
+        print(subscriptions_count)
         return render_template('user.html',
                                user=user,
                                _self=_self,
@@ -816,7 +889,8 @@ def user_profile(tag):
                                posts_files=posts_files,
                                liked=liked,
                                hrefs = hrefs,
-                               incoming_requests_count=incoming_requests_count
+                               incoming_requests_count=incoming_requests_count,
+                               subscriptions_count = subscriptions_count
         )
 @app.route('/favicon.ico')
 def favicon():
