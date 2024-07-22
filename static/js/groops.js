@@ -159,4 +159,54 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+
+    document.getElementById('friends-input').addEventListener('input', function () {
+        document.querySelector('.img-load').classList.remove('hide')
+        let filter = this.value
+        if (filter == ''){
+            document.querySelector('.no-friend').classList.add('hide')
+            loadMoreFriends()
+            document.querySelector('.img-load').classList.add('hide')
+        }
+        else {
+            setTimeout(function () {
+                fetch('groups/load-more?filter=' + filter, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({user_tag: user_tag})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelectorAll('.friend-body').forEach(friend => {
+                            friend.remove()
+                        })
+                        document.querySelector('.img-load').classList.add('hide')
+                        if (data.success){
+                            if (data.title.length > 0) {
+                                document.querySelector('.no-friend').classList.add('hide')
+                                for (let i = 0; i < data.title.length; i++) {
+                                    let group_data = {
+                                        name: data.title[i],
+                                        subscribers: data.subs[i],
+                                        avatar_path: data.avatar_paths[i],
+                                        href: data.hrefs[i],
+                                        tag: data.tags[i],
+                                        self: data.self
+                                    }
+
+                                    createGroupDiv(group_data)
+                                }
+                            }
+                            else {
+                                document.querySelector('.no-friend').classList.remove('hide')
+                            }
+                        }
+                    })
+            },200)
+
+        }
+    })
+
 })

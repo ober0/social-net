@@ -259,23 +259,21 @@ def load_more():
 
              subscribers = Subscribe.query.filter_by(user_id=user.id).order_by(Subscribe.id.desc()).offset(offset).limit(15).all()
         else:
-            pass
-            # search_string = f"%{filter}%"
-            # for search_string in [search_string, search_string.title()]:
-            #     users = User.query.filter(or_(
-            #         User.name.like(search_string),
-            #         User.second_name.like(search_string),
-            #         text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string")
-            #     )).params(search_string=search_string).all()
-            # user_ids = [user.id for user in users]
-            #
-            # users = User.query.filter(User.tag.like(search_string)).all()
-            # user_ids2 = [user.id for user in users]
-            #
-            # user_ids.extend(user_ids2)
-            #
-            # friends = Friends.query.filter_by(user_id=user.id).filter(Friends.friend_id.in_(user_ids)).all()
 
+            search_string = f"%{filter}%"
+            print(search_string)
+            for search_string in [search_string, search_string.title()]:
+                groups = Group.query.filter(Group.name.like(search_string)).all()
+            group_ids = [group.id for group in groups]
+
+            groups = User.query.filter(User.tag.like(search_string)).all()
+            groups_ids2 = [group.id for group in groups]
+
+            group_ids.extend(groups_ids2)
+
+            subscribers = Subscribe.query.filter_by(user_id=user.id).filter(Subscribe.group_id.in_(group_ids)).limit(50).all()
+
+            print(subscribers)
         names = []
         subs = []
         avatar_paths = []
@@ -330,6 +328,7 @@ def unsubscribe():
     except:
         db.session.rollback()
         return jsonify({'success': False})
+
 
 @app.route('/friends')
 @check_access
