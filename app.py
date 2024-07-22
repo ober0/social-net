@@ -191,13 +191,10 @@ def groops():
     groops_data_count = Subscribe.query.filter_by(user_id=user.id).count()
 
     groops_ids = [i.group_id for i in groops_subs]
-    print(groops_ids)
-    # groops = Group.query.filter(Group.id.in_(groops_ids)).all()
 
-    groops = []
-    for sub in groops_subs:
-        groops.append(Group.query.filter_by(id=sub.group_id).first())
-    print(groops)
+    groops = Group.query.filter(Group.id.in_(groops_ids)).all()
+
+
 
 
     titles = []
@@ -228,7 +225,6 @@ def groops():
         'subscribers': subscribers
     }
 
-    print(groops_data)
     _self = (str(user.id) == request.cookies.get('account'))
 
     notifications, notifications_count = check_notification(request.cookies.get('account'))
@@ -250,10 +246,77 @@ def groops():
 
 
 
+@app.route('/groups/load-more', methods=['POST'])
+def load_more():
+    offset = request.json.get('count')
+    user_tag = request.json.get('user_tag')
+    user = User.query.filter_by(tag=user_tag).first()
+
+    filter = request.args.get('filter')
+
+    try:
+        if not filter:
+
+             subscribers = Subscribe.query.filter_by(user_id=user.id).order_by(Subscribe.id.desc()).offset(offset).limit(15).all()
+        else:
+            pass
+            # search_string = f"%{filter}%"
+            # for search_string in [search_string, search_string.title()]:
+            #     users = User.query.filter(or_(
+            #         User.name.like(search_string),
+            #         User.second_name.like(search_string),
+            #         text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string")
+            #     )).params(search_string=search_string).all()
+            # user_ids = [user.id for user in users]
+            #
+            # users = User.query.filter(User.tag.like(search_string)).all()
+            # user_ids2 = [user.id for user in users]
+            #
+            # user_ids.extend(user_ids2)
+            #
+            # friends = Friends.query.filter_by(user_id=user.id).filter(Friends.friend_id.in_(user_ids)).all()
+
+        names = []
+        subs = []
+        avatar_paths = []
+        hrefs = []
+        tags = []
+
+        for group in subscribers:
+            friend_data = Group.query.filter_by(id=group.group_id).first()
+            names.append(friend_data.name)
+            if friend_data.subscribers:
+                subs.append(friend_data.subscribers)
+            else:
+                subs.append(0)
+            avatar_path = friend_data.avatar_path
+            if not avatar_path:
+                avatar_path = 'default.png'
+            else:
+                avatar_path = f'users/{avatar_path}'
+            avatar_paths.append(avatar_path)
+            hrefs.append('/community/' + friend_data.tag)
+            tags.append(friend_data.tag)
+        _self = (str(User.query.filter_by(tag=user_tag).first().id) == request.cookies.get('account'))
+        friends_data = {
+            'success': True,
+            'title': names,
+            'subs': subs,
+            'avatar_paths': avatar_paths,
+            'hrefs': hrefs,
+            'tags': tags,
+            'self': _self
+        }
+        return jsonify(friends_data)
+    except Exception as e:
+        return jsonify({'success': False})
+
+
+
+
 @app.route('/groups/unsubscribe', methods=['POST'])
 def unsubscribe():
     group_tag = request.json.get('tag')
-    print(group_tag)
     self_id = request.cookies.get('account')
     group_id = Group.query.filter_by(tag=group_tag).first().id
 
@@ -874,7 +937,6 @@ def user_profile(tag):
             hrefs.append(user.tag)
 
         subscriptions_count = User.query.filter_by(tag=tag).first().subscriptions_count
-        print(subscriptions_count)
         return render_template('user.html',
                                user=user,
                                _self=_self,
@@ -1273,8 +1335,6 @@ def rem_friend_request():
             try:
                 from_user = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(
                     id=user_id).first().second_name
-                print(from_user)
-                print(user_id)
                 notif_to_rem = Notification.query.filter_by(user_id=friend_id, from_user=from_user).filter_by(
                     type='newFriendRequest').all()
                 for notif in notif_to_rem:
@@ -1324,8 +1384,7 @@ def add_friend_fetch():
 
             createNotification(user_id=user_id, type='friendRequestApprove', from_user_avatar_path=from_avatar,
                                text=f'принял Ваше предложение дружбы',
-                               from_user=user_name, href=f'/{user_tag}', date=datetime.datetime.now(), room=str(user_id))
-            print(user_id)
+                               from_user=user_name, href=f'/{User.query.filter_by(id=friend_id).first().tag}', date=datetime.datetime.now(), room=str(user_id))
 
 
             return jsonify({'success': True})
