@@ -250,6 +250,24 @@ def groops():
 
 
 
+@app.route('/groups/unsubscribe', methods=['POST'])
+def unsubscribe():
+    group_tag = request.json.get('tag')
+    print(group_tag)
+    self_id = request.cookies.get('account')
+    group_id = Group.query.filter_by(tag=group_tag).first().id
+
+    unsubscribe = Subscribe.query.filter_by(user_id=self_id, group_id=group_id).first()
+    try:
+        User.query.filter_by(id=self_id).first().subscriptions_count -= 1
+
+        db.session.delete(unsubscribe)
+        db.session.commit()
+        return jsonify({'success': True})
+    except:
+        db.session.rollback()
+        return jsonify({'success': False})
+
 @app.route('/friends')
 @check_access
 def friends():
