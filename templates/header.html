@@ -107,7 +107,7 @@
                     <div>
                         {% if notification.type == 'login-to-account' %}
                             <img class="notif-avatar" src="{{ url_for('static', filename='img/' + notification.from_user_avatar_path) }}" alt="">
-                        {% elif notification.type == 'newFriendRequest' %}
+                        {% elif notification.type == 'newFriendRequest' or notification.type == 'friendRequestApprove' %}
                         {% if notification.from_user_avatar_path %}
                             <img class="notif-avatar" src="{{ url_for('static', filename='avatars/users/' + notification.from_user_avatar_path) }}" alt="">
                             {% else %}
@@ -122,6 +122,9 @@
                 {% endif %}
                 {% if notification.type == 'newFriendRequest' %}
                     <p class="notif-text">{{ notification.text }} <b><a href="{{ notification.href }}">{{ notification.from_user }}</a></b></p>
+                {% endif %}
+                {% if notification.type == 'friendRequestApprove' %}
+                    <p class="notif-text"><b><a href="{{ notification.href }}">{{ notification.from_user }}</a></b> {{ notification.text }}</p>
                 {% endif %}
 
                 </div>

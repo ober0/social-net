@@ -1,6 +1,7 @@
 import base64
 import logging
 import os
+import pprint
 from functools import wraps
 import secrets
 from flask import Flask, session, redirect, render_template, request, jsonify, make_response, send_from_directory
@@ -220,15 +221,53 @@ def friends():
     }
 
     incoming_requests = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).order_by(FriendRequest.id.desc()).all()
+    friend_names = []
+    friend_learn = []
+    friend_avatar_path = []
+    friend_hrefs = []
+    friend_tags = []
+    incoming_requests_user_ids = [req.user_id for req in incoming_requests]
+    incoming_requests_count = len(incoming_requests)
+    users = User.query.filter(User.id.in_(incoming_requests_user_ids)).all()
+
+    for user1 in users:
+        friend_names.append(user1.name + " " + user1.second_name)
+        if user1.show_education == '1':
+            friend_learn.append(user1.education_place)
+        else:
+            friend_learn.append(None)
+        avatar_path = user1.avatar_path
+        if not avatar_path:
+            avatar_path = 'default.png'
+        else:
+            avatar_path = f'users/{avatar_path}'
+        friend_avatar_path.append(avatar_path)
+        friend_hrefs.append('/' + user1.tag)
+        friend_tags.append(user1.tag)
+
+    request_all_data = {
+        'friend_names': friend_names,
+        'friend_learn': friend_learn,
+        'friend_avatar_path': friend_avatar_path,
+        'friend_hrefs': friend_hrefs,
+        'friend_tags': friend_tags
+    }
+
+
+
+
+
+
+
     outgoing_requests = FriendRequest.query.filter_by(user_id=request.cookies.get('account')).order_by(FriendRequest.id.desc()).all()
 
     notifications, notifications_count = check_notification(request.cookies.get('account'))
-
     return render_template('friends.html',
                            me=User.query.filter_by(id=request.cookies.get('account')).first(),
                            user=User.query.filter_by(id=request.cookies.get('account')).first(),
                            user_page = user,
-                           incoming_requests=incoming_requests,
+                           request_all_data = request_all_data,
+                           incoming_requests_count = incoming_requests_count,
                            outgoing_requests=outgoing_requests,
                            friends_data=friends_data,
                            friends_count=friends_count,
@@ -1030,7 +1069,7 @@ def edit_profile_save(data):
 
 
 @socketio.on('addFriend_request')
-def add_friend(data):
+def add_friend_requests(data):
     join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     user_id = request.cookies.get('account')
     friend_id = data['friend_id']
@@ -1089,6 +1128,73 @@ def remove_friend_request(data):
     except Exception as e:
         db.session.rollback()
         socketio.emit('removeFriend_request_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
+
+@app.route('/friend/request/remove', methods=['POST'])
+def rem_friend_request():
+    user_tag = request.json.get('user_tag')
+
+    if user_tag:
+        friend_id = request.cookies.get('account')
+        user_id = User.query.filter_by(tag=user_tag).first().id
+    else:
+        user_id = request.cookies.get('user_id')
+        friend_tag = request.json.get('friend_tag')
+        friend_id = User.query.filter_by(tag=friend_tag).first().id
+
+    request1 = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
+    try:
+        db.session.delete(request1)
+        db.session.commit()
+        return jsonify({'success': True})
+    except:
+        db.session.rollback()
+        return jsonify({'success': False})
+
+@app.route('/friend/add', methods=["POST"])
+def add_friend_fetch():
+    friend_id = request.cookies.get('account')
+    user_tag = request.json.get('user_tag')
+    user_id = User.query.filter_by(tag=user_tag).first().id
+
+
+    request1 = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
+    request1.friend_access = 'yes'
+    db.session.commit()
+
+    if request1.friend_access == 'yes' and request1.user_access == 'yes':
+        db.session.delete(request1)
+        db.session.commit()
+
+        try:
+            new_friend1 = Friends(user_id=user_id, friend_id=friend_id)
+            new_friend2 = Friends(user_id=friend_id, friend_id=user_id)
+
+            db.session.add(new_friend1)
+            db.session.add(new_friend2)
+            db.session.commit()
+
+            try:
+                notif_to_rem = Notification.query.filter_by(user_id=friend_id).filter_by(type='newFriendRequest').all()
+                for notif in notif_to_rem:
+                    db.session.delete(notif)
+                    db.session.commit()
+            except:
+                db.session.rollback()
+
+            user_name = User.query.filter_by(id=friend_id).first().name + " " + User.query.filter_by(id=friend_id).first().second_name
+            from_avatar = User.query.filter_by(id=friend_id).first().avatar_path
+
+            createNotification(user_id=user_id, type='friendRequestApprove', from_user_avatar_path=from_avatar,
+                               text=f'принял Ваше предложение дружбы',
+                               from_user=user_name, href=f'/{user_tag}', date=datetime.datetime.now(), room=str(user_id))
+            print(user_id)
+
+
+            return jsonify({'success': True})
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False})
 
 
 

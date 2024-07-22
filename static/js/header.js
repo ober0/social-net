@@ -31,6 +31,14 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
                         ) :
                         ''
                     }
+                    
+                    ${notification.type === 'friendRequestApprove' ?
+                        (notification.from_user_avatar_path ?
+                                `<img class="notif-avatar" src="/static/avatars/users/${notification.from_user_avatar_path}" alt="">` :
+                                `<img class="notif-avatar" src="/static/avatars/default.png" alt="">`
+                        ) :
+                        ''
+                    }
                 </div>
             </div>
             <div class="notif-description">
@@ -41,6 +49,11 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
                 
                 ${notification.type === 'login-to-account' ? 
                     `<p class="notif-text" style="font-size: 14px !important; color: #a6a6a6 !important;">${notification.text} <a href="${notification.href}">${notification.from_user}</a></p>` : 
+                    ''
+                }
+                
+                ${notification.type === 'friendRequestApprove' ? 
+                    `<p class="notif-text"><b><a href="${notification.href}">${notification.from_user}</a></b> ${notification.text}</p>` : 
                     ''
                 }
             </div>

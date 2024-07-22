@@ -120,6 +120,51 @@
                             </div>
                         </div>
                         <script src="{{ url_for('static', filename='js/friends.js') }}"></script>
+                    {% elif section == 'all_requests' and _self == True %}
+                        <div class="friends-block">
+                            <div class="friends-container">
+                                {% for i in range(request_all_data['friend_names'] | length) %}
+                                    {% set name = request_all_data['friend_names'][i] %}
+                                    {% set learn = request_all_data['friend_learn'][i] %}
+                                    {% set avatar_path = request_all_data['friend_avatar_path'][i] %}
+                                    {% set href = request_all_data['friend_hrefs'][i] %}
+                                    {% set tag = request_all_data['friend_tags'][i] %}
+                                    <div class="friend-body">
+                                        <div class="friends-content">
+                                            <div class="friends-avatar">
+                                                <a href="{{href}}">
+
+                                                    <img src="{{ url_for('static', filename='avatars/' + avatar_path) }}" alt="">
+                                                </a>
+                                            </div>
+                                            <div class="friends-info">
+                                                <div class="name">
+                                                    <b><a class="friends-name" href="{{href}}">{{ name }}</a></b>
+                                                </div>
+                                                {% if learn %}
+                                                    <div class="learn">
+                                                        {{learn}}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="friends-btn">
+                                                    <p tag="{{tag}}" class="request-btn" id="approve-request">Принять заявку</p>
+
+                                                    <p tag={{tag}} class="request-btn" id="reject-request">Отклонить заявку</p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <hr>
+                                    </div>
+
+
+                                {% endfor %}
+                            </div>
+                            <div class="no-friend {% if incoming_requests_count > 0 %} hide {% endif %}">
+                                Нет заявок в друзья
+                            </div>
+                        </div>
+                        <script src="{{ url_for('static', filename='js/all-friends-request.js') }}"></script>
                     {% endif %}
 
                     </div>
@@ -129,8 +174,15 @@
                                 <div section="friends" class="filter-element {% if section == 'friends' %}active{% endif %}">
                                     <p>Мои друзья</p>
                                 </div>
-                                <div section="all_requests" class="filter-element {% if section == 'all_requests' %}active{% endif %}">
-                                    <p>Заявки в друзья</p>
+                                <div style="display: flex; align-items: center; height: 36.5px;" section="all_requests" class="filter-element {% if section == 'all_requests' %}active{% endif %}">
+                                    <p style="width: 100%">Заявки в друзья</p>
+
+                                    {% if incoming_requests_count > 0 %}
+                                    <div class="all-requests-counter">
+                                        <p id="all_req_counter">{{incoming_requests_count}}</p>
+                                    </div>
+                                    {% endif %}
+
                                 </div>
                                 <div section="out_requests" class="filter-element {% if section == 'out_requests' %}active{% endif %}">
                                     <p>Отправленные заявки</p>

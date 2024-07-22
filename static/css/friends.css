@@ -7,6 +7,8 @@
     cursor: pointer;
     border-radius: 10px;
     word-break: break-all;
+    justify-content: right;
+
 }
 .filter-element:hover{
     background-color: #4a4a4a;
@@ -121,4 +123,35 @@
     display: flex;
     align-items: center;
     justify-content: right;
+}
+.all-requests-counter{
+    width: 23px;
+    height: 23px;
+    background-color: #777777;
+    color: white;
+    align-content: center;
+    border-radius: 50%;
+    align-items: center;
+    position: absolute;
+    margin-right: 10px;
+
+
+}
+.all-requests-counter p{
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.request-btn{
+    background-color: #505050;
+    padding: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 10px;
+    transition: background-color 0.2s;
+}
+.request-btn:hover{
+    text-decoration: none !important;
+    background-color: #636363;
 }
