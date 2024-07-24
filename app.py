@@ -232,7 +232,7 @@ def groops():
         else:
             subscribers.append(0)
 
-        if group.owner_id == request.cookies.get('account'):
+        if group.owner_id == int(request.cookies.get('account')):
             own = 1
         else:
             own = 0
@@ -344,22 +344,6 @@ def load_more():
 
 
 
-@app.route('/groups/unsubscribe', methods=['POST'])
-def unsubscribe():
-    group_tag = request.json.get('tag')
-    self_id = request.cookies.get('account')
-    group_id = Group.query.filter_by(tag=group_tag).first().id
-
-    unsubscribe = Subscribe.query.filter_by(user_id=self_id, group_id=group_id).first()
-    try:
-        User.query.filter_by(id=self_id).first().subscriptions_count -= 1
-
-        db.session.delete(unsubscribe)
-        db.session.commit()
-        return jsonify({'success': True})
-    except:
-        db.session.rollback()
-        return jsonify({'success': False})
 
 @app.route('/groups/delete', methods=['POST'])
 def delete():
@@ -367,9 +351,10 @@ def delete():
     group = Group.query.filter_by(tag=group_tag).first()
 
     if group:
-        print(1)
         if group.owner_id == int(request.cookies.get('account')):
-            print(2)
+            posts = Post.query.filter_by(isGroup='1').filter_by(user_id=group.id).all()
+            for post in posts:
+                db.session.delete(post)
             db.session.delete(group)
             db.session.commit()
             return jsonify({'success': True})
@@ -1061,6 +1046,7 @@ def g_unsubscribe():
     subs = Subscribe.query.filter_by(user_id=user).filter_by(group_id=group.id).first()
     group = Group.query.filter_by(tag=group_tag).first()
     group.subscribers -= 1
+    print(group.subscribers)
     if subs:
         db.session.delete(subs)
         db.session.commit()
@@ -1291,7 +1277,8 @@ def group_profile(tag):
                            incoming_requests_count=incoming_requests_count,
                            subscriptions_count = subscriptions_count,
                            group = group,
-                           isSubscribe=isSubscribe
+                           isSubscribe=isSubscribe,
+                           owner=owner
     )
 
 

@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.request-btn').forEach(btn => {
         btn.addEventListener('click', function () {
-            fetch('groups/unsubscribe', {
+            fetch('group/unsubscribe', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -102,15 +102,16 @@
                                                 </div>
 
                                                 {% if _self %}
-                                                {% if own %}
-                                                <div tag="{{tag}}" class="request-btn" style="cursor: pointer">
-                                                    Отписаться
-                                                </div>
-                                                {% else %}
-                                                <div tag="{{tag}}" class="request-btn-rem" style="cursor: pointer">
-                                                    Удалить
-                                                </div>
-                                                {% endif %}
+
+                                                    {% if owner == 0 %}
+                                                    <div tag="{{tag}}" class="request-btn" style="cursor: pointer">
+                                                        Отписаться
+                                                    </div>
+                                                    {% else %}
+                                                    <div tag="{{tag}}" class="request-btn-rem" style="cursor: pointer">
+                                                        Удалить
+                                                    </div>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
 

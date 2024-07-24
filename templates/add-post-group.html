@@ -5,7 +5,7 @@
         <div class="addpost-main">
             <div class="addpost-header">
                 <div class="addpost-avatar">
-                    {% if self_avatar_path %}
+                    {% if group.avatar_path %}
                     <img class="avatar" src="{{url_for('static', filename='avatars/groups/' + group.avatar_path) }}" alt="">
                     {% else %}
                     <img class="avatar" src="{{url_for('static', filename='avatars/default.png') }}" alt="">
