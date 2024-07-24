@@ -12,7 +12,7 @@ from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Comments, \
     Subscribe
-from config import app, action_access
+from config import app, action_access, month_data
 import random
 import datetime
 import imghdr
@@ -728,6 +728,57 @@ def edit_user():
         else:
             return 'Страница не найдена'
 
+@app.route('/edit_group', methods=["GET"])
+def edit_group():
+    if request.method == "GET":
+        group_id = request.args.get('id')
+        if Group.query.filter_by(id=group_id).first().owner_id == int(request.cookies.get('account')):
+            group = Group.query.filter_by(id=group_id).first()
+
+            if group:
+                return render_template('edit_group.html', group=group)
+            else:
+                return 'Страница не найдена'
+        else:
+            return 'Нет доступа'
+
+
+@app.route('/groups/tag/check-unique', methods=["POST"])
+def check_unique_tag():
+    if request.method == "POST":
+        tag = request.json.get('tag')
+        groups_with_this_tag = Group.query.filter_by(tag=tag).count()
+        if groups_with_this_tag == 0:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False})
+
+@app.route('/groups/update', methods=["POST"])
+def update_group():
+    if request.method == "POST":
+        tag = request.form.get('old_tag')
+        group = Group.query.filter_by(tag=tag).first()
+        new_tag = request.form.get('new_tag')
+        name = request.form.get('name')
+        if len(name) < 3:
+            return jsonify({'success': False, 'error': 'Имя слишком короткое'})
+        avatar = request.files.get('avatar')
+        if avatar:
+            avatar.save(f'static/avatars/groups/avatar-group-{group.id}.{avatar.filename.split(".")[-1]}')
+            group.avatar_path = f'avatar-group-{group.id}.{avatar.filename.split(".")[-1]}'
+        try:
+            group.name = name
+
+            group.tag = new_tag
+            db.session.commit()
+            return jsonify({'success': True, 'tag':new_tag})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': str(e)})
+
+
+
+
 
 @app.route('/post/add', methods=["POST"])
 def addPost():
@@ -893,7 +944,7 @@ def user_profile(tag):
 
         friend_count = Friends.query.filter_by(user_id=request.cookies.get('account')).count()
 
-        posts = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).limit(5).all()
+        posts = Post.query.filter_by(isGroup=None).filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).limit(5).all()
         avatars = []
         authors = []
         _selfs = []
@@ -971,6 +1022,96 @@ def user_profile(tag):
                                incoming_requests_count=incoming_requests_count,
                                subscriptions_count = subscriptions_count
         )
+
+
+@app.route('/community/<string:tag>')
+@check_access
+def group_profile(tag):
+    group = Group.query.filter_by(tag=tag).first()
+    print(group)
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+    incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
+
+
+    me = User.query.filter_by(id=request.cookies.get('account')).first()
+    self_avatar_path = user.avatar_path
+
+
+    owner = (group.owner_id == user.id)
+
+    if Subscribe.query.filter_by(user_id=request.cookies.get('account')).filter_by(group_id=group.id).first():
+        isSubscribe = 1
+    else:
+        isSubscribe = 0
+
+    posts = Post.query.filter_by(isGroup='1').filter_by(user_id=group.id).order_by(Post.id.desc()).limit(5).all()
+    avatars = []
+    authors = []
+    _selfs = []
+    hrefs = []
+    liked = []
+    posts_files = []
+    for post in posts:
+        if Group.query.filter_by(id=post.user_id).first().avatar_path:
+            avatars.append(f'groups/{User.query.filter_by(id=post.user_id).first().avatar_path}')
+        else:
+            avatars.append(f'default.png')
+
+        username = Group.query.filter_by(id=post.user_id).first().name
+        authors.append(username)
+
+        if group.owner_id == int(request.cookies.get('account')):
+            _selfs.append(1)
+        else:
+            _selfs.append(0)
+        post_files = []
+
+        if post.images:
+            post_images = post.images.split('/')
+            for file in post_images:
+                post_files.append(f'groups/photos/{file}')
+
+        if post.videos:
+            post_videos = post.videos.split('/')
+            for file in post_videos:
+                post_files.append(f'groups/video/{file}')
+
+        posts_files.append(post_files)
+
+        liked_1 = Likes.query.filter_by(user_id=request.cookies.get('account'), post_id=post.id).first()
+
+        if liked_1:
+            liked.append(1)
+        else:
+            liked.append(0)
+
+        hrefs.append(user.tag)
+
+    subscriptions_count = Group.query.filter_by(tag=tag).first().subscribers
+    return render_template('groupe.html',
+                           user=user,
+                           _selfs=_selfs,
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           self_avatar_path=self_avatar_path,
+                           me=me,
+                           posts=posts,
+                           avatars=avatars,
+                           authors=authors,
+                           posts_files=posts_files,
+                           liked=liked,
+                           hrefs = hrefs,
+                           incoming_requests_count=incoming_requests_count,
+                           subscriptions_count = subscriptions_count,
+                           group = group,
+                           owner=owner,
+                           isSubscribe=isSubscribe
+    )
+
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -1647,4 +1788,4 @@ def disconnect():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, allow_unsafe_werkzeug=True)
+    socketio.run(app, allow_unsafe_werkzeug=True, debug=True)

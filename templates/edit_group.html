@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+  <meta name="generator" content="Hugo 0.122.0">
+  <title>Редактирование профиля</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}">
+
+  <meta name="theme-color" content="#712cf9">
+
+
+</head>
+
+<body class="" data-bs-theme="dark">
+
+<div class="container">
+  <main>
+
+      <div class="col-md-7 col-lg-8">
+        <h4 class="mb-3">Профиль сообщества</h4>
+        <form class="needs-validation">
+          <div class="row g-3">
+
+            <div class="col-md-12">
+              <div class="row">
+                <div class="col-md-2">
+                  {% if group.avatar_path %}
+                    <img id="avatar-img" src="{{ url_for('static', filename='avatars/groups/' + group.avatar_path) }}" alt="Current Avatar" class="img-thumbnail mt-2">
+                  {% else %}
+                    <img id="avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="Current Avatar" class="img-thumbnail mt-2">
+                  {% endif %}
+                </div>
+                <div class="col-md-10 avatar-text">
+                  <label for="avatar-input" class="form-label">Аватар</label>
+                  {% if group.avatar_path %}
+                  <div class="col-md-2">
+                    <input id="change-avatar-btn" class="form-control" type="button" value="Изменить" onclick="changeAvatar()">
+                  </div>
+
+                  <input type="file" class="form-control hide" id="avatar-input" name="avatar" accept="image/png, image/jpeg, image/gif">
+                  {% else %}
+                   <input type="file" class="form-control" id="avatar-input" name="avatar" accept="image/png, image/jpeg, image/gif">
+                  {% endif %}
+                  <div class="red hide" id="avatarError"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-12">
+              <label for="name" class="form-label">Название<span style="color:red !important;" class="text-body-secondary">*</span></label>
+              <input type="text" class="form-control" id="name" placeholder="" value="{% if group.name %}{{group.name}}{% endif %}" required="">
+            </div>
+
+            <div class="col-12">
+              <label for="tag" class="form-label">Тег<span style="color:red !important;" class="text-body-secondary">*</span></label>
+              <div style="border-radius:5px" class="input-group has-validation" id="tag2">
+                <span  class="input-group-text">@</span>
+                <input type="text" class="form-control" id="tag" value="{{ group.tag }}" required="">
+              </div>
+              <div class="red hide" id="tagError"></div>
+            </div>
+          </div>
+
+
+          <hr class="my-4">
+
+          <button id="sendDataInfo" class="w-100 btn btn-primary btn-lg" type="button">Сохранить</button>
+          <div class="red hide" id="allError"></div>
+        </form>
+      </div>
+  </main>
+</div>
+
+{% include 'footer.html' %}
+{% block footer %}{% endblock %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/edit-group-form.js') }}"></script>
+<script src="{{ url_for('static', filename='js/socket-connection.js') }}"></script>
+<script src="{{ url_for('static', filename='js/new-avatar.js') }}"></script>
+</body>
+</html>
