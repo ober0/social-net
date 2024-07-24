@@ -5,6 +5,7 @@ import pprint
 from functools import wraps
 import secrets
 from flask import Flask, session, redirect, render_template, request, jsonify, make_response, send_from_directory
+from flask.json import tag
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, send, emit, join_room, leave_room, rooms
 from flask_mail import Mail, Message
@@ -1207,7 +1208,11 @@ def loadMorePosts():
                 posts = Post.query.filter(Post.isGroup == None).order_by(Post.id.desc()).offset(startWith).limit(count).all()
             elif section == 'community':
                 posts = Post.query.filter(Post.isGroup == '1').order_by(Post.id.desc()).offset(startWith).limit(count).all()
-            
+            elif section == 'subscribers':
+
+                subscribe = [subscribe.group_id for subscribe in Subscribe.query.filter_by(user_id=request.cookies.get('account')).all()]
+                posts = Post.query.filter(Post.user_id.in_(subscribe)).filter(Post.isGroup == '1').order_by(Post.id.desc()).offset(startWith).limit(
+                    count).all()
         else:
             user_id = User.query.filter_by(tag=request.json.get('tag')).first().id
             posts = Post.query.filter_by(user_id=user_id).filter_by(isGroup=None).order_by(Post.id.desc()).offset(startWith).limit(count).all()
