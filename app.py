@@ -1261,6 +1261,7 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/post/like', methods=['POST'])
+@app.route('/community/post/like', methods=['POST'])
 def likePost():
     if request.method == 'POST':
         post_id = request.json.get('id')
@@ -1370,7 +1371,11 @@ def loadMorePosts():
 
             if post.isGroup:
                 usernames.append(Group.query.filter_by(id=post.user_id).first().name)
-                selfs.append(0)
+                group = Group.query.filter_by(id=post.user_id).first()
+                if (group.owner_id == int(request.cookies.get('account'))):
+                    selfs.append(1)
+                else:
+                    selfs.append(0)
                 tags.append('community/' + Group.query.filter_by(id=post.user_id).first().tag)
                 if Group.query.filter_by(id=post.user_id).first().avatar_path:
                     avatars.append('groups/' + Group.query.filter_by(id=post.user_id).first().avatar_path)
@@ -1419,6 +1424,7 @@ def loadMorePosts():
     return 'Страница не найдена'
 
 @app.route('/post/remove', methods=['POST'])
+@app.route('/community/post/remove', methods=['POST'])
 def removePost():
     if request.method == 'POST':
         post_id = int(request.json.get('id'))
@@ -1430,18 +1436,21 @@ def removePost():
                 likes = Likes.query.filter_by(post_id=post_id).all()
                 for like in likes:
                     db.session.delete(like)
-                db.session.delete(post)
-                if int(request.cookies.get('account')) == post.user_id and not post.isGroup:
+
+                if int(request.cookies.get('account')) == post.user_id:
                     db.session.delete(post)
                     db.session.commit()
 
                     return jsonify({'success': True})
                 else:
-
+                    print(1)
                     return jsonify({'success': False})
+            print(2)
             return jsonify({'success': False})
 
+
         except:
+            print(3)
             return jsonify({'success': False})
     else:
         return 'Страница не найдена'
