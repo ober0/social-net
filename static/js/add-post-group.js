@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function (){
         if (text.length > 0 || photos_src.length > 0 || videos_src.length > 0){
             console.log(4)
             console.log(data)
-            fetch('post-add', {
+            fetch('post/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function (){
                                 type: 'video',
                             };
 
-                            return fetch('post-add', {
+                            return fetch('post/add', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'

@@ -97,6 +97,7 @@ def change_status():
     return render_template('change_status.html')
 
 @app.route('/comments/add', methods=['POST'])
+@app.route('/community/comments/add', methods=['POST'])
 def add_comment():
     comment = request.json.get('comment')
     post_id = request.json.get('post_id')
@@ -577,6 +578,7 @@ def reg():
         }), 401
 
 @app.route('/comments/load', methods = ['POST'])
+@app.route('/community/comments/load', methods = ['POST'])
 def loadComments():
     if request.method == 'POST':
         offset = request.json.get('offset')
@@ -625,6 +627,7 @@ def loadComments():
         return jsonify(data)
 
 @app.route('/comments/delete', methods=['POST'])
+@app.route('/community/comments/delete', methods=['POST'])
 def deleteComment():
     if request.method == "POST":
         commentId = request.json.get('id')
@@ -886,12 +889,11 @@ def addPost():
 
 
 
-@app.route('/community/post-add', methods=["POST"])
+@app.route('/community/post/add', methods=["POST"])
 def addPost_group():
     if request.method == "POST":
-        print(0)
+        print(1)
         if request.json.get('type') == 'main':
-            print(1)
             text = request.json.get('text')
             tag = request.json.get('tag')
             id = Group.query.filter_by(tag=tag).first().id
@@ -899,19 +901,17 @@ def addPost_group():
             photos = request.json.get('photos')
             photos_urls = []
             for photo in photos:
-                print(2)
                 base64_str = photo.split(';base64,')[-1]
                 image_binary = base64.b64decode(base64_str)
                 photos_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.png'
                 try:
-                    with open(f'static/users/photos/{photos_url}', 'wb') as f:
+                    with open(f'static/groups/photo/{photos_url}', 'wb') as f:
                         f.write(image_binary)
                     photos_urls.append(photos_url)
                 except:
                     return jsonify({'result': False})
 
             _photos_urls = '/'.join(photos_urls)
-            print(3)
             months = {
                 '01': 'янв',
                 '02': 'фев',
@@ -933,36 +933,35 @@ def addPost_group():
 
             date = f'{day} {month} {year}'
             new_post = Post(user_id=id, text=text, images=_photos_urls, date=date, isGroup='1')
-            print(4)
             try:
                 db.session.add(new_post)
                 db.session.commit()
-                print(5)
                 return jsonify({'result': True})
 
 
             except Exception as e:
                 db.session.rollback()
-                print(6)
                 return jsonify({'result': False})
 
 
 
 
         elif request.json.get('type') == 'video':
+            tag = request.json.get('tag')
+            id = Group.query.filter_by(tag=tag).first().id
             video = request.json.get('data')
-
+            print(2)
             base64_str = video.split(';base64,')[-1]
             image_binary = base64.b64decode(base64_str)
             video_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.mp4'
             try:
-                with open(f'static/users/video/{video_url}', 'wb') as f:
+                with open(f'static/groups/video/{video_url}', 'wb') as f:
                     f.write(image_binary)
             except:
                 return jsonify({'result': False})
 
 
-            last_post = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).first()
+            last_post = Post.query.filter_by(user_id=id).order_by(Post.id.desc()).first()
             videos = str(last_post.videos)
 
             if videos != 'None':
@@ -1292,7 +1291,7 @@ def likePost():
 @app.route('/posts/load-more', methods=['POST'])
 def loadMorePosts():
     if request.method == 'POST':
-        
+        isGroup = request.json.get('isGroup')
         startWith = request.json.get('startWith')
         all = request.json.get('all')
         count = request.json.get('count')
@@ -1323,8 +1322,15 @@ def loadMorePosts():
                 posts = Post.query.filter(Post.user_id.in_(subscribe)).filter(Post.isGroup == '1').order_by(Post.id.desc()).offset(startWith).limit(
                     count).all()
         else:
-            user_id = User.query.filter_by(tag=request.json.get('tag')).first().id
-            posts = Post.query.filter_by(user_id=user_id).filter_by(isGroup=None).order_by(Post.id.desc()).offset(startWith).limit(count).all()
+            if not isGroup:
+                user_id = User.query.filter_by(tag=request.json.get('tag')).first().id
+            else:
+                user_id = Group.query.filter_by(tag=request.json.get('tag')).first().id
+            if not isGroup:
+                posts = Post.query.filter_by(user_id=user_id).filter_by(isGroup=None).order_by(Post.id.desc()).offset(startWith).limit(count).all()
+            else:
+                posts = Post.query.filter_by(user_id=user_id).filter_by(isGroup='1').order_by(Post.id.desc()).offset(startWith).limit(count).all()
+
 
 
         usernames = []
@@ -1337,8 +1343,14 @@ def loadMorePosts():
         ids = []
         liked = []
         likes = []
+        groups = []
         comments = []
         for post in posts:
+            if post.isGroup == '1':
+                groups.append(True)
+            else:
+                groups.append(False)
+
             files_1 = []
             if post.text:
                 texts.append(post.text)
@@ -1396,7 +1408,8 @@ def loadMorePosts():
             'href': tags,
             'selfs': selfs,
             'ids': ids,
-            'liked': liked
+            'liked': liked,
+            'groups': groups
         }
 
         if posts:

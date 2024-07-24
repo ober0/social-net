@@ -301,14 +301,24 @@ function createPost(postData, commentsData, selfAvatar) {
                 videoEl.classList.add('post-file-el');
                 videoEl.controls = true;
                 let sourceEl = document.createElement('source');
-                sourceEl.src = `/static/users/video/${file}`;
+                if (postData.group == true){
+                    sourceEl.src = `/static/groups/video/${file}`;
+                }
+                else {
+                    sourceEl.src = `/static/users/video/${file}`;
+                }
                 sourceEl.type = 'video/mp4';
                 videoEl.appendChild(sourceEl);
                 fileDiv.appendChild(videoEl);
             } else {
                 let imgEl = document.createElement('img');
                 imgEl.classList.add('post-file-el');
-                imgEl.src = `/static/users/photos/${file}`;
+                if (postData.group == true){
+                    imgEl.src = `/static/groups/photos/${file}`;
+                }
+                else {
+                    imgEl.src = `/static/users/photos/${file}`;
+                }
                 imgEl.alt = '';
                 imgEl.addEventListener('click', function (event) {
                     openFile(type='image', src=imgEl.src, event)
@@ -520,7 +530,11 @@ async function loadMoreContent(count) {
     if (window.location.pathname == '/') {
         all = true;
     } else {
-        tag = window.location.pathname.split('/')[1];
+        if (window.location.pathname.split('/').length == 2) {
+            tag = window.location.pathname.split('/')[1];
+        }else {
+            tag = window.location.pathname.split('/')[2];
+        }
     }
 
     const currenrUrl = window.location.href;
@@ -529,13 +543,21 @@ async function loadMoreContent(count) {
 
     let postNext = document.querySelectorAll('.post').length;
 
+    let isGroup;
+    if (window.location.pathname.split('/').length == 3 && window.location.pathname.split('/')[1] == 'community'){
+        isGroup = true
+    }else {
+        isGroup = false
+        console.log(window.location.pathname.length)
+        console.log(window.location.pathname.split('/')[1])
+    }
     try {
         const response = await fetch(`/posts/load-more?section=${section}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ startWith: postNext, all: all, count: count, tag: tag })
+            body: JSON.stringify({ startWith: postNext, all: all, count: count, tag: tag, isGroup: isGroup })
         });
 
         const data = await response.json();
@@ -553,7 +575,8 @@ async function loadMoreContent(count) {
                     href: data.href[i],
                     self: data.selfs[i],
                     id: data.ids[i],
-                    liked: data.liked[i]
+                    liked: data.liked[i],
+                    group: data.groups[i]
                 };
 
 
