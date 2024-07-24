@@ -119,31 +119,57 @@ document.addEventListener('DOMContentLoaded', function () {
         infoDiv.appendChild(learnDiv);
         if (group_data.self) {
             let requestBtn = document.createElement('div');
-            requestBtn.className = 'request-btn';
-            requestBtn.style.cursor = 'pointer';
-            requestBtn.setAttribute('tag', group_data.tag);
-            requestBtn.textContent = 'Отписаться';
-            requestBtn.addEventListener('click', function () {
-                fetch('groups/unsubscribe', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({tag: this.getAttribute('tag')})
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            this.closest('.friend-body').remove()
-                            document.querySelector('.friends-counter').innerText = `Всего подписок: ${Number(document.querySelector('.friends-counter').innerText.split(': ')[1]) - 1}`
-                            if (document.querySelector('.friends-counter').innerText.split(': ')[1] == '0'){
-                                document.querySelector('.no-friend').classList.remove('hide')
-                            }
-                        } else {
-                            console.log(data.error);
-                        }
+            if (group_data.owner == 0){
+                requestBtn.className = 'request-btn';
+                requestBtn.style.cursor = 'pointer';
+                requestBtn.setAttribute('tag', group_data.tag);
+                requestBtn.textContent = 'Отписаться';
+                requestBtn.addEventListener('click', function () {
+                    fetch('groups/unsubscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({tag: this.getAttribute('tag')})
                     })
-            })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.closest('.friend-body').remove()
+                                document.querySelector('.friends-counter').innerText = `Всего подписок: ${Number(document.querySelector('.friends-counter').innerText.split(': ')[1]) - 1}`
+                                if (document.querySelector('.friends-counter').innerText.split(': ')[1] == '0'){
+                                    document.querySelector('.no-friend').classList.remove('hide')
+                                }
+                            } else {
+                                console.log(data.error);
+                            }
+                        })
+                })
+            }else {
+                requestBtn.className = 'request-btn-rem';
+                requestBtn.style.cursor = 'pointer';
+                requestBtn.setAttribute('tag', group_data.tag);
+                requestBtn.textContent = 'Удалить';
+                requestBtn.addEventListener('click', function () {
+                    fetch('groups/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({tag: this.getAttribute('tag')})
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.closest('.friend-body').remove()
+                            } else {
+                                console.log(data.error);
+                            }
+                        })
+                })
+            }
+
+
             infoDiv.appendChild(requestBtn);
         }
 
@@ -193,10 +219,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                         avatar_path: data.avatar_paths[i],
                                         href: data.hrefs[i],
                                         tag: data.tags[i],
-                                        self: data.self
+                                        self: data.self,
+                                        owner: data.owners[i]
                                     }
 
-                                    createGroupDiv(group_data)
+                                    createGroupDivcreateGroupDiv(group_data)
                                 }
                             }
                             else {
@@ -207,6 +234,26 @@ document.addEventListener('DOMContentLoaded', function () {
             },200)
 
         }
+    })
+
+    document.querySelectorAll('.request-btn-rem').forEach(btn => {
+        btn.addEventListener('click', function () {
+            fetch('groups/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({tag: this.getAttribute('tag')})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.closest('.friend-body').remove()
+                    } else {
+                        console.log(data.error);
+                    }
+                })
+        })
     })
 
 })

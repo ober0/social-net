@@ -186,6 +186,13 @@ def index():
 @app.route('/groups')
 @check_access
 def groops():
+    section = request.args.get('section')
+    if not section:
+        section = 'all'
+
+    self_group = Group.query.filter_by(owner_id=request.cookies.get('account')).all()
+    self_group_count = len(self_group)
+
     user_tag = request.args.get('user')
     user = User.query.filter_by(tag=user_tag).first()
 
@@ -193,10 +200,14 @@ def groops():
     groops_data_count = Subscribe.query.filter_by(user_id=user.id).count()
 
     groops_ids = [i.group_id for i in groops_subs]
-
-    groops = Group.query.filter(Group.id.in_(groops_ids)).all()
-
-
+    groops_ids.extend(i.id for i in self_group)
+    if section == 'all':
+        # groops = Group.query.filter(Group.id.in_(groops_ids)).all()
+        groops = []
+        for id in groops_ids:
+            groops.append(Group.query.filter_by(id=id).first())
+    elif section == 'owner':
+        groops = self_group
 
 
     titles = []
@@ -204,6 +215,7 @@ def groops():
     tags = []
     avatar_paths = []
     subscribers = []
+    owner = []
 
     for group in groops:
         titles.append(group.name)
@@ -219,12 +231,20 @@ def groops():
             subscribers.append(group.subscribers)
         else:
             subscribers.append(0)
+
+        if group.owner_id == request.cookies.get('account'):
+            own = 1
+        else:
+            own = 0
+        owner.append(own)
+
     groops_data = {
         'titles': titles,
         'hrefs': hrefs,
         'tags': tags,
         'avatar_paths': avatar_paths,
-        'subscribers': subscribers
+        'subscribers': subscribers,
+        'owners': owner
     }
 
     _self = (str(user.id) == request.cookies.get('account'))
@@ -237,6 +257,7 @@ def groops():
     return render_template('user-groops.html',
                            groops_data=groops_data,
                            _self=_self,
+                           user_page=user,
                            groops_data_count=groops_data_count,
                            me=User.query.filter_by(id=request.cookies.get('account')).first(),
                            user=User.query.filter_by(id=request.cookies.get('account')).first(),
@@ -244,6 +265,8 @@ def groops():
                            notification_count=notifications_count,
                            self_avatar_path = User.query.filter_by(id=request.cookies.get('account')).first().avatar_path,
                            incoming_requests_count=len(incoming_requests),
+                           section=section,
+                           self_group_count=self_group_count,
                            )
 
 
@@ -275,12 +298,12 @@ def load_more():
 
             subscribers = Subscribe.query.filter_by(user_id=user.id).filter(Subscribe.group_id.in_(group_ids)).limit(50).all()
 
-            print(subscribers)
         names = []
         subs = []
         avatar_paths = []
         hrefs = []
         tags = []
+        owners = []
 
         for group in subscribers:
             friend_data = Group.query.filter_by(id=group.group_id).first()
@@ -293,10 +316,16 @@ def load_more():
             if not avatar_path:
                 avatar_path = 'default.png'
             else:
-                avatar_path = f'users/{avatar_path}'
+                avatar_path = f'groups/{avatar_path}'
             avatar_paths.append(avatar_path)
             hrefs.append('/community/' + friend_data.tag)
             tags.append(friend_data.tag)
+
+            if friend_data.owner_id == request.cookies.get('account'):
+                own = 1
+            else:
+                own = 0
+            owners.append(own)
         _self = (str(User.query.filter_by(tag=user_tag).first().id) == request.cookies.get('account'))
         friends_data = {
             'success': True,
@@ -305,7 +334,8 @@ def load_more():
             'avatar_paths': avatar_paths,
             'hrefs': hrefs,
             'tags': tags,
-            'self': _self
+            'self': _self,
+            'owners': owners
         }
         return jsonify(friends_data)
     except Exception as e:
@@ -331,7 +361,19 @@ def unsubscribe():
         db.session.rollback()
         return jsonify({'success': False})
 
+@app.route('/groups/delete', methods=['POST'])
+def delete():
+    group_tag = request.json.get('tag')
+    group = Group.query.filter_by(tag=group_tag).first()
 
+    if group:
+        print(1)
+        if group.owner_id == int(request.cookies.get('account')):
+            print(2)
+            db.session.delete(group)
+            db.session.commit()
+            return jsonify({'success': True})
+    return jsonify({'success': False})
 @app.route('/friends')
 @check_access
 def friends():
@@ -1249,7 +1291,6 @@ def group_profile(tag):
                            incoming_requests_count=incoming_requests_count,
                            subscriptions_count = subscriptions_count,
                            group = group,
-                           owner=owner,
                            isSubscribe=isSubscribe
     )
 
@@ -1346,6 +1387,7 @@ def loadMorePosts():
         likes = []
         groups = []
         comments = []
+        owners = []
         for post in posts:
             if post.isGroup == '1':
                 groups.append(True)

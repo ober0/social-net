@@ -84,6 +84,7 @@
                                     {% set tag = groops_data['tags'][i] %}
                                     {% set avatar_path = groops_data['avatar_paths'][i] %}
                                     {% set subscribers = groops_data['subscribers'][i] %}
+                                    {% set owner = groops_data['owners'][i] %}
                                     <div class="friend-body">
                                         <div class="friends-content">
                                             <div class="friends-avatar">
@@ -101,9 +102,15 @@
                                                 </div>
 
                                                 {% if _self %}
+                                                {% if own %}
                                                 <div tag="{{tag}}" class="request-btn" style="cursor: pointer">
                                                     Отписаться
                                                 </div>
+                                                {% else %}
+                                                <div tag="{{tag}}" class="request-btn-rem" style="cursor: pointer">
+                                                    Удалить
+                                                </div>
+                                                {% endif %}
                                                 {% endif %}
                                             </div>
 
@@ -114,14 +121,39 @@
 
 
                             </div>
-                            <div class="no-friend {% if groops_data_count > 0 %} hide {% endif %}">
+                            <div class="no-friend {% if groops_data_count + self_group_count > 0 %} hide {% endif %}">
                                 Ни одной группы не найдено :(
                             </div>
                         </div>
+                    </div>
+                    {% if _self == True %}
+                        <div class="col-sm-2">
+                            <div class="filter-container">
+                                <div section="all" class="filter-element {% if section == 'all' %}active{% endif %}">
+                                    <p>Все сообщества</p>
+                                </div>
+                                <div section="owner" class="filter-element {% if section == 'owner' %}active{% endif %}">
+                                    <p>Ваши сообщества</p>
+                                </div>
+
+                            </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    let buttons = document.querySelectorAll('.filter-element')
+                                    buttons.forEach(button => {
+                                        button.addEventListener('click', function () {
+                                            window.location.href = `/groups?user={{ user_page.tag }}&section=${button.getAttribute('section')}`
+                                        })
+                                    })
+                                })
+                            </script>
+                        </div>
+                    {% endif %}
                     <script src="{{ url_for('static', filename='js/groops.js') }}"></script>
 
 
-                    </div>
+
                 </div>
             </div>
         </div>

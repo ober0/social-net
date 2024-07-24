@@ -155,3 +155,14 @@
     text-decoration: none !important;
     background-color: #636363;
 }
+
+
+.request-btn-rem{
+    background-color: #505050;
+    padding: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 10px;
+    transition: background-color 0.2s;
+    text-align: center;
+}
