@@ -83,13 +83,23 @@
                                 <br>
                                 <h1>{{ group.name }}</h1>
                                 <div class="user-header-info">
-                                        <div class="row">
-                                            <div class="col-sm-2">
-                                                <img style="width: 18px" src="{{ url_for('static', filename='img/man.png') }}" alt="">
+                                        <div style="display: flex; gap: 15px">
+                                            <div>
+                                                <img style="width: 18px; position: relative; top:4px" src="{{ url_for('static', filename='img/man.png') }}" alt="">
                                             </div>
-                                            <div class="col-sm-10">
+                                            <div>
                                                 <p class="user-header-info-p" style="position: relative; right: 50px">
-                                                    {{group.subscribers}} чел.</p>
+
+                                                    <div style="display: flex; gap: 5px; position: relative; bottom: 4px">
+                                                        {% if group.subscribers %}
+                                                        <p id="counter">{{group.subscribers}}</p>
+                                                        {% else %}
+                                                            <p id="counter">0</p>
+                                                        {% endif %}
+                                                        <p>чел. </p>
+                                                    </div>
+
+
                                             </div>
                                         </div>
                                 </div>
@@ -99,12 +109,10 @@
                                     <input onclick="go_edit_prifile({{group.id}})" type="button" class="user-header-button edit-profile" value="Редактировать группу">
                                 {% else %}
 
-                                    {% if isSubscribe == 0 %}
-                                        <input group-tag="{{group.tag}}" id="subscribe" type="button" class="user-header-button message-profile" value="Подписаться">
 
-                                    {% else %}
-                                        <input group-tag="{{group.tag}}" id="unsubscribe" type="button" class="user-header-button message-profile" value="Отписаться">
-                                    {% endif%}
+                                    <input group-tag="{{group.tag}}" id="subscribe" type="button" class="user-header-button message-profile {% if isSubscribe != 0 %}hide{%endif%}" value="Подписаться">
+                                    <input group-tag="{{group.tag}}" id="unsubscribe" type="button" class="user-header-button message-profile {% if isSubscribe == 0 %}hide{%endif%}"  value="Отписаться">
+
                                 {% endif %}
                             </div>
                         </div>

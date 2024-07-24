@@ -6,25 +6,57 @@ function go_edit_prifile(id) {
 }
 
 try {
-    document.getElementById('goMessage').addEventListener('click', function () {
-        window.location.href = '/messanger?chat=' + this.getAttribute('user-tag')
+    document.getElementById('subscribe').addEventListener('click', function () {
+        let btn = this
+        const data = {
+            tag: btn.getAttribute('group-tag')
+        }
+        fetch('/group/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success){
+                    btn.classList.add('hide')
+                    document.getElementById('unsubscribe').classList.remove('hide')
+                    document.getElementById('counter').innerText = Number(document.getElementById('counter').innerText) + 1
+                }
+                else {
+                    window.location.reload()
+                }
+            })
     })
 }catch {}
 
-document.getElementById('goFriend').addEventListener('click', function () {
-    window.location.href = '/friends?user=' + this.getAttribute('my_tag');
-    w
-});
-
-document.getElementById('goSubs').addEventListener('click', function () {
-    window.location.href = '/groups?user=' + this.getAttribute('my_tag');
-});
 
 try {
-    document.getElementById('btn-add-friend').addEventListener('click', function () {
-        socketio.emit('addFriend_request', {
-            friend_id: this.getAttribute('friend_id')
-        });
+    document.getElementById('unsubscribe').addEventListener('click', function () {
+        let btn = this
+        const data = {
+            tag: btn.getAttribute('group-tag')
+        }
+        fetch('/group/unsubscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success){
+                    btn.classList.add('hide')
+                    document.getElementById('subscribe').classList.remove('hide')
+                    document.getElementById('counter').innerText = Number(document.getElementById('counter').innerText) - 1
+                }
+                else {
+                    window.location.reload()
+                }
+            })
     })
 }catch {}
 

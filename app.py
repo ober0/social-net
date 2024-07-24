@@ -883,6 +883,40 @@ def addPost():
 
     return jsonify({'result': False})
 
+
+@app.route('/group/subscribe', methods=["POST"])
+def subscribe():
+    user = request.cookies.get('account')
+    group_tag = request.json.get('tag')
+    group = Group.query.filter_by(tag=group_tag).first()
+
+    if not Subscribe.query.filter_by(user_id=user).filter_by(group_id=group.id).first():
+        group = Group.query.filter_by(tag=group_tag).first()
+        if group.subscribers is None:
+            group.subscribers = 0
+        group.subscribers += 1
+        db.session.add(Subscribe(user_id=user, group_id=group.id))
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False})
+
+
+@app.route('/group/unsubscribe', methods=["POST"])
+def g_unsubscribe():
+    user = request.cookies.get('account')
+    group_tag = request.json.get('tag')
+    group = Group.query.filter_by(tag=group_tag).first()
+
+    subs = Subscribe.query.filter_by(user_id=user).filter_by(group_id=group.id).first()
+    group = Group.query.filter_by(tag=group_tag).first()
+    group.subscribers -= 1
+    if subs:
+        db.session.delete(subs)
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False})
+
+
 @app.route('/<string:tag>', methods=['GET'])
 @check_access
 def user_profile(tag):
