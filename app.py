@@ -885,6 +885,115 @@ def addPost():
     return jsonify({'result': False})
 
 
+
+@app.route('/community/post-add', methods=["POST"])
+def addPost_group():
+    if request.method == "POST":
+        print(0)
+        if request.json.get('type') == 'main':
+            print(1)
+            text = request.json.get('text')
+            tag = request.json.get('tag')
+            id = Group.query.filter_by(tag=tag).first().id
+
+            photos = request.json.get('photos')
+            photos_urls = []
+            for photo in photos:
+                print(2)
+                base64_str = photo.split(';base64,')[-1]
+                image_binary = base64.b64decode(base64_str)
+                photos_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.png'
+                try:
+                    with open(f'static/users/photos/{photos_url}', 'wb') as f:
+                        f.write(image_binary)
+                    photos_urls.append(photos_url)
+                except:
+                    return jsonify({'result': False})
+
+            _photos_urls = '/'.join(photos_urls)
+            print(3)
+            months = {
+                '01': 'янв',
+                '02': 'фев',
+                '03': 'мар',
+                '04': 'апр',
+                '05': 'май',
+                '06': 'июн',
+                '07': 'июл',
+                '08': 'авг',
+                '09': 'сен',
+                '10': 'окт',
+                '11': 'ноя',
+                '12': 'дек'
+            }
+            time = datetime.datetime.now()
+            day = time.strftime('%d')
+            month = months[time.strftime('%m')]
+            year = time.strftime('%Y')
+
+            date = f'{day} {month} {year}'
+            new_post = Post(user_id=id, text=text, images=_photos_urls, date=date, isGroup='1')
+            print(4)
+            try:
+                db.session.add(new_post)
+                db.session.commit()
+                print(5)
+                return jsonify({'result': True})
+
+
+            except Exception as e:
+                db.session.rollback()
+                print(6)
+                return jsonify({'result': False})
+
+
+
+
+        elif request.json.get('type') == 'video':
+            video = request.json.get('data')
+
+            base64_str = video.split(';base64,')[-1]
+            image_binary = base64.b64decode(base64_str)
+            video_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.mp4'
+            try:
+                with open(f'static/users/video/{video_url}', 'wb') as f:
+                    f.write(image_binary)
+            except:
+                return jsonify({'result': False})
+
+
+            last_post = Post.query.filter_by(user_id=request.cookies.get('account')).order_by(Post.id.desc()).first()
+            videos = str(last_post.videos)
+
+            if videos != 'None':
+                videos = videos + '/' + video_url
+            else:
+                videos = video_url
+
+            try:
+                last_post.videos = videos
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({'result': False})
+
+
+            if request.json.get('isPublic'):
+                try:
+                    newVideo = Video(user_id=request.cookies.get('account'), path_name=video_url, name=f'Видео пользователя {User.query.filter_by(id=request.cookies.get("account")).first().name}', inPost="True")
+                    db.session.add(newVideo)
+                    db.session.commit()
+                    return jsonify({'result': True})
+                except:
+                    db.session.rollback()
+                    return jsonify({'result': False})
+
+
+    return jsonify({'result': False})
+
+
+
+
 @app.route('/group/subscribe', methods=["POST"])
 def subscribe():
     user = request.cookies.get('account')
