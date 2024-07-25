@@ -342,7 +342,34 @@ def load_more():
         return jsonify({'success': False})
 
 
+@app.route('/search', methods=['GET'])
+def search_get():
+    return redirect('/search/people')
 
+@app.route('/search/<string:content>')
+@check_access
+def search(content):
+    filter = request.args.get('q')
+    if not filter:
+        filter = ''
+
+
+
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+    self_avatar_path = user.avatar_path
+    me = User.query.filter_by(id=request.cookies.get('account')).first()
+    incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
+    return render_template('search.html',
+                           content=content,
+                           filter=filter,
+                           user=user,
+                           me=me,
+                           incoming_requests_count=incoming_requests_count,
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           self_avatar_path = self_avatar_path
+                           )
 
 
 @app.route('/groups/delete', methods=['POST'])
@@ -1883,8 +1910,8 @@ def update_status(data):
         socketio.emit('updateStatus_result', {'success': False}, room=request.cookies.get('account'))
 
 
-@app.route('/search', methods=['POST'])
-def search():
+@app.route('/search-small', methods=['POST'])
+def search_small():
     if request.method == 'POST':
         data = request.json.get('data')
         if data:

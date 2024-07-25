@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function () {
     searchInput.addEventListener('input', function () {
         let searchValue = searchInput.value;
 
-        fetch('/search', {
+        fetch('/search-small', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -425,6 +425,10 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     }catch {}
 
+
+    document.getElementById('show-all-result').addEventListener('click', function () {
+        window.location.href = '/search/people?q=' + document.getElementById('search-main').value
+    })
 
 
 })
