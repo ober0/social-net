@@ -87,21 +87,23 @@
                             <div class="search-result-element {% if result_count == 0 %} hide {% endif %}">
                                 {% if content == 'people' %}
                                     {% for user in result %}
-                                        <div class="el-avatar">
-                                            {% if user.avatar_path %}
-                                                <a href="/{{ user.tag }}"><img src="{{ url_for('static', filename='avatars/users/' + user.avatar_path) }}" alt=""></a>
-                                            {% else %}
-                                                <a href="/{{ user.tag }}"><img src="{{ url_for('static', filename='avatars/default.png') }}" alt=""></a>
-                                            {% endif %}
-                                        </div>
-                                        <div class="el-info">
-                                            <div class="el-name">
-                                                <a href="/{{ user.tag }}">{{ user.name }} {{ user.second_name }}</a>
-                                            </div>
-                                            <div class="el-city">
-                                                {% if user.show_city %}
-                                                    <p>{{ user.county }}{% if user.city %}, {{ user.city }}{% endif %}</p>
+                                        <div class="content">
+                                            <div class="el-avatar">
+                                                {% if user.avatar_path %}
+                                                    <a href="/{{ user.tag }}"><img src="{{ url_for('static', filename='avatars/users/' + user.avatar_path) }}" alt=""></a>
+                                                {% else %}
+                                                    <a href="/{{ user.tag }}"><img src="{{ url_for('static', filename='avatars/default.png') }}" alt=""></a>
                                                 {% endif %}
+                                            </div>
+                                            <div class="el-info">
+                                                <div class="el-name">
+                                                    <a href="/{{ user.tag }}">{{ user.name }} {{ user.second_name }}</a>
+                                                </div>
+                                                <div class="el-city">
+                                                    {% if user.show_city %}
+                                                        <p>{{ user.county }}{% if user.city %}, {{ user.city }}{% endif %}</p>
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                         </div>
                                     {% endfor %}
@@ -109,23 +111,25 @@
 
                                 {% elif content == 'community' %}
                                     {% for group in result %}
-                                        <div class="el-avatar">
-                                            {% if group.avatar_path %}
-                                                <a href="/community/{{ group.tag }}"><img src="{{ url_for('static', filename='avatars/groups/' + group.avatar_path) }}" alt=""></a>
-                                            {% else %}
-                                                <a href="/community/{{ group.tag }}"><img src="{{ url_for('static', filename='avatars/default.png') }}" alt=""></a>
-                                            {% endif %}
-                                        </div>
-                                        <div class="el-info">
-                                            <div class="el-name">
-                                                <a href="/community/{{ group.tag }}">{{ group.name }}</a>
-                                            </div>
-                                            <div class="el-city">
-                                                {% if group.subscribers %}
-                                                    <p>{{ group.subscribers }} подписчиков</p>
+                                        <div class="content">
+                                            <div class="el-avatar">
+                                                {% if group.avatar_path %}
+                                                    <a href="/community/{{ group.tag }}"><img src="{{ url_for('static', filename='avatars/groups/' + group.avatar_path) }}" alt=""></a>
                                                 {% else %}
-                                                    <p>0 подписчиков</p>
+                                                    <a href="/community/{{ group.tag }}"><img src="{{ url_for('static', filename='avatars/default.png') }}" alt=""></a>
                                                 {% endif %}
+                                            </div>
+                                            <div class="el-info">
+                                                <div class="el-name">
+                                                    <a href="/community/{{ group.tag }}">{{ group.name }}</a>
+                                                </div>
+                                                <div class="el-city">
+                                                    {% if group.subscribers %}
+                                                        <p>{{ group.subscribers }} подписчиков</p>
+                                                    {% else %}
+                                                        <p>0 подписчиков</p>
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                         </div>
                                     {% endfor %}

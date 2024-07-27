@@ -399,6 +399,98 @@ def search(content):
                            )
 
 
+@app.route('/search/people/load-more', methods=['POST'])
+def serch_loadMore_users():
+    offset = request.json.get('count')
+    filter = request.json.get('filter')
+
+    search_string = f"%{filter}%"
+
+    users = []
+    for search_string in [search_string, search_string.title()]:
+        user = User.query.filter(or_(
+            User.name.like(search_string),
+            User.second_name.like(search_string),
+            text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string"),
+            User.tag.like(search_string)
+        )).params(search_string=search_string).offset(offset).limit(20).all()
+        users.extend(user)
+
+    avatars = []
+    names = []
+    cities = []
+    hrefs = []
+
+    for user in users:
+        avatar_path = f'users/{user.avatar_path}'
+        if not avatar_path:
+            avatar_path = 'default.png'
+        name = user.name + " " + user.second_name
+        if user.show_city == 1:
+            place = user.country + ", " + user.city
+        else:
+            place = None
+        href = f'/{user.tag}'
+
+        avatars.append(avatar_path)
+        names.append(name)
+        cities.append(place)
+        hrefs.append(href)
+
+    data = {
+        'success': True,
+        'avatars': avatars,
+        'names': names,
+        'cities': cities,
+        'hrefs': hrefs,
+    }
+
+    return jsonify(data)
+
+
+@app.route('/search/community/load-more', methods=['POST'])
+def serch_loadMore_groups():
+    offset = request.json.get('count')
+    filter = request.json.get('filter')
+
+    search_string = f"%{filter}%"
+
+    groups = Group.query.filter(or_(
+        Group.name.like(search_string),
+        Group.tag.like(search_string))).all()
+
+
+
+    avatars = []
+    names = []
+    subscribers = []
+    hrefs = []
+
+    for group in groups:
+        avatar_path = f'groups/{group.avatar_path}'
+        if not avatar_path:
+            avatar_path = 'default.png'
+        name = group.name
+        if group.subscribers:
+            subscribers.append(group.subscribers)
+        else:
+            subscribers.append(0)
+        href = f'/{group.tag}'
+
+        avatars.append(avatar_path)
+        names.append(name)
+        hrefs.append(href)
+
+    data = {
+        'success': True,
+        'avatars': avatars,
+        'names': names,
+        'subscribers': subscribers,
+        'hrefs': hrefs,
+    }
+
+    return jsonify(data)
+
 @app.route('/groups/delete', methods=['POST'])
 def delete():
     group_tag = request.json.get('tag')
