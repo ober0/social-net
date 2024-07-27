@@ -44,12 +44,15 @@
     outline: 0;
 }
 
-.friends-counter{
+.friends-counter, .add-new-community p{
     color: #a6a6a6;
     font-size: 15px;
     margin: 0;
+
 }
-.friends-counter-div{
+
+
+.friends-counter-div, .add-new-community{
     padding: 5px;
     padding-left: 10px;
     padding-right: 10px;
@@ -57,6 +60,12 @@
     border-radius: 10px;
     width: fit-content;
     margin-bottom: 10px;
+    transition: background-color 0.3s;
+}
+
+.add-new-community:hover{
+    background-color: #494949 !important;
+
 }
 .friends-content{
     display: flex;

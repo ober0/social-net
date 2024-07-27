@@ -33,3 +33,15 @@ document.getElementById('video').addEventListener('click', function () {
 document.getElementById('search').addEventListener('click', function () {
     window.location.href = '/search/people'
 })
+
+document.getElementById('add-community').addEventListener('click', function () {
+    window.location.href = '/new-community'
+})
+
+document.getElementById('setting').addEventListener('click', function () {
+    window.location.href = '/setting'
+})
+
+document.getElementById('support').addEventListener('click', function () {
+    window.location.href = '/support'
+})

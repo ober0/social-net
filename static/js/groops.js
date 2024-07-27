@@ -151,21 +151,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 requestBtn.setAttribute('tag', group_data.tag);
                 requestBtn.textContent = 'Удалить';
                 requestBtn.addEventListener('click', function () {
-                    fetch('groups/delete', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({tag: this.getAttribute('tag')})
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                this.closest('.friend-body').remove()
-                            } else {
-                                console.log(data.error);
-                            }
+                    if (confirm('Вы действительно хотите удалить сообщество?')){
+                        fetch('groups/delete', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({tag: this.getAttribute('tag')})
                         })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    this.closest('.friend-body').remove()
+                                } else {
+                                    console.log(data.error);
+                                }
+                            })
+                    }
+
                 })
             }
 
@@ -238,21 +241,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.request-btn-rem').forEach(btn => {
         btn.addEventListener('click', function () {
-            fetch('groups/delete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({tag: this.getAttribute('tag')})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        this.closest('.friend-body').remove()
-                    } else {
-                        console.log(data.error);
-                    }
+            if (confirm('Вы действительно хотите удалить сообщество?')) {
+
+                fetch('groups/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({tag: this.getAttribute('tag')})
                 })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.closest('.friend-body').remove()
+                        } else {
+                            console.log(data.error);
+                        }
+                    })
+            }
         })
     })
 

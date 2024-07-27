@@ -254,7 +254,7 @@ def groops():
     incoming_requests = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).order_by(
         FriendRequest.id.desc()).all()
 
-    return render_template('user-groops.html',
+    return render_template('user-groups.html',
                            groops_data=groops_data,
                            _self=_self,
                            user_page=user,
@@ -1199,12 +1199,43 @@ def g_unsubscribe():
         return jsonify({'success': True})
     return jsonify({'success': False})
 
+@app.route('/new-community')
+@check_access
+def add_community():
+    return render_template('add_group.html')
+
+@app.route('/new-community/add', methods=["POST"])
+@check_access
+def add_group():
+    tag = request.form.get('tag')
+    name = request.form.get('name')
+    if len(name) < 3:
+        return jsonify({'success': False, 'error': 'Имя слишком короткое'})
+    if len(tag) < 3:
+        return jsonify({'success': False, 'error': 'Тег слишклм короткий'})
+    avatar = request.files.get('avatar')
+    if avatar:
+        avatar.save(f'static/avatars/groups/avatar-group-{tag}.{avatar.filename.split(".")[-1]}')
+        avatar_path = f'avatar-group-{tag}.{avatar.filename.split(".")[-1]}'
+    else:
+        avatar_path = None
+    try:
+        group = Group(tag=tag, name=name, avatar_path=avatar_path, owner_id=request.cookies.get('account'))
+        db.session.add(group)
+        db.session.commit()
+        return jsonify({'success': True, 'tag': tag})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+
 
 @app.route('/<string:tag>', methods=['GET'])
 @check_access
 def user_profile(tag):
     if request.method == "GET":
         user = User.query.filter_by(tag=tag).first()
+        if not user:
+            return 'Страницы не существует!'
         self_user_tag = User.query.filter_by(id=request.cookies.get('account')).first().tag
 
         notifications, notifications_count = check_notification(request.cookies.get('account'))
