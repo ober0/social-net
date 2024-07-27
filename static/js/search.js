@@ -71,7 +71,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(result => {
                     if (result.success){
+                        for (let i = 0; i < result.names.length; i++){
+                            let elData = {
+                                name: result.names[i],
+                                href: result.hrefs[i],
+                                avatar: result.avatars[i],
+                                city: result.cities[i]
+                            }
 
+                            createUser(elData)
+                        }
                     }
                 })
         }
@@ -86,10 +95,106 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(result => {
                     if (result.success){
-                        console.log(2)
+                        for (let i = 0; i < result.names.length; i++){
+                            let elData = {
+                                name: result.names[i],
+                                href: result.hrefs[i],
+                                avatar: result.avatars[i],
+                                subscribers: result.subscribers[i]
+                            }
+
+                            createGroup(elData)
+                        }
                     }
                 })
         }
 
     }
+    
+    function createUser(elData) {
+
+
+        let contentDiv = document.createElement('div');
+        contentDiv.className = 'content';
+
+        let avatarDiv = document.createElement('div');
+        avatarDiv.className = 'el-avatar';
+
+        let link = document.createElement('a');
+        link.href = elData.href;
+
+        let img = document.createElement('img');
+        img.src = elData.avatar ? `/static/avatars/${elData.avatar}` : '/static/avatars/default.png';
+        img.alt = '';
+
+        link.appendChild(img);
+        avatarDiv.appendChild(link);
+
+        let infoDiv = document.createElement('div');
+        infoDiv.className = 'el-info';
+
+        let nameDiv = document.createElement('div');
+        nameDiv.className = 'el-name';
+
+        let nameLink = document.createElement('a');
+        nameLink.href = elData.href;
+        nameLink.textContent = elData.name;
+
+        nameDiv.appendChild(nameLink);
+        infoDiv.appendChild(nameDiv);
+
+        let cityDiv = document.createElement('div');
+        cityDiv.className = 'el-city';
+
+        if (elData.city) {
+            let cityParagraph = document.createElement('p');
+            cityParagraph.textContent = elData.city;
+            cityDiv.appendChild(cityParagraph);
+        }
+
+        infoDiv.appendChild(cityDiv);
+        contentDiv.appendChild(avatarDiv);
+        contentDiv.appendChild(infoDiv);
+        document.querySelector('.search-result-element').appendChild(contentDiv);
+
+    }
 })
+
+
+function createGroup(elData){
+    const subscribersText = elData.subscribers > 0 ? `${elData.subscribers} подписчиков` : `0 подписчиков`;
+
+    const avatar = document.createElement('img');
+    avatar.src = elData.avatar || '/static/avatars/default.png';
+    avatar.alt = '';
+
+    const avatarLink = document.createElement('a');
+    avatarLink.href = elData.href;
+    avatarLink.appendChild(avatar);
+
+    const nameLink = document.createElement('a');
+    nameLink.href = elData.href;
+    nameLink.textContent = elData.name;
+
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'el-name';
+    nameDiv.appendChild(nameLink);
+
+    const cityPar = document.createElement('p');
+    cityPar.textContent = subscribersText;
+
+    const cityDiv = document.createElement('div');
+    cityDiv.className = 'el-city';
+    cityDiv.appendChild(cityPar);
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'el-info';
+    infoDiv.appendChild(nameDiv);
+    infoDiv.appendChild(cityDiv);
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'content';
+    contentDiv.appendChild(avatarLink);
+    contentDiv.appendChild(infoDiv);
+    document.querySelector('.search-result-element').appendChild(contentDiv);
+}

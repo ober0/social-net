@@ -72,3 +72,38 @@
     border: 1px solid #333333;
     padding: 20px;
 }
+
+.content{
+    padding: 10px;
+    display: flex;
+    margin-bottom: 15px;
+}
+
+
+
+.el-avatar img{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-right: 25px;
+}
+
+.el-info{
+    margin-top: 10px;
+}
+
+.el-name a{
+    text-decoration: none;
+    color: white;
+    font-size: 17px;
+}
+
+.el-name a:hover{
+    text-decoration: underline;
+}
+.el-city{
+    margin-top: 5px;
+    color: gray;
+    font-size: 15px;
+}
+
