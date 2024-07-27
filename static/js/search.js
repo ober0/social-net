@@ -11,4 +11,28 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
     })
+
+    document.getElementById('search-btn').addEventListener('click',search)
+
+    document.getElementById('search-input').addEventListener('focus', function () {
+        document.addEventListener('keydown', keydown)
+    })
+
+    document.getElementById('search-input').addEventListener('blur', function () {
+        document.removeEventListener('keydown', keydown)
+    })
+
+    function keydown(event) {
+        if (event.key === 'Enter'){
+            search()
+        }
+    }
+
+    function search() {
+        let first_arg = window.location.pathname.split('/')
+        let second_arg = document.getElementById('search-input').value
+        first_arg = document.querySelector('.active').getAttribute('filter-type')
+
+        window.location.href = `/search/${first_arg}?q=${second_arg}`
+    }
 })

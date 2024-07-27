@@ -72,19 +72,21 @@
                                 <h4 style="margin-bottom: 15px">Поиск</h4>
                                 {% endif %}
                                 <div class="search-box">
-                                    <input type="text" placeholder="Введите запрос">
-                                    <button>
+                                    <input id="search-input" type="text" placeholder="Введите запрос" value="{{ filter }}">
+                                    <button id="search-btn">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 2a8 8 0 105.292 14.708l5 5a1 1 0 001.416-1.416l-5-5A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z"/></svg>
                                     </button>
                                 </div>
                             </div>
-
-                            <div class="search-result-container">
-                                <div class="search-result-element">
-
-                                </div>
+                        </div>
+                        <br>
+                        <div class="search-content-div {% if filter == '' %} hide {% endif %}">
+                            <div style="text-align: center" class="{% if result_count > 0 %} hide {% endif %}">
+                                По вашему запросу нет ни одного результата
                             </div>
+                            <div class="search-result-element {% if result_count == 0 %} hide {% endif %}">
 
+                            </div>
                         </div>
 
 

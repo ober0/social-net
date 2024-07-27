@@ -352,8 +352,34 @@ def search(content):
     filter = request.args.get('q')
     if not filter:
         filter = ''
+    print(filter)
+    result = []
+    search_string = f"%{filter}%"
+    if content == 'people':
+        for search_string in [search_string, search_string.title()]:
+            users = User.query.filter(or_(
+                User.name.like(search_string),
+                User.second_name.like(search_string),
+                text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string"),
+                User.tag.like(search_string)
+            )).params(search_string=search_string).limit(20).all()
+
+        result.extend(users)
 
 
+    elif content == 'community':
+        groups = Group.query.filter(or_(
+            Group.name.like(search_string),
+            Group.tag.like(search_string))).all()
+
+        result.extend(groups)
+
+
+    else:
+        return redirect('/search')
+
+    if filter == '':
+        result = []
 
     notifications, notifications_count = check_notification(request.cookies.get('account'))
     user = User.query.filter_by(id=request.cookies.get('account')).first()
@@ -368,7 +394,9 @@ def search(content):
                            incoming_requests_count=incoming_requests_count,
                            notifications=notifications,
                            notification_count=notifications_count,
-                           self_avatar_path = self_avatar_path
+                           self_avatar_path = self_avatar_path,
+                           result=result,
+                           result_count = len(result)
                            )
 
 

@@ -29,3 +29,7 @@ document.getElementById('music').addEventListener('click', function () {
 document.getElementById('video').addEventListener('click', function () {
     window.location.href = '/video?user=' + this.getAttribute('my_tag')
 })
+
+document.getElementById('search').addEventListener('click', function () {
+    window.location.href = '/search/people'
+})
