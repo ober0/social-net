@@ -352,7 +352,6 @@ def search(content):
     filter = request.args.get('q')
     if not filter:
         filter = ''
-    print(filter)
     result = []
     search_string = f"%{filter}%"
     if content == 'people':

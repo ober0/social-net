@@ -72,7 +72,7 @@
                                 <h4 style="margin-bottom: 15px">Поиск</h4>
                                 {% endif %}
                                 <div class="search-box">
-                                    <input id="search-input" type="text" placeholder="Введите запрос" value="{{ filter }}">
+                                    <input id="search-input" type="text" placeholder="Введите запрос" value="{{ filter }}" autocomplete="off">
                                     <button id="search-btn">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 2a8 8 0 105.292 14.708l5 5a1 1 0 001.416-1.416l-5-5A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z"/></svg>
                                     </button>
@@ -85,7 +85,51 @@
                                 По вашему запросу нет ни одного результата
                             </div>
                             <div class="search-result-element {% if result_count == 0 %} hide {% endif %}">
+                                {% if content == 'people' %}
+                                    {% for user in result %}
+                                        <div class="el-avatar">
+                                            {% if user.avatar_path %}
+                                                <a href="/{{ user.tag }}"><img src="{{ url_for('static', filename='avatars/users/' + user.avatar_path) }}" alt=""></a>
+                                            {% else %}
+                                                <a href="/{{ user.tag }}"><img src="{{ url_for('static', filename='avatars/default.png') }}" alt=""></a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="el-info">
+                                            <div class="el-name">
+                                                <a href="/{{ user.tag }}">{{ user.name }} {{ user.second_name }}</a>
+                                            </div>
+                                            <div class="el-city">
+                                                {% if user.show_city %}
+                                                    <p>{{ user.county }}{% if user.city %}, {{ user.city }}{% endif %}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
 
+
+                                {% elif content == 'community' %}
+                                    {% for group in result %}
+                                        <div class="el-avatar">
+                                            {% if group.avatar_path %}
+                                                <a href="/community/{{ group.tag }}"><img src="{{ url_for('static', filename='avatars/groups/' + group.avatar_path) }}" alt=""></a>
+                                            {% else %}
+                                                <a href="/community/{{ group.tag }}"><img src="{{ url_for('static', filename='avatars/default.png') }}" alt=""></a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="el-info">
+                                            <div class="el-name">
+                                                <a href="/community/{{ group.tag }}">{{ group.name }}</a>
+                                            </div>
+                                            <div class="el-city">
+                                                {% if group.subscribers %}
+                                                    <p>{{ group.subscribers }} подписчиков</p>
+                                                {% else %}
+                                                    <p>0 подписчиков</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
 
@@ -96,6 +140,7 @@
                             <div class="filters-container">
                                 <div filter-type="people" class="filter {% if content == 'people' %}active{%endif%}">
                                     <p>Люди</p>
+
                                 </div>
                                 <div filter-type="community" class="filter {% if content == 'community' %}active{%endif%}" >
                                     <p>Сообщества</p>
