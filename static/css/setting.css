@@ -25,3 +25,12 @@
 .title{
     color: #aaaaaa;
 }
+
+.setting-section{
+    border-radius: 10px;
+    border: 1px solid #3e3e3e;
+}
+
+.setting-section h2{
+    margin: 35px;
+}

@@ -65,41 +65,80 @@
                         {% block left_menu %}{% endblock %}
                     </div>
                     <div class="col-sm-7">
+
                         {% if section == 'notification' %}
                             <div class="setting-section">
                                 <div class="settiong-header">
-
+                                    <h2>Уведомления</h2>
                                 </div>
-                                <form>
-                                    <div class="setting-container">
-                                        <div class="setting-element">
-                                            <p class="title">Уведомлять о заявках в друзья</p>
-                                            <p class='value' id="friend-request" val="{{ setting.notification_friend_request }}">{% if setting.notification_friend_request == 1 %}Да{% else %} Нет {% endif %}</p>
-                                        </div>
-                                        <hr>
-                                        <div class="setting-element">
-                                            <p class="title" >Уведомлять о статусе заявки в друзья</p>
-                                            <p class='value' id="friend-status" val="{{ setting.notification_friend_access }}">{% if setting.notification_friend_access == 1 %}Да{% else %} Нет {% endif %}</p>
-                                        </div>
-                                        <hr>
-                                        <div class="setting-element">
-                                            <p class="title" >Уведомлять о сообщениях</p>
-                                            <p class='value' id="message" val="{{ setting.notification_message }}">{% if setting.notification_message == 1 %}Да{% else %} Нет {% endif %}</p>
-                                        </div>
-                                        <hr>
-                                        <div class="setting-element">
-                                            <p class="title" >Уведомлять о записях друзей</p>
-                                            <p class='value' id="friend-post" val="{{ setting.notification_friend_posts }}">{% if setting.notification_friend_posts == 1 %}Да{% else %} Нет {% endif %}</p>
-                                        </div>
-                                        <hr>
-                                        <div class="setting-element">
-                                            <p class="title" >Уведомлять о записях сообществ</p>
-                                            <p class='value' id="community-post" val="{{ setting.notification_community_posts }}">{% if setting.notification_community_posts == 1 %}Да{% else %} Нет {% endif %}</p>
-                                        </div>
+
+                                <div class="setting-container">
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title">Уведомлять о заявках в друзья</p>
+                                        <p class='value' id="friend-request" val="{{ setting.notification_friend_request }}">{% if setting.notification_friend_request == 1 %}Да{% else %} Нет {% endif %}</p>
                                     </div>
-                                </form>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title" >Уведомлять о статусе заявки в друзья</p>
+                                        <p class='value' id="friend-status" val="{{ setting.notification_friend_access }}">{% if setting.notification_friend_access == 1 %}Да{% else %} Нет {% endif %}</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title" >Уведомлять о сообщениях</p>
+                                        <p class='value' id="message" val="{{ setting.notification_message }}">{% if setting.notification_message == 1 %}Да{% else %} Нет {% endif %}</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title" >Уведомлять о записях друзей</p>
+                                        <p class='value' id="friend-post" val="{{ setting.notification_friend_posts }}">{% if setting.notification_friend_posts == 1 %}Да{% else %} Нет {% endif %}</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title" >Уведомлять о записях сообществ</p>
+                                        <p class='value' id="community-post" val="{{ setting.notification_community_posts }}">{% if setting.notification_community_posts == 1 %}Да{% else %} Нет {% endif %}</p>
+                                    </div>
+                                </div>
+
                             </div>
                         <script src="{{ url_for('static', filename='js/setting-notifi.js') }}"></script>
+
+                        {% elif section == 'privacy' %}
+                            <div class="setting-section">
+                                <div class="settiong-header">
+                                    <h2>Приватность</h2>
+                                </div>
+
+                                <div class="setting-container">
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title">Профиль</p>
+                                        <p class='value' id="profile_open" val="{{ setting.profile_open }}">{% if setting.open == 1 %}Открытый{% else %}Закрытый{% endif %}</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title" >Отображать дату рождения</p>
+                                        <p class='value' id="friend-show_date_of_birthday" val="{{ user.show_date_of_birthday }}">{% if user.show_date_of_birthday == '1' %}Да{% else %} Нет {% endif %}</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title" >Отображать пол</p>
+                                        <p class='value' id="show_gender" val="{{ user.show_gender }}">{% if user.show_gender == '1' %}Да{% else %} Нет {% endif %}</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title" >Отображать место учебы</p>
+                                        <p class='value' id="show_education" val="{{ user.show_education }}">{% if user.show_education == '1' %}Да{% else %} Нет {% endif %}</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p class="title" >Отображать место проживания</p>
+                                        <p class='value' id="show_city" val="{{ user.show_city }}">{% if user.show_city == '1' %}Да{% else %} Нет {% endif %}</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        <script src="{{ url_for('static', filename='js/setting-privacy.js') }}"></script>
                         {% endif %}
                     </div>
 

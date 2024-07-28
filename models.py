@@ -114,3 +114,4 @@ class Setting(db.Model):
     notification_message = db.Column(db.Integer, default=1)
     notification_friend_posts = db.Column(db.Integer, default=1)
     notification_community_posts = db.Column(db.Integer, default=1)
+    profile_open = db.Column(db.Integer, default=1)

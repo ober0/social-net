@@ -1207,21 +1207,18 @@ def addPost_group():
                 users = User.query.filter(User.id.in_(subscribers_ids)).all()
 
                 for user in users:
-                    print('----')
-                    print(user.id)
-                    print('notifi', Setting.query.filter_by(user_id=user.id).first().notification_community_posts)
-                    if Setting.query.filter_by(user_id=user.id).first().notification_community_posts != 0:
-                        text = 'добавило новую запись на стене'
+                   if Setting.query.filter_by(user_id=user.id).first().notification_community_posts != 0:
+                    text = 'добавило новую запись на стене'
 
-                        createNotification(user_id=user.id,
-                                           type='newGroupPost',
-                                           from_user_avatar_path=group.avatar_path,
-                                           text=text,
-                                           from_user=f'{group.name}',
-                                           href=f'/community/{group.tag}',
-                                           date=datetime.datetime.now(),
-                                           room=str(user.id)
-                                           )
+                    createNotification(user_id=user.id,
+                                       type='newGroupPost',
+                                       from_user_avatar_path=group.avatar_path,
+                                       text=text,
+                                       from_user=f'{group.name}',
+                                       href=f'/community/{group.tag}',
+                                       date=datetime.datetime.now(),
+                                       room=str(user.id)
+                                       )
 
                 return jsonify({'result': True})
 
