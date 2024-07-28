@@ -1,0 +1,27 @@
+.setting-element{
+    display: flex;
+    margin: 13px;
+    margin-left: 35px;
+    margin-right: 35px;
+
+}
+
+.setting-container hr, .setting-element p{
+    margin-bottom: 0;
+}
+
+.value{
+    margin-left: auto;
+
+    color: white;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+.value:hover{
+    color: #cacaca;
+    text-decoration: underline;
+}
+
+.title{
+    color: #aaaaaa;
+}

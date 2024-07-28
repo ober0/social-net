@@ -158,7 +158,36 @@ def createNotification(user_id, type, from_user_avatar_path, text, href, date, f
     except Exception as e:
         db.session.rollback()
 
+@app.route('/setting/notification/update', methods=['POST'])
+def update_notification():
+    type = request.json.get('type')
+    value = request.json.get('val')
 
+    setting = Setting.query.filter_by(user_id=request.cookies.get('account')).first()
+    if not setting:
+        setting = Setting(user_id=request.cookies.get('account'))
+        db.session.add(setting)
+        db.session.commit()
+
+    if type == 'friend-request':
+        setting.notification_friend_request = value
+    elif type == 'friend-status':
+        setting.notification_friend_access = value
+    elif type == 'message':
+        setting.notification_message = value
+    elif type == 'friend-post':
+        setting.notification_friend_posts = value
+    elif type == 'community-post':
+        setting.notification_community_posts = value
+    else:
+        return jsonify({'success': False})
+
+    try:
+        db.session.commit()
+        return jsonify({'success': True})
+    except:
+        db.session.rollback()
+        return jsonify({'success': False})
 @app.route('/')
 @check_access
 def index():
@@ -195,6 +224,9 @@ def setting():
     if not section:
         section = 'general'
 
+    setting = Setting.query.filter_by(user_id=request.cookies.get('account')).first()
+
+
     return render_template('setting.html',
                            user=user,
                            me=me,
@@ -202,7 +234,9 @@ def setting():
                            notifications=notifications,
                            notification_count=notifications_count,
                            self_avatar_path = self_avatar_path,
-                           section=section)
+                           section=section,
+                           setting=setting
+                           )
 
 
 
@@ -1173,9 +1207,12 @@ def addPost_group():
                 users = User.query.filter(User.id.in_(subscribers_ids)).all()
 
                 for user in users:
-                    if Setting.query.filter_by(user_id=user.id).first().notification_friend_posts != 0:
+                    print('----')
+                    print(user.id)
+                    print('notifi', Setting.query.filter_by(user_id=user.id).first().notification_community_posts)
+                    if Setting.query.filter_by(user_id=user.id).first().notification_community_posts != 0:
                         text = 'добавило новую запись на стене'
-
+                        print(1111212)
 
                         createNotification(user_id=user.id, type='newGroupPost',
                                            from_user_avatar_path=group.avatar_path,
@@ -1860,10 +1897,10 @@ def add_friend_requests(data):
 
         from_avatar = User.query.filter_by(id=user_id).first().avatar_path
         user_name = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(id=user_id).first().second_name
-
-        createNotification(user_id=friend_id, type='newFriendRequest', from_user_avatar_path=from_avatar,
-                           text=f'Новое предложение дружбы от',
-                           from_user=user_name, href=f'/{me.tag}', date=datetime.datetime.now(), room=friend_id)
+        if Setting.query.filter_by(user_id=friend_id).first().notification_friend_request != 0:
+            createNotification(user_id=friend_id, type='newFriendRequest', from_user_avatar_path=from_avatar,
+                               text=f'Новое предложение дружбы от',
+                               from_user=user_name, href=f'/{me.tag}', date=datetime.datetime.now(), room=friend_id)
 
         socketio.emit('addFriend_request_result', {'success': True}, room=request.cookies.get('account'))
 
@@ -1975,7 +2012,8 @@ def add_friend_fetch():
             user_name = User.query.filter_by(id=friend_id).first().name + " " + User.query.filter_by(id=friend_id).first().second_name
             from_avatar = User.query.filter_by(id=friend_id).first().avatar_path
 
-            createNotification(user_id=user_id, type='friendRequestApprove', from_user_avatar_path=from_avatar,
+            if Setting.query.filter_by(user_id=user_id).first().notification_friend_access != 0:
+                createNotification(user_id=user_id, type='friendRequestApprove', from_user_avatar_path=from_avatar,
                                text=f'принял Ваше предложение дружбы',
                                from_user=user_name, href=f'/{User.query.filter_by(id=friend_id).first().tag}', date=datetime.datetime.now(), room=str(user_id))
 
