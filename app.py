@@ -1212,9 +1212,9 @@ def addPost_group():
                     print('notifi', Setting.query.filter_by(user_id=user.id).first().notification_community_posts)
                     if Setting.query.filter_by(user_id=user.id).first().notification_community_posts != 0:
                         text = 'добавило новую запись на стене'
-                        print(1111212)
 
-                        createNotification(user_id=user.id, type='newGroupPost',
+                        createNotification(user_id=user.id,
+                                           type='newGroupPost',
                                            from_user_avatar_path=group.avatar_path,
                                            text=text,
                                            from_user=f'{group.name}',
