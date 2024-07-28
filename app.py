@@ -79,6 +79,7 @@ def check_access(f):
             return render_template('auth.html', emails=emails)
 
         user = User.query.filter_by(id=session.get('account')).first()
+        user = User.query.filter_by(id=session.get('account')).first()
         if not user:
             emails = [user.email for user in User.query.all()]
             return render_template('auth.html', emails=emails)
@@ -91,7 +92,7 @@ def check_access(f):
 
 
 
-('/admin/change_status')
+@app.route('/admin/change_status')
 @check_status('change_status')
 def change_status():
     return render_template('change_status.html')
@@ -181,6 +182,16 @@ def index():
                            incoming_requests_count = incoming_requests_count
                            )
 
+
+
+@app.route('/setting')
+@app.route('/music')
+@app.route('/chats')
+@app.route('/photos')
+@app.route('/video')
+@app.route('/support')
+def in_dev():
+    return render_template('in-dev.html')
 
 
 @app.route('/groups')
