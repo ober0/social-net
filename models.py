@@ -106,3 +106,11 @@ class Comments(db.Model):
     text = db.Column(db.Text, nullable=True)
     time = db.Column(db.String(100), nullable=True)
 
+class Setting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
+    notification_friend_request = db.Column(db.Integer, default=1)
+    notification_friend_access = db.Column(db.Integer, default=1)
+    notification_message = db.Column(db.Integer, default=1)
+    notification_friend_posts = db.Column(db.Integer, default=1)
+    notification_community_posts = db.Column(db.Integer, default=1)

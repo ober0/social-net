@@ -12,7 +12,7 @@ from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Comments, \
-    Subscribe
+    Subscribe, Setting
 from config import app, action_access, month_data
 import random
 import datetime
@@ -185,6 +185,29 @@ def index():
 
 
 @app.route('/setting')
+def setting():
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+    self_avatar_path = user.avatar_path
+    me = User.query.filter_by(id=request.cookies.get('account')).first()
+    incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
+    section = request.args.get('q')
+    if not section:
+        section = 'general'
+
+    return render_template('setting.html',
+                           user=user,
+                           me=me,
+                           incoming_requests_count=incoming_requests_count,
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           self_avatar_path = self_avatar_path,
+                           section=section)
+
+
+
+
+
 @app.route('/music')
 @app.route('/chats')
 @app.route('/photos')
@@ -1027,6 +1050,26 @@ def addPost():
                     except:
                         pass
 
+            friends = Friends.query.filter_by(friend_id=request.cookies.get('account')).all()
+            friends_ids = [friend.user_id for friend in friends]
+            users = User.query.filter(User.id.in_(friends_ids)).all()
+            self_user = User.query.filter_by(id=request.cookies.get("account")).first()
+
+            for user in users:
+                if Setting.query.filter_by(user_id=user.id).first().notification_friend_posts != 0:
+                    text = 'добавил новую запись на странице'
+                    if self_user.gender == 'woman':
+                        text = 'добавила новую запись на странице'
+
+                    createNotification(user_id=user.id, type='newUserPost', from_user_avatar_path=self_user.avatar_path,
+                                       text=text,
+                                       from_user=f'{self_user.name} {self_user.second_name}',
+                                       href=f'/{self_user.tag}',
+                                       date=datetime.datetime.now(),
+                                       room=str(user.id)
+                                       )
+
+
             return jsonify({'result': True})
 
         elif request.json.get('type') == 'video':
@@ -1069,6 +1112,7 @@ def addPost():
                     return jsonify({'result': False})
 
 
+
     return jsonify({'result': False})
 
 
@@ -1080,7 +1124,9 @@ def addPost_group():
         if request.json.get('type') == 'main':
             text = request.json.get('text')
             tag = request.json.get('tag')
-            id = Group.query.filter_by(tag=tag).first().id
+
+            group = Group.query.filter_by(tag=tag).first()
+            id = group.id
 
             photos = request.json.get('photos')
             photos_urls = []
@@ -1120,6 +1166,26 @@ def addPost_group():
             try:
                 db.session.add(new_post)
                 db.session.commit()
+
+                friends = Friends.query.filter_by(friend_id=request.cookies.get('account')).all()
+                subscribers = Subscribe.query.filter_by(group_id=group.id)
+                subscribers_ids = [subscriber.user_id for subscriber in subscribers]
+                users = User.query.filter(User.id.in_(subscribers_ids)).all()
+
+                for user in users:
+                    if Setting.query.filter_by(user_id=user.id).first().notification_friend_posts != 0:
+                        text = 'добавило новую запись на стене'
+
+
+                        createNotification(user_id=user.id, type='newGroupPost',
+                                           from_user_avatar_path=group.avatar_path,
+                                           text=text,
+                                           from_user=f'{group.name}',
+                                           href=f'/community/{group.tag}',
+                                           date=datetime.datetime.now(),
+                                           room=str(user.id)
+                                           )
+
                 return jsonify({'result': True})
 
 

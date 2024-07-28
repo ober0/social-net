@@ -14,7 +14,7 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
     notifDiv.addEventListener('click', function () {
         window.location.href = notification.href
     })
-
+    console.log(1)
     notifDiv.innerHTML = `
         <div class="notif-main">
             <div class="notif-avatar">
@@ -39,6 +39,22 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
                         ) :
                         ''
                     }
+                    
+                    ${notification.type === 'newUserPost' ?
+                        (notification.from_user_avatar_path ?
+                                `<img class="notif-avatar" src="/static/avatars/users/${notification.from_user_avatar_path}" alt="">` :
+                                `<img class="notif-avatar" src="/static/avatars/default.png" alt="">`
+                        ) :
+                        ''
+                    }
+                    
+                    ${notification.type === 'newGroupPost' ?
+                        (notification.from_user_avatar_path ?
+                                `<img class="notif-avatar" src="/static/avatars/groups/${notification.from_user_avatar_path}" alt="">` :
+                                `<img class="notif-avatar" src="/static/avatars/default.png" alt="">`
+                        ) :
+                        ''
+                    }
                 </div>
             </div>
             <div class="notif-description">
@@ -56,6 +72,16 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
                     `<p class="notif-text"><b><a href="${notification.href}">${notification.from_user}</a></b> ${notification.text}</p>` : 
                     ''
                 }
+                
+                ${notification.type === 'newUserPost' ? 
+                    `<p class="notif-text"><b><a href="${notification.href}">${notification.from_user}</a></b> ${notification.text}</p>` : 
+                    ''
+                }
+                
+                ${notification.type === 'newGroupPost' ? 
+                    `<p class="notif-text">Сообщество <b><a href="${notification.href}">${notification.from_user}</a></b> ${notification.text}</p>` : 
+                    ''
+                }
             </div>
         </div>
         <div class="date" style="display: flex">
@@ -69,7 +95,7 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
         </div>
     `;
 
-
+    console.log(2)
     const hr = document.createElement('hr')
     hr.style.margin = '0';
     hr.style.height = '2px'
