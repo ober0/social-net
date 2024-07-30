@@ -59,7 +59,7 @@
 
         <div style="position: relative; top:90px" class="container">
             <div class="col-md-12">
-                <div class="row">
+                <div class="row" id="body">
                     <div class="col-sm-2">
                         {% include 'left-menu.html' %}
                         {% block left_menu %}{% endblock %}
@@ -139,6 +139,43 @@
 
                             </div>
                         <script src="{{ url_for('static', filename='js/setting-privacy.js') }}"></script>
+                        {% elif section == 'general' %}
+                            <div class="setting-section">
+                                <div class="settiong-header">
+                                    <h2>Аккаунт</h2>
+                                </div>
+
+                                <div class="setting-container">
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p style="width: 80px;" class="title" >Тег:</p>
+                                        <p style="margin-left: 10px">{{ user.tag }}</p>
+                                        <p class='value' id="tag" >Изменить</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p style="width: 80px;" class="title" >Пароль:</p>
+                                        <p style="margin-left: 10px">скрыт</p>
+                                        <p class='value' id="password">Изменить</p>
+                                    </div>
+                                    <hr>
+                                    <div class="setting-element">
+                                        <p style="width: 80px;" class="title" >Эл.почта:</p>
+                                        <p style="margin-left: 10px">{{ user.email }}</p>
+                                        <p class='value' id="email" >Изменить</p>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <div class="setting-section rem-div " style="margin-top: 20px">
+                                <div class="setting-container">
+                                    <div class="setting-element" >
+                                        <p class='value-rem' id="rem-profile" >Удалить профиль</p>
+                                    </div>
+                                </div>
+                            </div>
+                        <script src="{{ url_for('static', filename='js/setting-general.js') }}"></script>
                         {% endif %}
                     </div>
 
@@ -169,10 +206,26 @@
                     </div>
 
                 </div>
+
+
             </div>
         </div>
     </div>
 
+    <div id="access-page" class="hide">
+        <div class="content">
+            <div class="header">
+                <h3>Введите старый пароль:</h3>
+            </div>
+            <div class="input-password">
+                <input type="password" id="password-input" class="form-control">
+            </div>
+            <div class="buttons">
+                <input type="button" value="Отмена" id="cancel-auth">
+                <input type="button" value="Войти" id="auth">
+            </div>
+        </div>
+    </div>
 
 
 

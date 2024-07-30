@@ -12,12 +12,11 @@
 
 .value{
     margin-left: auto;
-
     color: white;
     cursor: pointer;
     transition: color 0.15s;
 }
-.value:hover{
+.value:hover, .value-rem{
     color: #cacaca;
     text-decoration: underline;
 }
@@ -33,4 +32,51 @@
 
 .setting-section h2{
     margin: 35px;
+}
+.value-rem{
+    color: #ff9b9b;
+    cursor: pointer;
+    transition: color 0.15s;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.value-rem:hover{
+    color: red;
+
+}
+
+#access-page{
+    position: absolute;
+    left: 50%;
+    top: 20%;
+    transform: translate(-50%);
+    z-index: 998;
+}
+
+
+.content div{
+    margin-bottom: 20px;
+}
+
+.content input[type='button']{
+    width: 45%;
+    position: relative;
+}
+
+.buttons{
+    transition: background-color 0.3s;
+    gap:10%;
+    display: flex;
+    position: relative;
+    justify-content: center;
+}
+
+#newPassDiv{
+    position: absolute;
+    left: 50%;
+    top: 20%;
+    transform: translate(-50%);
+    z-index: 998;
 }

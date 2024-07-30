@@ -2,6 +2,7 @@ import base64
 import logging
 import os
 import pprint
+import threading
 from functools import wraps
 import secrets
 from flask import Flask, session, redirect, render_template, request, jsonify, make_response, send_from_directory
@@ -282,6 +283,7 @@ def setting():
 @app.route('/photos')
 @app.route('/video')
 @app.route('/support')
+@app.route('/dev')
 def in_dev():
     return render_template('in-dev.html')
 
@@ -801,6 +803,49 @@ def load_more_friends():
         return jsonify(friends_data)
     except Exception as e:
         return jsonify({'success': False})
+
+def delete_secret_key():
+    with app.app_context():
+        if 'secret_key' in session:
+            del session['secret_key']
+
+@app.route('/check-password', methods=['POST'])
+def check_password():
+    password = request.json.get('password')
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+    print(1)
+    if user:
+        print(2)
+        if check_password_hash(user.password, password):
+            print(3)
+            secret_key = secrets.token_hex(16)
+            session['secret_key'] = secret_key
+            print(4)
+            timer = threading.Timer(300, delete_secret_key)
+            timer.start()
+            print(5)
+            return jsonify({'success': True, 'secret_key': secret_key})
+
+    return jsonify({'success': False})
+
+@app.route('/new-password', methods=['POST'])
+def new_password():
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+    password = request.json.get('password')
+    secret_key = request.json.get('secret_key')
+
+    if 'secret_key' in session:
+        if secret_key == session.get('secret_key'):
+            del session['secret_key']
+            user.password = generate_password_hash(password)
+            db.session.commit()
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False})
+    else:
+        return jsonify({'success': False, 'error': 'code_injection'})
+
+
 
 @app.route('/auth', methods=['POST'])
 def auth():
