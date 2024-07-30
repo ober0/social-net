@@ -3,12 +3,22 @@ document.addEventListener('DOMContentLoaded', function (){
         btn.addEventListener('click', function () {
             if (btn.getAttribute('val') == 1){
                 btn.setAttribute('val', 0)
-                btn.innerText = 'Нет'
+                if (btn.classList.contains('profile_open')){
+                    btn.innerText = 'Закрытый'
+                }
+                else {
+                    btn.innerText = 'Нет'
+                }
 
             }
             else {
                 btn.setAttribute('val', 1)
-                btn.innerText = 'Да'
+                if (btn.classList.contains('profile_open')){
+                    btn.innerText = 'Открытый'
+                }
+                else {
+                    btn.innerText = 'Да'
+                }
             }
 
             let data = {
@@ -16,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function (){
                 val: btn.getAttribute('val')
             }
 
-            fetch('/setting/notification/update', {
+            fetch('/setting/privacy/update', {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {

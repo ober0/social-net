@@ -188,6 +188,41 @@ def update_notification():
     except:
         db.session.rollback()
         return jsonify({'success': False})
+
+
+@app.route('/setting/privacy/update', methods=['POST'])
+def update_privacy():
+    type = request.json.get('type')
+    value = request.json.get('val')
+
+    setting = Setting.query.filter_by(user_id=request.cookies.get('account')).first()
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+
+    if not setting:
+        setting = Setting(user_id=request.cookies.get('account'))
+        db.session.add(setting)
+        db.session.commit()
+
+    if type == 'profile_open':
+        setting.profile_open = value
+    elif type == 'friend-show_date_of_birthday':
+        user.show_date_of_birthday = str(value)
+    elif type == 'show_gender':
+        user.show_gender = str(value)
+    elif type == 'show_education':
+        user.show_education = str(value)
+    elif type == 'show_city':
+        user.show_city = str(value)
+    else:
+        return jsonify({'success': False})
+
+    try:
+        db.session.commit()
+        return jsonify({'success': True})
+    except:
+        db.session.rollback()
+        return jsonify({'success': False})
+
 @app.route('/')
 @check_access
 def index():
