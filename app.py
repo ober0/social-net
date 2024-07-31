@@ -275,8 +275,85 @@ def setting():
                            )
 
 
+@app.route('/profile/remove', methods=['POST'])
+def remove_profile():
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+
+    try:
+        subscribers = Subscribe.query.filter_by(user_id=user.id).all()
+        for subscriber in subscribers:
+            db.session.delete(subscriber)
+    except:
+        pass
 
 
+    try:
+        friends = Friends.query.filter_by(user_id=user.id).all()
+        for friend in friends:
+            db.session.delete(friend)
+    except:
+        pass
+
+    try:
+        friend_requests = FriendRequest.query.filter_by(user_id=user.id).all()
+        for friend_request in friend_requests:
+            db.session.delete(friend_request)
+    except:
+        pass
+
+    try:
+        notifications = Notification.query.filter_by(user_id=user.id).all()
+        for notification in notifications:
+            db.session.delete(notification)
+    except:
+        pass
+
+    try:
+        photos = Photos.query.filter_by(user_id=user.id).all()
+        for photo in photos:
+            db.session.delete(photo)
+    except:
+        pass
+
+    try:
+        videos = Video.query.filter_by(user_id=user.id).all()
+        for video in videos:
+            db.session.delete(video)
+    except:
+        pass
+
+    try:
+        posts = Post.query.filter_by(user_id=user.id).all()
+        for post in posts:
+            db.session.delete(post)
+    except:
+        pass
+
+    try:
+        likes = Likes.query.filter_by(user_id=user.id).all()
+        for like in likes:
+            db.session.delete(like)
+    except:
+        pass
+
+    try:
+        comments = Comments.query.filter_by(user_id=user.id).all()
+        for comment in comments:
+            db.session.delete(comment)
+    except:
+        pass
+
+    try:
+        settings = Setting.query.filter_by(user_id=request.cookies.get('account')).first()
+        db.session.delete(settings)
+    except:
+        pass
+
+    db.session.delete(user)
+
+    db.session.commit()
+
+    return jsonify({'success': True})
 
 @app.route('/music')
 @app.route('/chats')

@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function (){
                                 <h3>Введите новый пароль:</h3>
                             </div>
                             <div class="input-password">
-                                <input type="password" id="password-new" class="form-control">
+                                <input type="text" id="password-new" class="form-control">
                                 <p style="color:red" id="password-error"></p>
                             </div>
                             <div class="buttons">
@@ -121,5 +121,18 @@ document.addEventListener('DOMContentLoaded', function (){
                     }
                 }
             })
+    })
+    document.getElementById('rem-profile').addEventListener('click', function () {
+        if (confirm('Вы уверены, что хотите удалить аккаунт? Это действие невозможно отменить!')){
+            fetch('/profile/remove', {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success){
+                        window.location.href = '/exit'
+                    }
+                })
+        }
     })
 })
