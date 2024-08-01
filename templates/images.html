@@ -96,13 +96,13 @@
     </div>
 
 
-{% include 'show-photo.html' %}
-    {% block show_photo %}
+{% include 'show-video.html' %}
+    {% block show_video %}
 {% endblock %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/header.js') }}"></script>
-<script src="{{ url_for('static', filename='js/images.js') }}"></script>
+<script src="{{ url_for('static', filename='js/videos.js') }}"></script>
 
 
 </body>

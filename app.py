@@ -185,6 +185,31 @@ def photos():
                            self_avatar_path=self_avatar_path
                            )
 
+@app.route('/video')
+def videos():
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+    self_avatar_path = user.avatar_path
+    me = User.query.filter_by(id=request.cookies.get('account')).first()
+    incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
+
+
+    user_tag = request.args.get('user')
+    user_video = User.query.filter_by(tag=user_tag).first()
+    videos = Video.query.filter_by(user_id=user_video.id).all()
+
+    _self = (user_tag == user.tag)
+    return render_template('video.html',
+                           videos=videos,
+                           _self = _self,
+                           user=user,
+                           me=me,
+                           incoming_requests_count=incoming_requests_count,
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           self_avatar_path=self_avatar_path
+                           )
+
 @app.route('/setting/notification/update', methods=['POST'])
 def update_notification():
     type = request.json.get('type')
@@ -371,8 +396,6 @@ def remove_profile():
 
 
 @app.route('/chats')
-@app.route('/photos')
-@app.route('/video')
 @app.route('/support')
 @app.route('/dev')
 def in_dev():
@@ -2300,13 +2323,14 @@ def delete_video():
         try:
             db.session.delete(video)
             db.session.commit()
+            if video.inPost == 'False':
+                os.remove(f'static/users/video/{video.path_name}')
             return jsonify({'success': True})
 
         except Exception as e:
             db.session.rollback()
             return jsonify({'success': False, 'error': str(e)})
-        if video.inPost == 'False':
-            os.remove(f'static/users/video/{video.path_name}')
+
     else:
         return jsonify({'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'})
 
