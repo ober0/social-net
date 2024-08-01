@@ -165,16 +165,7 @@
                                     </div>
                                 </div>
 
-                                <div id="music-btn" class="sec1-menu-btn music-btn">
-                                    <div style="display: flex">
-                                        <div>
-                                            <img style="width: 20px" src="{{ url_for('static', filename='img/music.png') }}" alt="">
-                                        </div>
-                                        <div class="sec-1-menu-btn-text">
-                                            Музыка
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 <div id="video-btn" class="sec1-menu-btn video-btn">
                                     <div style="display: flex">
@@ -226,35 +217,7 @@
 
 
 
-                                <div id="sec-1-content-music" class="sec1-content-hide">
-                                    {% if sec1_music %}
-                                        <div class="sec-1-music-container">
-                                            {% for music in sec1_music %}
-                                            <div onclick="OpenMusic(music.id)" class="sec-1-music-element row">
-                                                <div class="music-photo col-sm-4">
-                                                    <img style="border-radius: 10px; max-width: 100%; max-height: 100%; object-fit: cover;" width="60px" height="60px" src="{{ url_for('static', filename='music_prev/' + music.path_name) }}" alt="">
-                                                </div>
-                                                <div class="music-text col-sm-8">
-                                                    <div class="music-text-name">
-                                                        {{music.name}}
-                                                    </div>
-                                                    <div style="font-size: 14px" class="music-text-autor">
-                                                        <b>{{music.autor}}</b>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
 
-                                        </div>
-                                        <input  tag="{{user.tag}}" id="open-all-music" style="width: 100%; margin-top: 10px" type="button" value="Показать всё" class="user-section1-button">
-                                    {% else %}
-                                        {% if _self == 1 %}
-                                        <p style="color: #a6a6a6;">У Вас еще нет музыки</p>
-                                        {% else %}
-                                        <p style="color: #a6a6a6;">У пользователя еще нет музыки</p>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
 
 
                                 <div id="sec-1-content-video" class="sec1-content-hide">

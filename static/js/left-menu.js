@@ -23,9 +23,7 @@ document.getElementById('soob').addEventListener('click', function () {
 document.getElementById('photo').addEventListener('click', function () {
     window.location.href = '/photos?user=' + this.getAttribute('my_tag')
 })
-document.getElementById('music').addEventListener('click', function () {
-    window.location.href = '/music?user=' + this.getAttribute('my_tag')
-})
+
 document.getElementById('video').addEventListener('click', function () {
     window.location.href = '/video?user=' + this.getAttribute('my_tag')
 })

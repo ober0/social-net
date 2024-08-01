@@ -159,6 +159,32 @@ def createNotification(user_id, type, from_user_avatar_path, text, href, date, f
     except Exception as e:
         db.session.rollback()
 
+
+@app.route('/photos')
+def photos():
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+    self_avatar_path = user.avatar_path
+    me = User.query.filter_by(id=request.cookies.get('account')).first()
+    incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
+
+
+    user_tag = request.args.get('user')
+    user_photo = User.query.filter_by(tag=user_tag).first()
+    photos = Photos.query.filter_by(user_id=user_photo.id).all()
+
+    _self = (user_tag == user.tag)
+    return render_template('images.html',
+                           photos=photos,
+                           _self = _self,
+                           user=user,
+                           me=me,
+                           incoming_requests_count=incoming_requests_count,
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           self_avatar_path=self_avatar_path
+                           )
+
 @app.route('/setting/notification/update', methods=['POST'])
 def update_notification():
     type = request.json.get('type')
@@ -278,71 +304,60 @@ def setting():
 @app.route('/profile/remove', methods=['POST'])
 def remove_profile():
     user = User.query.filter_by(id=request.cookies.get('account')).first()
-
     try:
         subscribers = Subscribe.query.filter_by(user_id=user.id).all()
         for subscriber in subscribers:
             db.session.delete(subscriber)
     except:
         pass
-
-
     try:
         friends = Friends.query.filter_by(user_id=user.id).all()
         for friend in friends:
             db.session.delete(friend)
     except:
         pass
-
     try:
         friend_requests = FriendRequest.query.filter_by(user_id=user.id).all()
         for friend_request in friend_requests:
             db.session.delete(friend_request)
     except:
         pass
-
     try:
         notifications = Notification.query.filter_by(user_id=user.id).all()
         for notification in notifications:
             db.session.delete(notification)
     except:
         pass
-
     try:
         photos = Photos.query.filter_by(user_id=user.id).all()
         for photo in photos:
             db.session.delete(photo)
     except:
         pass
-
     try:
         videos = Video.query.filter_by(user_id=user.id).all()
         for video in videos:
             db.session.delete(video)
     except:
         pass
-
     try:
         posts = Post.query.filter_by(user_id=user.id).all()
         for post in posts:
             db.session.delete(post)
     except:
         pass
-
     try:
         likes = Likes.query.filter_by(user_id=user.id).all()
         for like in likes:
             db.session.delete(like)
     except:
         pass
-
     try:
         comments = Comments.query.filter_by(user_id=user.id).all()
         for comment in comments:
             db.session.delete(comment)
     except:
         pass
-
     try:
         settings = Setting.query.filter_by(user_id=request.cookies.get('account')).first()
         db.session.delete(settings)
@@ -350,12 +365,11 @@ def remove_profile():
         pass
 
     db.session.delete(user)
-
     db.session.commit()
-
     return jsonify({'success': True})
 
-@app.route('/music')
+
+
 @app.route('/chats')
 @app.route('/photos')
 @app.route('/video')
@@ -1617,17 +1631,7 @@ def user_profile(tag):
                                friend_request_from_user=friend_request_from_user,
                                friend_request=friend_request,
                                sec1_photos=sec1_photos,
-                               sec1_music=[
-                                   {'id': 1, 'path_name': '1.png', 'name': 'Песня 1', 'autor': 'Исполнитель 1'},
-                                   {'id': 2, 'path_name': '2.png', 'name': 'Песня 2', 'autor': 'Исполнитель 2'},
-                                   {'id': 3, 'path_name': '3.png', 'name': 'Песня 3', 'autor': 'Исполнитель 3'},
-                                   {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'},
-                                   {'id': 1, 'path_name': '1.png', 'name': 'Песня 1', 'autor': 'Исполнитель 1'},
-                                   {'id': 2, 'path_name': '2.png', 'name': 'Песня 2', 'autor': 'Исполнитель 2'},
-                                   {'id': 3, 'path_name': '3.png', 'name': 'Песня 3', 'autor': 'Исполнитель 3'},
-                                   {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'},
-                                   {'id': 4, 'path_name': '4.png', 'name': 'Песня 4', 'autor': 'Исполнитель 4'}
-                               ],
+
                                sec1_video=video,
                                posts=posts,
                                avatars=avatars,
@@ -2266,20 +2270,23 @@ def delete_photo(data):
     join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     photo = Photos.query.filter_by(id=photo_id).first()
 
-    if photo:
-        try:
-            db.session.delete(photo)
-            db.session.commit()
-            if photo.inPost == 'False':
-                os.remove(f'static/users/photos/{photo.path_name}')
-            socketio.emit('deletePhoto_result', {'success': True}, room=request.cookies.get('account'))
+    if photo.user_id == request.cookies.get('account'):
+        if photo:
+            try:
+                db.session.delete(photo)
+                db.session.commit()
+                if photo.inPost == 'False':
+                    os.remove(f'static/users/photos/{photo.path_name}')
+                socketio.emit('deletePhoto_result', {'success': True}, room=request.cookies.get('account'))
 
-        except Exception as e:
-            db.session.rollback()
-            socketio.emit('deletePhoto_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
+            except Exception as e:
+                db.session.rollback()
+                socketio.emit('deletePhoto_result', {'success': False, 'error': str(e)}, room=request.cookies.get('account'))
+        else:
+            socketio.emit('deletePhoto_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'}, room=request.cookies.get('account'))
     else:
-        socketio.emit('deletePhoto_result', {'success': False, 'error': ' Фото не найдено, обратитесь в поддержку'}, room=request.cookies.get('account'))
-
+        socketio.emit('deletePhoto_result', {'success': False, 'error': 'Фото не ваше'},
+                  room=request.cookies.get('account'))
 
 
 @app.route('/video/delete', methods=['POST'])
