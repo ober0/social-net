@@ -1284,18 +1284,20 @@ def addPost():
             self_user = User.query.filter_by(id=request.cookies.get("account")).first()
 
             for user in users:
-                if Setting.query.filter_by(user_id=user.id).first().notification_friend_posts != 0:
-                    text = 'добавил новую запись на странице'
-                    if self_user.gender == 'woman':
-                        text = 'добавила новую запись на странице'
+                setting = Setting.query.filter_by(user_id=user.id).first()
+                if setting:
+                    if setting.notification_friend_posts != 0:
+                        text = 'добавил новую запись на странице'
+                        if self_user.gender == 'woman':
+                            text = 'добавила новую запись на странице'
 
-                    createNotification(user_id=user.id, type='newUserPost', from_user_avatar_path=self_user.avatar_path,
-                                       text=text,
-                                       from_user=f'{self_user.name} {self_user.second_name}',
-                                       href=f'/{self_user.tag}',
-                                       date=datetime.datetime.now(),
-                                       room=str(user.id)
-                                       )
+                        createNotification(user_id=user.id, type='newUserPost', from_user_avatar_path=self_user.avatar_path,
+                                           text=text,
+                                           from_user=f'{self_user.name} {self_user.second_name}',
+                                           href=f'/{self_user.tag}',
+                                           date=datetime.datetime.now(),
+                                           room=str(user.id)
+                                           )
 
 
             return jsonify({'result': True})
@@ -1346,7 +1348,7 @@ def addPost():
 
 
 @app.route('/community/post/add', methods=["POST"])
-def addPost_group():
+def addPostGroup():
     if request.method == "POST":
         print(1)
         if request.json.get('type') == 'main':

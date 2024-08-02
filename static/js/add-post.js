@@ -173,7 +173,6 @@ document.addEventListener('DOMContentLoaded', function (){
                 },
                 body: JSON.stringify(data)
             })
-
                 .then(response => response.json())
                 .then(data => {
                     if (data.result) {
