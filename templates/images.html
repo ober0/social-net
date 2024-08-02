@@ -70,7 +70,7 @@
                             <div class="photo-container">
                                 {% for photo in photos %}
                                     <div>
-                                        <img class="image" src="{{ url_for('static', filename='users/photos/' + photo.path_name) }}" alt="">
+                                        <img photo-id="{{ photo.id }}" class="image" src="{{ url_for('static', filename='users/photos/' + photo.path_name) }}" alt="">
                                         {% if _self %}
                                             <p photo-id="{{ photo.id }}" class="delete-photo">Удалить</p>
                                         {% endif %}
@@ -96,13 +96,13 @@
     </div>
 
 
-{% include 'show-video.html' %}
-    {% block show_video %}
+{% include 'show-photo.html' %}
+    {% block show_photo %}
 {% endblock %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/header.js') }}"></script>
-<script src="{{ url_for('static', filename='js/videos.js') }}"></script>
+<script src="{{ url_for('static', filename='js/images.js') }}"></script>
 
 
 </body>

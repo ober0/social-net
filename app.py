@@ -2294,7 +2294,7 @@ def delete_photo(data):
     join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     photo = Photos.query.filter_by(id=photo_id).first()
 
-    if photo.user_id == request.cookies.get('account'):
+    if str(photo.user_id) == rquest.cookies.get('account'):
         if photo:
             try:
                 db.session.delete(photo)
