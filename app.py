@@ -397,7 +397,6 @@ def remove_profile():
 
 @app.route('/chats')
 @app.route('/support')
-@app.route('/dev')
 def in_dev():
     return render_template('in-dev.html')
 
