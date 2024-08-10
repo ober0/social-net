@@ -228,11 +228,3 @@ body {
     }
 }
 
-.close-profile{
-    border-radius: 10px;
-    background-color: #222222;
-    border: #333333 solid 1px;
-    padding: 15px;
-    text-align: center;
-    color: #a6a6a6;
-}

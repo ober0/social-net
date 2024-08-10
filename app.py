@@ -473,6 +473,12 @@ def groops():
     incoming_requests = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).order_by(
         FriendRequest.id.desc()).all()
 
+    profile_open = Setting.query.filter_by(user_id=user.id).first().profile_open
+    if profile_open == 0:
+        isFriend1 = Friends.query.filter_by(user_id=request.cookies.get('account')).filter_by(friend_id=user.id).first()
+        if isFriend1:
+            profile_open = 1
+
     return render_template('user-groups.html',
                            groops_data=groops_data,
                            _self=_self,
@@ -486,6 +492,7 @@ def groops():
                            incoming_requests_count=len(incoming_requests),
                            section=section,
                            self_group_count=self_group_count,
+                           profile_open=profile_open,
                            )
 
 
@@ -834,6 +841,12 @@ def friends():
         'friend_tags': friend_tags
     }
 
+    profile_open = Setting.query.filter_by(user_id=user.id).first().profile_open
+    if profile_open == 0:
+        isFriend1 = Friends.query.filter_by(user_id=request.cookies.get('account')).filter_by(friend_id=user.id).first()
+        if isFriend1:
+            profile_open = 1
+
     notifications, notifications_count = check_notification(request.cookies.get('account'))
     return render_template('friends.html',
                            me=User.query.filter_by(id=request.cookies.get('account')).first(),
@@ -850,6 +863,7 @@ def friends():
                            notification_count=notifications_count,
                            section = section,
                            self_avatar_path = User.query.filter_by(id=request.cookies.get('account')).first().avatar_path,
+                           profile_open=profile_open,
                            )
 
 
@@ -1090,6 +1104,7 @@ def confirm_email():
         data = session.get('auth_data').split(':%:%:')
         email = data[1]
         code = random.randint(100000, 999999)
+        print(code)
         msg = Message('Код подтверждения', recipients=[email])
         
         with open('templates/send.html', 'r', encoding='utf-8') as f:
@@ -1123,6 +1138,10 @@ def confirm_email():
                 }), 200)
                 resp.set_cookie('account', str(session['account']), max_age=60*60*24*14)
                 resp.set_cookie('auth', str(session['auth']), max_age=60*60*24*14)
+
+                settings = Setting(user_id=user.id)
+                db.session.add(settings)
+                db.session.commit()
                 return resp
 
             except Exception as e:
