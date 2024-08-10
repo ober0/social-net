@@ -13,7 +13,7 @@ from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Comments, \
-    Subscribe, Setting
+    Subscribe, Setting, TechnicalSupportRequest
 from config import app, action_access, month_data
 import random
 import datetime
@@ -395,12 +395,43 @@ def remove_profile():
 
 
 
-@app.route('/chats')
-@app.route('/support')
+@app.route('/messanger')
 @app.route('/privacy')
 def in_dev():
     return render_template('in-dev.html')
 
+@app.route('/support', methods=['GET'])
+def support():
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+    self_avatar_path = user.avatar_path
+    me = User.query.filter_by(id=request.cookies.get('account')).first()
+    incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
+
+    return render_template('support.html',
+                           user=user,
+                           me=me,
+                           self_avatar_path=self_avatar_path,
+                           notifications=notifications,
+                           notification_count=notifications_count,
+                           incoming_requests_count=incoming_requests_count
+                           )
+
+@app.route('/support/request/add', methods=['POST'])
+def add_request():
+    theme = request.json.get('theme')
+    info = request.json.get('info')
+    phone = request.json.get('phone')
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+
+    try:
+        newRequest = TechnicalSupportRequest(user_id=user.id, theme=theme, info=info, user_phone=phone)
+        db.session.add(newRequest)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/groups')
 @check_access
@@ -478,7 +509,8 @@ def groops():
         isFriend1 = Friends.query.filter_by(user_id=request.cookies.get('account')).filter_by(friend_id=user.id).first()
         if isFriend1:
             profile_open = 1
-
+        if user.id == int(request.cookies.get('account')):
+            profile_open = 1
     return render_template('user-groups.html',
                            groops_data=groops_data,
                            _self=_self,
@@ -845,6 +877,8 @@ def friends():
     if profile_open == 0:
         isFriend1 = Friends.query.filter_by(user_id=request.cookies.get('account')).filter_by(friend_id=user.id).first()
         if isFriend1:
+            profile_open = 1
+        if user.id == int(request.cookies.get('account')):
             profile_open = 1
 
     notifications, notifications_count = check_notification(request.cookies.get('account'))
@@ -1665,6 +1699,8 @@ def user_profile(tag):
             isFriend1 = Friends.query.filter_by(user_id=request.cookies.get('account')).filter_by(friend_id=user.id).first()
             if isFriend1:
                 profile_open = 1
+            if user.id == int(request.cookies.get('account')):
+                profile_open = 1
 
         print(profile_open)
         subscriptions_count = User.query.filter_by(tag=tag).first().subscriptions_count
@@ -2324,7 +2360,7 @@ def delete_photo(data):
     join_room(request.cookies.get('account'), request.cookies.get('user_id'))
     photo = Photos.query.filter_by(id=photo_id).first()
 
-    if str(photo.user_id) == rquest.cookies.get('account'):
+    if str(photo.user_id) == request.cookies.get('account'):
         if photo:
             try:
                 db.session.delete(photo)

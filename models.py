@@ -115,3 +115,12 @@ class Setting(db.Model):
     notification_friend_posts = db.Column(db.Integer, default=1)
     notification_community_posts = db.Column(db.Integer, default=1)
     profile_open = db.Column(db.Integer, default=1)
+
+
+class TechnicalSupportRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_phone = db.Column(db.String(80), nullable=True)
+    status = db.Column(db.String(80), default='Открыт')
+    theme = db.Column(db.String(80), nullable=False)
+    info = db.Column(db.Text, nullable=False)

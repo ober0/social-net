@@ -8,7 +8,7 @@ document.getElementById('news').addEventListener('click', function () {
 })
 
 document.getElementById('chats').addEventListener('click', function () {
-    window.location.href = '/chats'
+    window.location.href = '/messanger'
 })
 
 document.getElementById('friends').addEventListener('click', function () {
