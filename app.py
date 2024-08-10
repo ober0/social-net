@@ -397,6 +397,7 @@ def remove_profile():
 
 @app.route('/chats')
 @app.route('/support')
+@app.route('/privacy')
 def in_dev():
     return render_template('in-dev.html')
 
@@ -1640,6 +1641,13 @@ def user_profile(tag):
 
             hrefs.append(user.tag)
 
+        profile_open = Setting.query.filter_by(user_id=user.id).first().profile_open
+        if profile_open == 0:
+            isFriend1 = Friends.query.filter_by(user_id=request.cookies.get('account')).filter_by(friend_id=user.id).first()
+            if isFriend1:
+                profile_open = 1
+
+        print(profile_open)
         subscriptions_count = User.query.filter_by(tag=tag).first().subscriptions_count
         return render_template('user.html',
                                user=user,
@@ -1655,7 +1663,7 @@ def user_profile(tag):
                                friend_request_from_user=friend_request_from_user,
                                friend_request=friend_request,
                                sec1_photos=sec1_photos,
-
+                               profile_open=profile_open,
                                sec1_video=video,
                                posts=posts,
                                avatars=avatars,
@@ -2162,12 +2170,13 @@ def rem_friend_request():
 
 @app.route('/friend/add', methods=["POST"])
 def add_friend_fetch():
-    friend_id = request.cookies.get('account')
+    friend_id = int(request.cookies.get('account'))
     user_tag = request.json.get('user_tag')
     user_id = User.query.filter_by(tag=user_tag).first().id
 
 
     request1 = FriendRequest.query.filter_by(user_id=user_id).filter_by(friend_id=friend_id).first()
+
     request1.friend_access = 'yes'
     db.session.commit()
 
@@ -2194,10 +2203,12 @@ def add_friend_fetch():
             user_name = User.query.filter_by(id=friend_id).first().name + " " + User.query.filter_by(id=friend_id).first().second_name
             from_avatar = User.query.filter_by(id=friend_id).first().avatar_path
 
-            if Setting.query.filter_by(user_id=user_id).first().notification_friend_access != 0:
-                createNotification(user_id=user_id, type='friendRequestApprove', from_user_avatar_path=from_avatar,
-                               text=f'принял Ваше предложение дружбы',
-                               from_user=user_name, href=f'/{User.query.filter_by(id=friend_id).first().tag}', date=datetime.datetime.now(), room=str(user_id))
+
+            if Setting.query.filter_by(user_id=user_id).first():
+                if Setting.query.filter_by(user_id=user_id).first().notification_friend_access != 0:
+                    createNotification(user_id=user_id, type='friendRequestApprove', from_user_avatar_path=from_avatar,
+                                   text=f'принял Ваше предложение дружбы',
+                                   from_user=user_name, href=f'/{User.query.filter_by(id=friend_id).first().tag}', date=datetime.datetime.now(), room=str(user_id))
 
 
             return jsonify({'success': True})

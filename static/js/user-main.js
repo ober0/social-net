@@ -68,34 +68,35 @@ try {
     })
 }catch {}
 
-document.getElementById('about-open').addEventListener('click', function (event){
-    event.stopPropagation()
-    document.getElementById('body').style.opacity = 0.1;
-    document.getElementById('about').style.opacity = 1;
-    document.getElementById('about').classList.remove('hide');
-    document.addEventListener('keydown', hideAboutEsc)
+try {
+    document.getElementById('about-open').addEventListener('click', function (event) {
+        event.stopPropagation()
+        document.getElementById('body').style.opacity = 0.1;
+        document.getElementById('about').style.opacity = 1;
+        document.getElementById('about').classList.remove('hide');
+        document.addEventListener('keydown', hideAboutEsc)
 
-     function handleBodyClick() {
-        hideAbout()
-        document.getElementById('body').removeEventListener('click', handleBodyClick);
+        function handleBodyClick() {
+            hideAbout()
+            document.getElementById('body').removeEventListener('click', handleBodyClick);
+        }
+
+        document.getElementById('body').addEventListener('click', handleBodyClick);
+    })
+
+
+    function hideAbout() {
+        document.getElementById('body').style.opacity = 1;
+        document.getElementById('about').classList.add('hide');
+        document.removeEventListener('keydown', hideAboutEsc)
     }
 
-    document.getElementById('body').addEventListener('click', handleBodyClick);
-})
-
-
-function hideAbout() {
-    document.getElementById('body').style.opacity = 1;
-    document.getElementById('about').classList.add('hide');
-    document.removeEventListener('keydown', hideAboutEsc)
-}
-
-function hideAboutEsc(event) {
-    if (event.key === 'Escape'){
-        hideAbout()
+    function hideAboutEsc(event) {
+        if (event.key === 'Escape') {
+            hideAbout()
+        }
     }
-}
-
+}catch {}
 
 
 socketio.on('addFriend_request_result', (data) => {
