@@ -91,6 +91,27 @@ def check_access(f):
 
     return decorated_function
 
+@app.route('/notification/send', methods=['POST'])
+def send_notification():
+    text = request.json.get('text')
+    tag = request.json.get('tag')
+
+    user = User.query.filter_by(tag=tag).first()
+    try:
+        support_tag = User.query.filter_by(id=request.cookies.get('account')).first().tag
+        createNotification(user.id, 'SupportMessage', 'support.png', text, '/messanger?chat=' + support_tag, datetime.datetime.now(), support_tag, str(user.id))
+
+        msg = Message('Обернет. Ответ техподдержки',
+                      recipients=[user.email])
+        msg.body = 'Получен ответ он техподдержки. Он также продублирован в уведомлениях на сайте'
+        msg.html = f'{text} <br> Ссылку на переписку с поддержкой смотрите в уведомлениях сайта. '
+
+        with app.app_context():
+            mail.send(msg)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 
 @app.route('/admin/support')
 # @check_status('support')
