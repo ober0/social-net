@@ -43,9 +43,9 @@ def check_status(action):
             try:
                 status = User.query.filter_by(id=request.cookies.get('account')).first().status
                 status_need = action_access[action]
-
                 if status and status_need:
                     if status_need <= status:
+                        print(status_need, status)
                         pass
                     else:
                         return redirect('/')
@@ -90,6 +90,33 @@ def check_access(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+@app.route('/admin/support')
+# @check_status('support')
+def admin_support():
+    filter = request.args.get('q')
+    if not filter:
+        filter = 'all'
+
+    users = []
+    if filter == 'all':
+        support_requests = TechnicalSupportRequest.query.filter_by(status='Открыт').order_by(
+            TechnicalSupportRequest.id).all()
+        for i in support_requests:
+            users.append(User.query.filter_by(id=i.user_id).first().tag)
+    else:
+        support_requests = TechnicalSupportRequest.query.filter_by(status='Открыт', theme=filter).order_by(
+            TechnicalSupportRequest.id).all()
+        for i in support_requests:
+            users.append(User.query.filter_by(id=i.user_id).first().tag)
+
+    count = len(support_requests)
+    return render_template('admin_support.html',
+                           support_requests=support_requests,
+                           count=count,
+                           users=users,
+                           filter=filter)
 
 
 

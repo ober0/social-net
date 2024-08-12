@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin panel - support</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body{
+            background-color: #1e1e1e !important;
+        }
+
+        .hide{
+            display: block;
+        }
+
+        .content{
+            margin-top: 30px;
+            text-align: center;
+            background-color: #2e2e2e;
+            padding: 12px;
+            width: 90%;
+            position: relative;
+            left:50%;
+            transform: translate(-50%);
+            border: 1px solid #3e3e3e;
+            border-radius: 10px;
+        }
+
+        .active{
+            background-color: #535353;
+            border: 2px gray solid;
+        }
+
+        input[type='button']{
+            margin-left: 5px;
+        }
+
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <div style="text-align: center; margin-top: 20px">
+        <div>
+            <h1>Список заявок</h1>
+            <p>Открытых заявок - {{count}}</p>
+        </div>
+        <input class="btn-change-theme {% if filter == 'all' %}active{% endif %}" id="all" type="button" value="Все">
+        <input class="btn-change-theme {% if filter == 'account' %}active{% endif %}" id="account" type="button" value="Аккаунт">
+        <input class="btn-change-theme {% if filter == 'report' %}active{% endif %}" id="report" type="button" value="Жалобы">
+        <input class="btn-change-theme {% if filter == 'offer' %}active{% endif %}" id="offer" type="button" value="Предложения">
+        <input class="btn-change-theme {% if filter == 'cooperation' %}active{% endif %}" id="cooperation" type="button" value="Сотрудничество">
+        <input class="btn-change-theme {% if filter == 'work' %}active{% endif %}" id="work" type="button" value="Работа">
+        <input class="btn-change-theme {% if filter == 'other' %}active{% endif %}" id="other" type="button" value="Другое">
+    </div>
+
+    {% for r in support_requests %}
+    <div class="content r{{r.id}}">
+        <p><b>Заявка</b> #{{r.id}}</p>
+        <p><b>Тема</b>: {{r.theme}}</p>
+        {% if r.user_phone %}
+        <p><b>Номер для связи</b>: {{r.user_phone}}</p>
+        {% endif %}
+        <p><a href="/{{users[loop.index0]}}">Ссылка на пользователя</a></p>
+        <p><b>Текст</b>: {{r.info}}</p>
+        <div>
+            <input tag='{{users[loop.index0]}}' id="goMessanger" type="button" value="Мессенджер">
+            <input id="notification" type="button" value="Отправить уведомление">
+            <input id="close" type="button" value="Закрыть заявку">
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if count == 0 %}
+    <div class="content">
+        Заявок нет
+    </div>
+    {% endif%}
+
+    <script>
+        document.querySelectorAll('.btn-change-theme').forEach(btn => {
+            btn.addEventListener('click', function () {
+                window.location.pathname = 'support?q=' + btn.id
+            })
+        })
+
+        document.getElementById('goMessanger').addEventListener('click', function () {
+            window.location.href = '../messanger?chat=' + this.getAttribute('tag')
+        })
+    </script>
+</body>
+</html>
