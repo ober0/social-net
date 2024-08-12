@@ -41,7 +41,10 @@
     <div style="text-align: center; margin-top: 20px">
         <div>
             <h1>Список заявок</h1>
-            <p>Открытых заявок - {{count}}</p>
+            <div style="display: flex; position: relative; left: 50%; transform: translate(-50%); width: fit-content">
+                <p>Открытых заявок - </p>
+                <p id="req-counter">{{count}}</p>
+            </div>
         </div>
         <input class="btn-change-theme {% if filter == 'all' %}active{% endif %}" id="all" type="button" value="Все">
         <input class="btn-change-theme {% if filter == 'account' %}active{% endif %}" id="account" type="button" value="Аккаунт">
@@ -68,7 +71,7 @@
         <br><br>
         <div>
             <input tag='{{users[loop.index0]}}' class="goMessanger" type="button" value="Мессенджер">
-            <input class="close" type="button" value="Закрыть заявку">
+            <input request-id="{{r.id}}" class="close" type="button" value="Закрыть заявку">
         </div>
     </div>
     {% endfor %}

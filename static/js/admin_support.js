@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.btn-change-theme').forEach(btn => {
         btn.addEventListener('click', function () {
-            window.location.pathname = 'support?q=' + btn.id
+            window.location.href = 'support?q=' + btn.id
         })
     })
 
@@ -26,6 +26,31 @@ document.addEventListener('DOMContentLoaded', function () {
                     if(data.success){
                         text.value = ''
                         alert('Отправлено')
+                    }
+                    else {
+                        alert('Ошибка', data.error)
+                    }
+                })
+        })
+    })
+
+    let counter = document.getElementById('req-counter')
+    document.querySelectorAll('.close').forEach(btn => {
+        btn.addEventListener('click', function () {
+            let requestId = this.getAttribute('request-id')
+
+            fetch('/admin/support/request/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({id:requestId})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success){
+                        this.parentElement.parentElement.remove()
+                        counter.innerText = Number(counter.innerText) - 1
                     }
                     else {
                         alert('Ошибка', data.error)

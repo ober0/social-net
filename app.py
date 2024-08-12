@@ -112,6 +112,17 @@ def send_notification():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/admin/support/request/remove', methods=['POST'])
+def remove_request():
+    req_id = request.json.get('id')
+
+    request1 = TechnicalSupportRequest.query.filter_by(id=req_id).first()
+    try:
+        db.session.delete(request1)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/admin/support')
 # @check_status('support')
