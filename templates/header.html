@@ -113,6 +113,8 @@
                             {% else %}
                             <img class="notif-avatar" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
                             {% endif %}
+                        {% elif notification.type == 'SupportMessage' %}
+                        <img class="notif-avatar" src="/static/img/{{notification.from_user_avatar_path}}" alt="">
                         {% endif %}
                     </div>
                 </div>
@@ -129,6 +131,10 @@
 
                 {% if notification.type == 'newGroupPost'%}
                     <p class="notif-text">Сообщество <b><a href="{{ notification.href }}">{{ notification.from_user }}</a></b> {{ notification.text }}</p>
+                {% endif %}
+
+                {% if notification.type == 'SupportMessage'%}
+                    <p class="notif-text">{{notification.text}}. Если переписка будет необходима: <b><a href="{{notification.href}}">{{notification.from_user}}</a></b> </p>
                 {% endif %}
 
                 </div>

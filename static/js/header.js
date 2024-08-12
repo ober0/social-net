@@ -55,6 +55,14 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
                         ) :
                         ''
                     }
+                    
+                    ${notification.type === 'SupportMessage' ?
+                        (notification.from_user_avatar_path ?
+                                `<img class="notif-avatar" src="/static/img/${notification.from_user_avatar_path}" alt="">` :
+                                `<img class="notif-avatar" src="/static/avatars/default.png" alt="">`
+                        ) :
+                        ''
+                    }
                 </div>
             </div>
             <div class="notif-description">
@@ -80,6 +88,11 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
                 
                 ${notification.type === 'newGroupPost' ? 
                     `<p class="notif-text">Сообщество <b><a href="${notification.href}">${notification.from_user}</a></b> ${notification.text}</p>` : 
+                    ''
+                }
+                
+                ${notification.type === 'SupportMessage' ? 
+                    `<p class="notif-text">${notification.text}. Если переписка будет необходима: <b><a href="${notification.href}">${notification.from_user}</a></b> </p>` : 
                     ''
                 }
             </div>

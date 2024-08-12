@@ -61,10 +61,14 @@
         {% endif %}
         <p><a href="/{{users[loop.index0]}}">Ссылка на пользователя</a></p>
         <p><b>Текст</b>: {{r.info}}</p>
+
+        <textarea tag='{{users[loop.index0]}}' type="text" name="" class="notifi-message-{{users[loop.index0]}}"></textarea>
+        <br>
+        <input tag='{{users[loop.index0]}}' class="notification-send" type="button" value="Отправить уведомление">
+        <br><br>
         <div>
-            <input tag='{{users[loop.index0]}}' id="goMessanger" type="button" value="Мессенджер">
-            <input id="notification" type="button" value="Отправить уведомление">
-            <input id="close" type="button" value="Закрыть заявку">
+            <input tag='{{users[loop.index0]}}' class="goMessanger" type="button" value="Мессенджер">
+            <input class="close" type="button" value="Закрыть заявку">
         </div>
     </div>
     {% endfor %}
@@ -75,16 +79,7 @@
     </div>
     {% endif%}
 
-    <script>
-        document.querySelectorAll('.btn-change-theme').forEach(btn => {
-            btn.addEventListener('click', function () {
-                window.location.pathname = 'support?q=' + btn.id
-            })
-        })
 
-        document.getElementById('goMessanger').addEventListener('click', function () {
-            window.location.href = '../messanger?chat=' + this.getAttribute('tag')
-        })
-    </script>
+    <script src="{{ url_for('static', filename='js/admin_support.js') }}"></script>
 </body>
 </html>
