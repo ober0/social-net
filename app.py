@@ -13,7 +13,7 @@ from flask_mail import Mail, Message
 from sqlalchemy import func, and_, or_, text
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Friends, FriendRequest, Notification, Photos, Video, Group, Post, Likes, Comments, \
-    Subscribe, Setting, TechnicalSupportRequest
+    Subscribe, Setting, TechnicalSupportRequest, Chats, Message
 from config import app, action_access, month_data
 import random
 import datetime
@@ -91,6 +91,43 @@ def check_access(f):
 
     return decorated_function
 
+
+
+@app.route('/messanger')
+def messanger():
+    chat = request.args.get('chat')
+    notifications, notifications_count = check_notification(request.cookies.get('account'))
+
+    user = User.query.filter_by(id=request.cookies.get('account')).first()
+    self_avatar_path = user.avatar_path
+    me = User.query.filter_by(id=request.cookies.get('account')).first()
+    incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
+
+    if chat:
+        user = User.query.filter_by(tag=chat).first()
+        return user.name
+    else:
+        chats = Chats.query.filter_by(user_id=request.cookies.get('account')).all()
+        users = []
+        self_id = request.cookies.get('account')
+        last_messages = []
+        for user_chat in chats:
+            user = User.query.filter_by(id=user_chat.user2_id).first()
+            users.append(user)
+            last_message = Message.query.filter_by(from_user=user.id, to_user=self_id).order_by(Message.id.desc()).all()
+            last_messages.append(last_message)
+        chat_count = len(chats)
+
+        return render_template('chats.html',
+                               chats=chats,
+                               users=users,
+                               chat_count=chat_count,
+                               user=user,
+                               me=me,
+                               self_avatar_path=self_avatar_path,
+                               notifications=notifications,
+                               incoming_requests_count=incoming_requests_count,
+                               notification_count=notifications_count)
 @app.route('/notification/send', methods=['POST'])
 def send_notification():
     text = request.json.get('text')

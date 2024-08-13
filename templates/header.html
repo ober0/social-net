@@ -27,7 +27,6 @@
                 <div class="notifications" style="margin: 0; position: relative; top:25%; left: 60%">
                     <div id="open-notifi" class='notification-hover' style="width: fit-content; cursor: pointer; margin: 10px; display: flex">
                         <img style="width: 30px" src="{{ url_for('static', filename='img/notification_icon.png') }}" alt="">
-
                         <div id="badge" class="badge {% if notification_count == 0 %}hide{%endif%}">
                             <p id="notifi-counter" style="position: relative; margin: 0; bottom: 1px; right: 2px">{{ notification_count }}</p>
                         </div>

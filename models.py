@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -124,3 +126,18 @@ class TechnicalSupportRequest(db.Model):
     status = db.Column(db.String(80), default='Открыт')
     theme = db.Column(db.String(80), nullable=False)
     info = db.Column(db.Text, nullable=False)
+
+class Chats(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user2_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    last_message = db.Column(db.String(80), nullable=True)
+    last_message_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    from_user = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    to_user = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    text = db.Column(db.Text, nullable=True)
+    time = db.Column(db.String(100), nullable=True)
+

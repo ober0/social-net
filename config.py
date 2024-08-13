@@ -16,7 +16,6 @@ app.config['MAIL_DEFAULT_SENDER'] = mail_default_sender
 
 action_access = {
     'change_status': 3,
-    'add_music': 2,
     'delete_user': 2,
     'edit_user': 1,
     'support': 1

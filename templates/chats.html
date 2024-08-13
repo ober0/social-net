@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{{url_for('static', filename='css/chats.css')}}">
+    <title>Document</title>
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+        }
+        .header-content{
+            width: 1296px;
+            position: relative;
+            left: 50%;
+            transform: translate(-50%)
+        }
+        @media screen and (max-width: 1400px){
+            .header-content{
+                width: 1140px;
+            }
+        }
+        @media screen and (max-width: 1300px){
+            .header-content{
+                width: 1116px;
+            }
+        }
+        @media screen and (max-width: 1200px){
+            .header-content{
+                width: 936px;
+            }
+        }
+        @media screen and (max-width: 992px){
+            .header-content{
+                width: 696px;
+            }
+        }
+        @media screen and (max-width: 768px){
+            .header-content{
+                width: 516px;
+            }
+        }
+    </style>
+</head>
+<body onunload="unload()" style="background-color: #1b1b1b" data-bs-theme="dark">
+    <div id="body">
+        <div style="position: fixed; z-index: 999; background-color: #1b1b1b; width: 100%; margin-top: -5px">
+            <div class="header-content">
+                <header>
+                    {% include 'header.html' %}
+                    {% block header %}{% endblock %}
+                </header>
+            </div>
+        </div>
+
+        <div style="position: relative; top:90px" class="container">
+            <div class="col-md-12">
+                <div class="row" id="body">
+                    <div class="col-sm-2">
+                        {% include 'left-menu.html' %}
+                        {% block left_menu %}{% endblock %}
+                    </div>
+                    <div class="col-sm-8 this-container">
+                        {% if chat_count == 0%}
+                            <div class="no-chats">
+                                У вас нет чатов, но вы можете <a href="/search">попробовать</a>, это просто!
+                            </div>
+                        {% else %}
+
+                        <div class="search-chat-div">
+                            <input placeholder="Поиск" type="text" name="search_chat-input" id="search_chat_input">
+                        </div>
+
+
+                        <div class="chats-container">
+                            {% for chat in chats %}
+                                <div class="chats-el" id="{{users[loop.index0].tag}}">
+                                    <div class="user-avatar">
+                                        {% if users[loop.index0].avatar_path %}
+                                            <img class='user-avatar-img' src="{{ url_for('static', filename='avatars/users/'+ users[loop.index0].avatar_path) }}" alt="">
+                                        {% else %}
+                                            <img class="user-avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
+                                        {% endif %}
+                                    </div>
+                                    <div class="name-and-message">
+                                        <b>{{ users[loop.index0].name }} {{ users[loop.index0].second_name }}</b>
+                                        <p style="color: #a3a3a3">{{chat.last_message}}</p>
+                                    </div>
+                                    <div class="user-date">
+                                        {% set date = chat.last_message_time.strftime('%d.%m.%Y') %}
+                                        <p style="color: #a3a3a3">{{date}}</p>
+                                    </div>
+                                </div>
+                            <hr style="margin-top:5px;margin-bottom:5px;">
+                            {% endfor %}
+                        </div>
+
+                        {% endif %}
+                    </div>
+
+
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div id="access-page" class="hide">
+        <div class="content">
+            <div class="header">
+                <h3>Введите старый пароль:</h3>
+            </div>
+            <div class="input-password">
+                <input type="password" id="password-input" class="form-control">
+            </div>
+            <div class="buttons">
+                <input type="button" value="Отмена" id="cancel-auth">
+                <input type="button" value="Войти" id="auth">
+            </div>
+        </div>
+    </div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/header.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chats.js') }}"></script>
+
+
+
+</body>
+</html>
