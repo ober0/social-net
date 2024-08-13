@@ -132,7 +132,7 @@ class Chats(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user2_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     last_message = db.Column(db.String(80), nullable=True)
-    last_message_time = db.Column(db.DateTime, default=datetime.utcnow)
+    last_message_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)

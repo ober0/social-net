@@ -103,9 +103,39 @@ def messanger():
     me = User.query.filter_by(id=request.cookies.get('account')).first()
     incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
 
+    self_id = request.cookies.get('account')
+
     if chat:
-        user = User.query.filter_by(tag=chat).first()
-        return user.name
+        interlocutor = User.query.filter_by(tag=chat).first()
+        messages = Message.query.filter(or_(
+            and_(
+                Message.from_user==self_id,
+                Message.to_user==interlocutor.id
+            ),
+            and_(
+                Message.from_user == interlocutor.id,
+                Message.to_user == self_id
+            )
+        )).all()
+
+        if not Chats.query.filter_by(user_id=request.cookies.get('account')).filter(Chats.user2_id==interlocutor.id).first():
+            chat = Chats(user_id=request.cookies.get('account'), user2_id=interlocutor.id)
+            try:
+                db.session.add(chat)
+                db.session.commit()
+            except:
+                db.session.rollback()
+
+        return render_template('chat.html',
+                               messages=messages,
+                               notifications=notifications,
+                               notification_count=notifications_count,
+                               user=user,
+                               self_avatar_path=self_avatar_path,
+                               me=me,
+                               incoming_requests_count=incoming_requests_count,
+                               interlocutor=interlocutor)
+
     else:
         filter = request.args.get('filter')
         if filter:
@@ -123,7 +153,7 @@ def messanger():
         else:
             chats = Chats.query.filter_by(user_id=request.cookies.get('account')).all()
         users = []
-        self_id = request.cookies.get('account')
+
         last_messages = []
         for user_chat in chats:
             user = User.query.filter_by(id=user_chat.user2_id).first()

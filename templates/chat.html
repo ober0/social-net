@@ -59,49 +59,13 @@
 
         <div style="position: relative; top:90px" class="container">
             <div class="col-md-12">
-                <div class="row" id="body">
+                <div class="row">
                     <div class="col-sm-2">
                         {% include 'left-menu.html' %}
                         {% block left_menu %}{% endblock %}
                     </div>
-                    <div class="col-sm-8 this-container">
-                        {% if chat_count == 0%}
-                            <div class="no-chats">
-                                У вас нет чатов, но вы можете <a href="/search">написать комуто</a>, это просто!
-                            </div>
-                        {% else %}
+                    <div class="col-sm-8">
 
-                        <div class="search-chat-div">
-                            <input placeholder="Поиск чатов" type="text" name="search_chat-input" id="search_chat_input" value="{%if filter%}{{filter}}{% endif %}">
-                        </div>
-
-
-                        <div class="chats-container">
-                            {% for chat in chats %}
-                                <div class="chats-el" id="{{users[loop.index0].tag}}">
-                                    <div class="user-avatar">
-                                        {% if users[loop.index0].avatar_path %}
-                                            <img class='user-avatar-img' src="{{ url_for('static', filename='avatars/users/'+ users[loop.index0].avatar_path) }}" alt="">
-                                        {% else %}
-                                            <img class="user-avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}" alt="">
-                                        {% endif %}
-                                    </div>
-                                    <div class="name-and-message">
-                                        <b>{{ users[loop.index0].name }} {{ users[loop.index0].second_name }}</b>
-                                        {% if chat.last_message %}
-                                        <p style="color: #a3a3a3">{{chat.last_message}}</p>
-                                        {% endif %}
-                                    </div>
-                                    <div class="user-date">
-                                        {% set date = chat.last_message_time.strftime('%d.%m.%Y') %}
-                                        <p style="color: #a3a3a3">{{date}}</p>
-                                    </div>
-                                </div>
-                            <hr style="margin-top:5px;margin-bottom:5px;">
-                            {% endfor %}
-                        </div>
-
-                        {% endif %}
                     </div>
 
 
