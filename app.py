@@ -91,6 +91,20 @@ def check_access(f):
 
     return decorated_function
 
+@app.route('/messanger/remove/<int:chat_id>', methods=['POST'])
+def remove_chat(chat_id):
+    chat = Chats.query.filter_by(id=chat_id).first()
+    if chat.user_id == int(request.cookies.get('account')):
+        try:
+            db.session.delete(chat)
+            db.session.commit()
+            print(1)
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': str(e)})
+    else:
+        return jsonify({'success': False, 'error': 'Внедрение в код запрещено!'})
 
 
 @app.route('/messanger')

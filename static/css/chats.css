@@ -40,6 +40,7 @@
 
 .user-date{
     margin-left: auto;
+    text-align: right;
 }
 .search-chat-div{
     margin: 15px;
@@ -56,4 +57,8 @@
     width: 100%;
     font-size: 16px;
     outline: none;
+}
+
+.delete-chat:hover{
+    text-decoration: underline;
 }

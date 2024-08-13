@@ -90,11 +90,14 @@
                                         <b>{{ users[loop.index0].name }} {{ users[loop.index0].second_name }}</b>
                                         {% if chat.last_message %}
                                         <p style="color: #a3a3a3">{{chat.last_message}}</p>
+                                        {% else %}
+                                        <p style="color: #7e7e7e">У вас еще нет переписки с этим пользователем</p>
                                         {% endif %}
                                     </div>
                                     <div class="user-date">
                                         {% set date = chat.last_message_time.strftime('%d.%m.%Y') %}
                                         <p style="color: #a3a3a3">{{date}}</p>
+                                        <p chat="{{chat.id}}" class="delete-chat">Удалить</p>
                                     </div>
                                 </div>
                             <hr style="margin-top:5px;margin-bottom:5px;">

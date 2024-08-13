@@ -24,4 +24,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     })
+
+    document.querySelectorAll('.delete-chat').forEach(btn => {
+        btn.addEventListener('click', function (event) {
+            event.stopPropagation()
+            let chat_id = btn.getAttribute('chat')
+
+            fetch(`/messanger/remove/${chat_id}`, {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success){
+                        btn.parentElement.parentElement.remove()
+                    }else {
+                        alert(`Ошибка: ${data.error}`)
+                    }
+                })
+        })
+    })
 })
