@@ -107,7 +107,21 @@ def messanger():
         user = User.query.filter_by(tag=chat).first()
         return user.name
     else:
-        chats = Chats.query.filter_by(user_id=request.cookies.get('account')).all()
+        filter = request.args.get('filter')
+        if filter:
+            search_string = f"%{filter}%"
+            for search_string in [search_string, search_string.title()]:
+                users = User.query.filter(or_(
+                    User.name.like(search_string),
+                    User.second_name.like(search_string),
+                    text(f"({User.name} || ' ' || {User.second_name}) LIKE :search_string"),
+                    User.tag.like(search_string)
+                )).params(search_string=search_string).limit(20).all()
+            users_ids = [user.id for user in users]
+
+            chats = Chats.query.filter_by(user_id=request.cookies.get('account')).filter(Chats.user2_id.in_(users_ids)).all()
+        else:
+            chats = Chats.query.filter_by(user_id=request.cookies.get('account')).all()
         users = []
         self_id = request.cookies.get('account')
         last_messages = []
@@ -127,7 +141,8 @@ def messanger():
                                self_avatar_path=self_avatar_path,
                                notifications=notifications,
                                incoming_requests_count=incoming_requests_count,
-                               notification_count=notifications_count)
+                               notification_count=notifications_count,
+                               filter=filter)
 @app.route('/notification/send', methods=['POST'])
 def send_notification():
     text = request.json.get('text')

@@ -67,12 +67,12 @@
                     <div class="col-sm-8 this-container">
                         {% if chat_count == 0%}
                             <div class="no-chats">
-                                У вас нет чатов, но вы можете <a href="/search">попробовать</a>, это просто!
+                                У вас нет чатов, но вы можете <a href="/search">написать комуто</a>, это просто!
                             </div>
                         {% else %}
 
                         <div class="search-chat-div">
-                            <input placeholder="Поиск" type="text" name="search_chat-input" id="search_chat_input">
+                            <input placeholder="Поиск чатов" type="text" name="search_chat-input" id="search_chat_input" value="{%if filter%}{{filter}}{% endif %}">
                         </div>
 
 

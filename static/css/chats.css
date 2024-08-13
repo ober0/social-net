@@ -6,6 +6,7 @@
 }
 .no-chats{
     text-align: center;
+    padding: 10px;
 }
 
 .chats-el{
@@ -54,4 +55,5 @@
     padding-right: 10px;
     width: 100%;
     font-size: 16px;
+    outline: none;
 }

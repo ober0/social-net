@@ -43,6 +43,14 @@
                 width: 516px;
             }
         }
+
+        .el-message a{
+            text-decoration: none;
+            font-size: 15px;
+        }
+        .el-message a:hover{
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body style="background-color: #1b1b1b" data-bs-theme="dark">
@@ -101,10 +109,14 @@
                                                 </div>
                                                 <div class="el-city">
                                                     {% if user.show_city %}
-                                                        <p>{{ user.county }}{% if user.city %}, {{ user.city }}{% endif %}</p>
+                                                        <p style="margin-bottom: 5px">{{ user.county }}{% if user.city %}, {{ user.city }}{% endif %}</p>
                                                     {% endif %}
                                                 </div>
+                                                <div class="el-message">
+                                                    <a href="/messanger?chat={{ user.tag }}">Написать сообщение</a>
+                                                </div>
                                             </div>
+
 
                                         </div>
 
