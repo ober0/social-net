@@ -110,7 +110,7 @@ def message_new():
             'message': message,
             'time': date,
             'self': False
-        }, room=str(from_user.id))
+        }, room=str(to_user.id))
 
         return jsonify({
             'success': True,
