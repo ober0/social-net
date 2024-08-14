@@ -112,6 +112,18 @@ def message_new():
             'self': False
         }, room=str(to_user.id))
 
+        if Setting.query.filter_by(user_id=to_user.id).first().notification_message != 0:
+            text = 'отправил вам сообщение'
+            createNotification(user_id=to_user.id,
+                               type='newMessage',
+                               from_user_avatar_path=from_user.avatar_path,
+                               text=text,
+                               from_user=f'{from_user.name}',
+                               href=from_user.tag,
+                               date=datetime.datetime.now(),
+                               room=str(to_user.id)
+                               )
+
         chats = Chats.query.filter(
             or_(
                 and_(
@@ -192,6 +204,15 @@ def messanger():
             )
         )).limit(500).all()
 
+        avatars = []
+        names = []
+        for message in messages:
+            user = User.query.filter_by(id=message.from_user).first()
+            if user.avatar_path:
+                avatars.append(user.avatar_path)
+            else:
+                avatars.append(None)
+            names.append(user.name + '' + user.second_name)
 
         if not Chats.query.filter_by(user_id=request.cookies.get('account')).filter(Chats.user2_id==interlocutor.id).first():
             chat = Chats(user_id=request.cookies.get('account'), user2_id=interlocutor.id)
@@ -209,7 +230,9 @@ def messanger():
                                self_avatar_path=self_avatar_path,
                                me=me,
                                incoming_requests_count=incoming_requests_count,
-                               interlocutor=interlocutor)
+                               interlocutor=interlocutor,
+                               avatars=avatars,
+                               names=names)
 
     else:
         filter = request.args.get('filter')

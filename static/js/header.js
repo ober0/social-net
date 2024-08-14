@@ -12,7 +12,13 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
     notifDiv.className = 'notification'
     notifDiv.setAttribute('path', href)
     notifDiv.addEventListener('click', function () {
-        window.location.href = notification.href
+        if(notification.type != 'newMessage'){
+            window.location.href = notification.href
+        }
+        else {
+            window.location.href = `/messanger?chat=${notification.href}`
+        }
+        
     })
     console.log(1)
     notifDiv.innerHTML = `
@@ -63,6 +69,14 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
                         ) :
                         ''
                     }
+
+                    ${notification.type === 'newMessage' ?
+                        (notification.from_user_avatar_path ?
+                                `<img class="notif-avatar" src="/static/avatars/users/${notification.from_user_avatar_path}" alt="">` :
+                                `<img class="notif-avatar" src="/static/avatars/default.png" alt="">`
+                        ) :
+                        ''
+                    }
                 </div>
             </div>
             <div class="notif-description">
@@ -93,6 +107,10 @@ function addNewNotifi(date, from_user, avatar, href, text, type, user_id){
                 
                 ${notification.type === 'SupportMessage' ? 
                     `<p class="notif-text">${notification.text}. Если переписка будет необходима: <b><a href="${notification.href}">${notification.from_user}</a></b> </p>` : 
+                    ''
+                }
+                ${notification.type === 'newMessage' ? 
+                    `<p class="notif-text"><b><a href="/${notification.href}">${notification.from_user}</a></b> ${notification.text}</p>` : 
                     ''
                 }
             </div>

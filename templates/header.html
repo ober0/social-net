@@ -98,7 +98,13 @@
 
 
         {% for notification in notifications %}
-        <div path="{{notification.href}}" class="notification">
+        {% if notification.type != 'newMessage' %}
+            {% set path = notification.href %}
+        {% else %}
+            {% set path = 'messanger?chat='+notification.href%}
+        {% endif%}
+
+        <div path="{{path}}" class="notification">
             <div class="notif-main">
 
 
@@ -106,7 +112,7 @@
                     <div>
                         {% if notification.type == 'login-to-account' %}
                             <img class="notif-avatar" src="{{ url_for('static', filename='img/' + notification.from_user_avatar_path) }}" alt="">
-                        {% elif notification.type == 'newFriendRequest' or notification.type == 'friendRequestApprove' or notification.type == 'newUserPost' or notification.type == 'newGroupPost'%}
+                        {% elif notification.type == 'newFriendRequest' or notification.type == 'friendRequestApprove' or notification.type == 'newUserPost' or notification.type == 'newGroupPost' or notification.type == 'newMessage'%}
                         {% if notification.from_user_avatar_path %}
                             <img class="notif-avatar" src="{{ url_for('static', filename='avatars/users/' + notification.from_user_avatar_path) }}" alt="">
                             {% else %}
@@ -114,6 +120,7 @@
                             {% endif %}
                         {% elif notification.type == 'SupportMessage' %}
                         <img class="notif-avatar" src="/static/img/{{notification.from_user_avatar_path}}" alt="">
+
                         {% endif %}
                     </div>
                 </div>
@@ -134,6 +141,10 @@
 
                 {% if notification.type == 'SupportMessage'%}
                     <p class="notif-text">{{notification.text}}. Если переписка будет необходима: <b><a href="{{notification.href}}">{{notification.from_user}}</a></b> </p>
+                {% endif %}
+
+                {% if notification.type == 'newMessage'%}
+                    <p class="notif-text"><b><a href="/{{notification.href}}">{{notification.from_user}}</a></b> {{notification.text}}</p>
                 {% endif %}
 
                 </div>
