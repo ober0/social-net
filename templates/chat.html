@@ -75,7 +75,11 @@
                                 </div>
                             </div>
                             <div class="message-container">
-
+                                {% if messages | length > 500 %}
+                                <div style="width: 100%; text-align: center; margin-top: 20px">
+                                    Показаны 500 последних сообщений
+                                </div>
+                                {%endif%}
                                 {% for message in messages %}
                                 <div class="message-el">
                                     <div class="avatar">
@@ -96,7 +100,15 @@
                                     </div>
                                 </div>
                                 {% endfor %}
+                                {% if messages | length == 0 %}
+                                <div style="width: 100%; text-align: center; margin-top: 20px">
+                                    У вас нет переписки с этим пользователем
+                                </div>
+                                {%endif%}
                             </div>
+
+
+
                             <div class="chat-footer">
                                 <div class="message-input">
                                     <input id="message-input" type="text" name=""  placeholder="Напишите сообщение">

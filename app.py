@@ -190,7 +190,7 @@ def messanger():
                 Message.from_user == interlocutor.id,
                 Message.to_user == self_id
             )
-        )).all()
+        )).limit(500).all()
 
 
         if not Chats.query.filter_by(user_id=request.cookies.get('account')).filter(Chats.user2_id==interlocutor.id).first():
