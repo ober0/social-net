@@ -550,7 +550,7 @@ def remove_profile():
 
 
 
-@app.route('/messanger')
+
 @app.route('/privacy')
 def in_dev():
     return render_template('in-dev.html')
