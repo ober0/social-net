@@ -45,7 +45,6 @@ def check_status(action):
                 status_need = action_access[action]
                 if status and status_need:
                     if status_need <= status:
-                        print(status_need, status)
                         pass
                     else:
                         return redirect('/')
@@ -91,6 +90,40 @@ def check_access(f):
 
     return decorated_function
 
+@app.route('/message/new', methods=['POST'])
+def message_new():
+    chat = request.json.get('chat')
+    message = request.json.get('message')
+    date = datetime.datetime.utcnow().strftime('%d.%m в %H:%M')
+    from_user = User.query.filter_by(id=request.cookies.get('account')).first()
+    to_user = User.query.filter_by(tag=chat).first()
+
+    message1 = Message(from_user=from_user.id, to_user=to_user.id, text=message, time=date)
+    try:
+        db.session.add(message1)
+        db.session.commit()
+
+        socketio.emit('newMessage',{
+            'success': True,
+            'avatar': from_user.avatar_path,
+            'name': f'{from_user.name} {from_user.second_name}',
+            'message': message,
+            'time': date,
+            'self': False
+        }, room=str(from_user.id))
+
+        return jsonify({
+            'success': True,
+            'avatar': from_user.avatar_path,
+            'name': f'{from_user.name} {from_user.second_name}',
+            'message': message,
+            'time': date,
+            'self': False
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/messanger/remove/<int:chat_id>', methods=['POST'])
 def remove_chat(chat_id):
     chat = Chats.query.filter_by(id=chat_id).first()
@@ -98,7 +131,6 @@ def remove_chat(chat_id):
         try:
             db.session.delete(chat)
             db.session.commit()
-            print(1)
             return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
@@ -699,7 +731,6 @@ def load_more():
         else:
 
             search_string = f"%{filter}%"
-            print(search_string)
             for search_string in [search_string, search_string.title()]:
                 groups = Group.query.filter(Group.name.like(search_string)).all()
             group_ids = [group.id for group in groups]
@@ -1130,17 +1161,12 @@ def delete_secret_key():
 def check_password():
     password = request.json.get('password')
     user = User.query.filter_by(id=request.cookies.get('account')).first()
-    print(1)
     if user:
-        print(2)
         if check_password_hash(user.password, password):
-            print(3)
             secret_key = secrets.token_hex(16)
             session['secret_key'] = secret_key
-            print(4)
             timer = threading.Timer(300, delete_secret_key)
             timer.start()
-            print(5)
             return jsonify({'success': True, 'secret_key': secret_key})
 
     return jsonify({'success': False})
@@ -1558,7 +1584,6 @@ def addPost():
 @app.route('/community/post/add', methods=["POST"])
 def addPostGroup():
     if request.method == "POST":
-        print(1)
         if request.json.get('type') == 'main':
             text = request.json.get('text')
             tag = request.json.get('tag')
@@ -1638,7 +1663,6 @@ def addPostGroup():
             tag = request.json.get('tag')
             id = Group.query.filter_by(tag=tag).first().id
             video = request.json.get('data')
-            print(2)
             base64_str = video.split(';base64,')[-1]
             image_binary = base64.b64decode(base64_str)
             video_url = f'{request.cookies.get("account")} - {secrets.token_hex(16)}.mp4'
@@ -1707,7 +1731,6 @@ def g_unsubscribe():
     subs = Subscribe.query.filter_by(user_id=user).filter_by(group_id=group.id).first()
     group = Group.query.filter_by(tag=group_tag).first()
     group.subscribers -= 1
-    print(group.subscribers)
     if subs:
         db.session.delete(subs)
         db.session.commit()
@@ -1857,7 +1880,6 @@ def user_profile(tag):
             if user.id == int(request.cookies.get('account')):
                 profile_open = 1
 
-        print(profile_open)
         subscriptions_count = User.query.filter_by(tag=tag).first().subscriptions_count
         return render_template('user.html',
                                user=user,
@@ -1890,7 +1912,6 @@ def user_profile(tag):
 @check_access
 def group_profile(tag):
     group = Group.query.filter_by(tag=tag).first()
-    print(group)
     user = User.query.filter_by(id=request.cookies.get('account')).first()
 
     notifications, notifications_count = check_notification(request.cookies.get('account'))
@@ -2163,14 +2184,12 @@ def removePost():
 
                     return jsonify({'success': True})
                 else:
-                    print(1)
                     return jsonify({'success': False})
-            print(2)
+
             return jsonify({'success': False})
 
 
         except:
-            print(3)
             return jsonify({'success': False})
     else:
         return 'Страница не найдена'
@@ -2457,7 +2476,7 @@ def add_friend(data):
 
         try:
             from_user = User.query.filter_by(id=user_id).first().name + " " + User.query.filter_by(id=user_id).first().second_name
-            print(from_user)
+
             notif_to_rem = Notification.query.filter_by(user_id=friend_id, from_user=from_user).filter_by(type='newFriendRequest').all()
             for notif in notif_to_rem:
                 db.session.delete(notif)
