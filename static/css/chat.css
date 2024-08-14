@@ -22,8 +22,9 @@
 }
 
 .message-container{
-    height: calc(100vh - 230px);
+    height: calc(100vh - 240px);
     overflow-y: auto;
+    margin-top: 10px;
 }
 
 .chat-content p{
