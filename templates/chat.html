@@ -77,17 +77,21 @@
                             <div class="message-container">
 
                                 {% for message in messages %}
-                                <div class="message">
+                                <div class="message-el">
                                     <div class="avatar">
-
+                                        {% if user.avatar_path %}
+                                            <img class="avatar-img" src="{{ url_for('static', filename='avatars/users/' + user.avatar_path) }}"  alt="">
+                                        {% else %}
+                                            <img class="avatar-img" src="{{ url_for('static', filename='avatars/default.png') }}"  alt="">
+                                        {% endif %}
                                     </div>
                                     <div class="other">
                                         <div class="name">
-                                            <p>name</p>
-                                            <p>time</p>
+                                            <p style="color: #a6a6a6">{{user.name}} {{user.second_name}}</p>
+                                            <p style="color: #656565; font-size: 14px; position: relative; top:2px">{{message.time}}</p>
                                         </div>
                                         <div class="message {% if message.from_user == me.id %}blue{% endif %}">
-
+                                            {{message.text}}
                                         </div>
                                     </div>
                                 </div>

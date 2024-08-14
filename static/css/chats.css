@@ -41,6 +41,7 @@
 .user-date{
     margin-left: auto;
     text-align: right;
+    min-width: 140px;
 }
 .search-chat-div{
     margin: 15px;

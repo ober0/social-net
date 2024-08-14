@@ -1,7 +1,11 @@
 document.addEventListener('DOMContentLoaded', function (){
-    function createMessage(data) {
-        console.log(1)
-        console.log(data)
+    function createMessage(data, scroll) {
+
+        // Тут код добавления сообщения
+
+        if(scroll){
+            scrollbar.scrollTop = scrollbar.scrollHeight
+        }
     }
 
 
@@ -33,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function (){
             if(isMessageInputActive){
                 let message = document.getElementById('message-input').value
                 if(message.length > 0) {
+                    document.getElementById('message-input').value = ''
                     const urlParams = new URLSearchParams(window.location.search);
                     const chat = urlParams.get('chat');
                     let data = {
@@ -56,7 +61,8 @@ document.addEventListener('DOMContentLoaded', function (){
                                     message: data.message,
                                     self: true
                                 }
-                                createMessage(data)
+                                let scroll = scrollbar.scrollTop + scrollbar.clientHeight === scrollbar.scrollHeight
+                                createMessage(data, scroll)
                             }
                         })
                 }
@@ -76,7 +82,8 @@ document.addEventListener('DOMContentLoaded', function (){
                 message: data.message,
                 self: data.self
             }
-            createMessage(data)
+            let scroll = scrollbar.scrollTop + scrollbar.clientHeight === scrollbar.scrollHeight
+            createMessage(data, scroll)
         }
     })
 })

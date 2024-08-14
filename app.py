@@ -112,6 +112,34 @@ def message_new():
             'self': False
         }, room=str(to_user.id))
 
+        chats = Chats.query.filter(
+            or_(
+                and_(
+                    Chats.user_id==from_user.id,
+                    Chats.user2_id==to_user.id
+                ),
+                and_(
+                    Chats.user_id==to_user.id,
+                    Chats.user2_id==from_user.id
+                )
+            )
+        ).all()
+        if len(chats) == 1:
+            new_chat = Chats(user_id=to_user.id, user2_id=from_user.id)
+            try:
+                db.session.add(new_chat)
+                db.session.commit()
+                chats.append(new_chat)
+            except:
+                db.session.rollback()
+        for chat in chats:
+            chat.last_message = message
+            chat.last_message_time = datetime.datetime.now()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+
         return jsonify({
             'success': True,
             'avatar': from_user.avatar_path,
@@ -163,6 +191,7 @@ def messanger():
                 Message.to_user == self_id
             )
         )).all()
+
 
         if not Chats.query.filter_by(user_id=request.cookies.get('account')).filter(Chats.user2_id==interlocutor.id).first():
             chat = Chats(user_id=request.cookies.get('account'), user2_id=interlocutor.id)
