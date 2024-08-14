@@ -110,3 +110,12 @@
     display: flex;
     gap: 10px;
 }
+
+.name a{
+    text-decoration: none;
+    color: #a6a6a6;
+}
+
+.name a:hover{
+    text-decoration: underline;
+}

@@ -206,13 +206,15 @@ def messanger():
 
         avatars = []
         names = []
+        tags = []
         for message in messages:
             user = User.query.filter_by(id=message.from_user).first()
             if user.avatar_path:
                 avatars.append(user.avatar_path)
             else:
                 avatars.append(None)
-            names.append(user.name + '' + user.second_name)
+            names.append(user.name + ' ' + user.second_name)
+            tags.append(user.tag)
 
         if not Chats.query.filter_by(user_id=request.cookies.get('account')).filter(Chats.user2_id==interlocutor.id).first():
             chat = Chats(user_id=request.cookies.get('account'), user2_id=interlocutor.id)
@@ -232,7 +234,8 @@ def messanger():
                                incoming_requests_count=incoming_requests_count,
                                interlocutor=interlocutor,
                                avatars=avatars,
-                               names=names)
+                               names=names,
+                               tags=tags)
 
     else:
         filter = request.args.get('filter')

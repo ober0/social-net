@@ -1,8 +1,57 @@
 document.addEventListener('DOMContentLoaded', function (){
-    function createMessage(data, scroll) {
+    function createMessage(messageData, scroll) {
 
-        // Тут код добавления сообщения
+        const messageEl = document.createElement('div');
+        messageEl.classList.add('message-el');
 
+        const avatarDiv = document.createElement('div');
+        avatarDiv.classList.add('avatar');
+
+        const avatarLink = document.createElement('a');
+        avatarLink.href = `/${messageData.tag}`;
+
+        const avatarImg = document.createElement('img');
+        avatarImg.classList.add('avatar-img');
+        avatarImg.src = messageData.avatar ? `static/avatars/users/${messageData.avatar}` : `static/avatars/default.png`;
+        avatarImg.alt = '';
+        avatarLink.appendChild(avatarImg);
+        avatarDiv.appendChild(avatarLink);
+
+        const otherDiv = document.createElement('div');
+        otherDiv.classList.add('other');
+
+        const nameDiv = document.createElement('div');
+        nameDiv.classList.add('name');
+
+        const nameLink = document.createElement('a');
+        nameLink.href = `/${messageData.tag}`;
+        nameLink.textContent = messageData.name;
+        nameDiv.appendChild(nameLink);
+
+        const timeP = document.createElement('p');
+        timeP.style.color = '#656565';
+        timeP.style.fontSize = '14px';
+        timeP.style.position = 'relative';
+        timeP.style.top = '2px';
+        timeP.textContent = messageData.time;
+        nameDiv.appendChild(timeP);
+
+        otherDiv.appendChild(nameDiv);
+
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        if (messageData.self) {
+            messageDiv.classList.add('blue');
+        }
+        messageDiv.textContent = messageData.message;
+
+        otherDiv.appendChild(messageDiv);
+
+        messageEl.appendChild(avatarDiv);
+        messageEl.appendChild(otherDiv);
+
+
+        document.querySelector('.message-container').appendChild(messageEl)
         if(scroll){
             scrollbar.scrollTop = scrollbar.scrollHeight
         }
