@@ -5,6 +5,8 @@ import pprint
 import threading
 from functools import wraps
 import secrets
+
+import flask_mail
 from flask import Flask, session, redirect, render_template, request, jsonify, make_response, send_from_directory
 from flask.json import tag
 from flask_sqlalchemy import SQLAlchemy
@@ -184,8 +186,8 @@ def messanger():
     chat = request.args.get('chat')
     notifications, notifications_count = check_notification(request.cookies.get('account'))
 
-    user = User.query.filter_by(id=request.cookies.get('account')).first()
-    self_avatar_path = user.avatar_path
+    user_self = User.query.filter_by(id=request.cookies.get('account')).first()
+    self_avatar_path = user_self.avatar_path
     me = User.query.filter_by(id=request.cookies.get('account')).first()
     incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
 
@@ -228,7 +230,7 @@ def messanger():
                                messages=messages,
                                notifications=notifications,
                                notification_count=notifications_count,
-                               user=user,
+                               user=user_self,
                                self_avatar_path=self_avatar_path,
                                me=me,
                                incoming_requests_count=incoming_requests_count,
@@ -250,9 +252,9 @@ def messanger():
                 )).params(search_string=search_string).limit(20).all()
             users_ids = [user.id for user in users]
 
-            chats = Chats.query.filter_by(user_id=request.cookies.get('account')).filter(Chats.user2_id.in_(users_ids)).all()
+            chats = Chats.query.filter_by(user_id=request.cookies.get('account')).filter(Chats.user2_id.in_(users_ids)).order_by(Chats.id.desc()).all()
         else:
-            chats = Chats.query.filter_by(user_id=request.cookies.get('account')).all()
+            chats = Chats.query.filter_by(user_id=request.cookies.get('account')).order_by(Chats.id.desc()).all()
         users = []
 
         last_messages = []
@@ -267,7 +269,7 @@ def messanger():
                                chats=chats,
                                users=users,
                                chat_count=chat_count,
-                               user=user,
+                               user=user_self,
                                me=me,
                                self_avatar_path=self_avatar_path,
                                notifications=notifications,
@@ -284,7 +286,7 @@ def send_notification():
         support_tag = User.query.filter_by(id=request.cookies.get('account')).first().tag
         createNotification(user.id, 'SupportMessage', 'support.png', text, '/messanger?chat=' + support_tag, datetime.datetime.now(), support_tag, str(user.id))
 
-        msg = Message('Обернет. Ответ техподдержки',
+        msg = flask_mail.Message('Обернет. Ответ техподдержки',
                       recipients=[user.email])
         msg.body = 'Получен ответ он техподдержки. Он также продублирован в уведомлениях на сайте'
         msg.html = f'{text} <br> Ссылку на переписку с поддержкой смотрите в уведомлениях сайта. '
@@ -1375,7 +1377,7 @@ def confirm_email():
         email = data[1]
         code = random.randint(100000, 999999)
         print(code)
-        msg = Message('Код подтверждения', recipients=[email])
+        msg = flask_mail.Message(subject='Код подтверждения', recipients=[email])
         
         with open('templates/send.html', 'r', encoding='utf-8') as f:
             text = f.read()
@@ -1834,15 +1836,15 @@ def user_profile(tag):
         notifications, notifications_count = check_notification(request.cookies.get('account'))
 
         month_data = {
-            '1': 'января',
-            '2': 'февраля',
-            '3': 'марта',
-            '4': 'апреля',
-            '5': 'мая',
-            '6': 'июня',
-            '7': 'июля',
-            '8': 'августа',
-            '9': 'сентября',
+            '01': 'января',
+            '02': 'февраля',
+            '03': 'марта',
+            '04': 'апреля',
+            '05': 'мая',
+            '06': 'июня',
+            '07': 'июля',
+            '08': 'августа',
+            '09': 'сентября',
             '10': 'октября',
             '11': 'ноября',
             '12': 'декабря'
@@ -1851,6 +1853,7 @@ def user_profile(tag):
         incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
         birthday = str(user.date_of_birthday)
         birthday_list = birthday.split('-')
+        print(birthday_list)
         day = birthday_list[2]
         month = month_data[birthday_list[1]]
         year = birthday_list[0]
