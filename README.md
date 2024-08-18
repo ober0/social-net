@@ -146,10 +146,17 @@ project/
 ├── templates/
 ├── static/
 │   ├── avatars/
+│        ├── groups/
+│        ├── users/
+│        └── default.png
 │   ├── css/
 │   ├── js/
 │   ├── groups/
+│        ├── photo/
+│        └── video/
 │   └── users/
+│        ├── photso/
+│        └── video/
 └── tests/
 ```
 
