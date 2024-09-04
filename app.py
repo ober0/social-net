@@ -1027,7 +1027,7 @@ def friends():
     friend_tags = []
     for friend in friends:
         friend_data = User.query.filter_by(id=friend.friend_id).first()
-
+        print(friend_data)
         friend_names.append(f'{friend_data.name} {friend_data.second_name}')
         if friend_data.show_education == '1':
             friend_learn.append(friend_data.education_place)
@@ -2758,6 +2758,8 @@ def join_room_handle(data):
 @socketio.on('disconnect')
 def disconnect():
     leave_room(request.cookies.get('account'))
+
+
 
 
 if __name__ == '__main__':

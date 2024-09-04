@@ -2,7 +2,10 @@
 <link rel="stylesheet" href="{{url_for('static', filename='css/add-post.css') }}">
 
     <div id="addpost-container" class="addpost-container">
-        <div class="addpost-main">
+        <div class="loading hide">
+            <div class="loader"></div>
+        </div>
+        <div class="addpost-main" id="addpost-main">
             <div class="addpost-header">
                 <div class="addpost-avatar">
                     {% if self_avatar_path %}

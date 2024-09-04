@@ -9,8 +9,6 @@ function openVideoInput(){
 
 
 document.addEventListener('DOMContentLoaded', function (){
-
-    
     function hideAll(){
         document.getElementById('photos').classList.add('hide')
         document.getElementById('addpost-bottom').classList.add('hide')
@@ -115,16 +113,11 @@ document.addEventListener('DOMContentLoaded', function (){
                     photo_container.appendChild(photo)
                     photo_container.classList.add('photo-rem')
                     parentPhoto.appendChild(photo_container)
-
-
-
                 }
                 else {
                     alert('Максимум 8 файлов')
                 }
-
             }
-
             reader.readAsDataURL(file);
 
             this.value = ''
@@ -141,6 +134,13 @@ document.addEventListener('DOMContentLoaded', function (){
     })
     
     document.getElementById('publicate-post').addEventListener('click', function () {
+        document.getElementById('addpost-main').style.opacity = '0.2'
+        document.querySelector('.loading').classList.remove('hide')
+        let load_down_px = document.getElementById('addpost-container').offsetHeight / 2
+
+        document.querySelector('.loading').style.top = load_down_px + 'px'
+        document.querySelector('.loading').style.transform = 'translate(-50%, -50%)'
+
         let text = document.getElementById('text-new-input').value;
         let photos = document.querySelectorAll('.photo');
         let videos = document.querySelectorAll('.video');
@@ -157,6 +157,8 @@ document.addEventListener('DOMContentLoaded', function (){
         videos.forEach(video => {
             videos_src.push(video.src)
         })
+
+
 
         const data = {
             text: text,
