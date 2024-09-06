@@ -180,3 +180,25 @@
         left: 80.5%;
     }
 }
+
+.loading{
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: 998;
+}
+
+.loader {
+    border: 11px solid #333333;
+    border-top: 11px solid #ffffff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
