@@ -1146,7 +1146,18 @@ def friends():
                            )
 
 
-
+@app.route('/reset-password/update-password', methods=['POST'])
+def update_password():
+    token = request.json.get('hash')
+    password = request.json.get('password')
+    id = r.get(f'user-hash-{token}').decode('utf-8')
+    redis_token = r.get(f'user-{id}-resetPasswordToken').decode('utf-8')
+    if redis_token == token:
+        user = User.query.filter_by(id=id).first()
+        user.password = generate_password_hash(password)
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': 'Ошибка'})
 @app.route('/reset-password', methods=['GET'])
 def reset_password():
     tab = request.args.get('tab')
@@ -1167,7 +1178,6 @@ def check_code():
     token = request.json.get('session')
 
     id = r.get(f'user-hash-{token}').decode('utf-8')
-    print(id)
     redis_token = r.get(f'user-{id}-resetPasswordToken').decode('utf-8')
 
     if redis_token == token:
