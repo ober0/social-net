@@ -1904,7 +1904,6 @@ def user_profile(tag):
 
             if int(post.user_id) == int(request.cookies.get('account')):
                 _selfs.append(1)
-                print('1')
             else:
                 _selfs.append(0)
             post_files = []
