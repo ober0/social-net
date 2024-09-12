@@ -1439,7 +1439,6 @@ def confirm_email():
         data = session.get('auth_data').split(':%:%:')
         email = data[1]
         code = random.randint(100000, 999999)
-        print(code)
         msg = flask_mail.Message(subject='Код подтверждения', recipients=[email])
         
         with open('templates/send.html', 'r', encoding='utf-8') as f:
@@ -1916,7 +1915,6 @@ def user_profile(tag):
         incoming_requests_count = FriendRequest.query.filter_by(friend_id=request.cookies.get('account')).count()
         birthday = str(user.date_of_birthday)
         birthday_list = birthday.split('-')
-        print(birthday_list)
         day = birthday_list[2]
         month = month_data[birthday_list[1]]
         year = birthday_list[0]
@@ -1969,6 +1967,7 @@ def user_profile(tag):
 
             if int(post.user_id) == int(request.cookies.get('account')):
                 _selfs.append(1)
+                print('1')
             else:
                 _selfs.append(0)
             post_files = []
