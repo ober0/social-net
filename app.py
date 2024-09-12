@@ -1156,6 +1156,11 @@ def update_password():
         user = User.query.filter_by(id=id).first()
         user.password = generate_password_hash(password)
         db.session.commit()
+
+        createNotification(user_id=user.id, type='login-to-account', from_user_avatar_path='warn.png',
+                           text=f'Изменен пароль от аккаунта {user.tag} через браузер {request.headers.get("User-Agent")}. Если это были не Вы - смените пароль в ',
+                           from_user='настройках', href='/setting', date=datetime.datetime.now(), room=str(user.id))
+
         return jsonify({'success': True})
     return jsonify({'success': False, 'message': 'Ошибка'})
 @app.route('/reset-password', methods=['GET'])
@@ -1977,7 +1982,6 @@ def user_profile(tag):
 
             if int(post.user_id) == int(request.cookies.get('account')):
                 _selfs.append(1)
-                print('1')
             else:
                 _selfs.append(0)
             post_files = []
