@@ -122,3 +122,15 @@ p.registration {
         max-width: 50%;
     }
 }
+
+.reset-password-link{
+    position: relative;
+    top: 7px;
+    text-decoration: none;
+    color: #6a6a6a;
+    font-size: 14px;
+}
+
+.reset-password-link:hover{
+    text-decoration: underline;
+}

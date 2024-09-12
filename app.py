@@ -20,7 +20,9 @@ from config import app, action_access, month_data
 import random
 import datetime
 import imghdr
+import redis
 
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 db.init_app(app)
 socketio = SocketIO(app)
@@ -1144,7 +1146,78 @@ def friends():
                            )
 
 
+@app.route('/reset-password/update-password', methods=['POST'])
+def update_password():
+    token = request.json.get('hash')
+    password = request.json.get('password')
+    id = r.get(f'user-hash-{token}').decode('utf-8')
+    redis_token = r.get(f'user-{id}-resetPasswordToken').decode('utf-8')
+    if redis_token == token:
+        user = User.query.filter_by(id=id).first()
+        user.password = generate_password_hash(password)
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': 'Ошибка'})
+@app.route('/reset-password', methods=['GET'])
+def reset_password():
+    tab = request.args.get('tab')
+    if tab == 'input-email':
+        return render_template('reset-password/input-email.html')
+    elif tab == 'enter-code':
+        return render_template('reset-password/input-code.html')
+    elif tab == 'input-newPassword':
+        return render_template('reset-password/reset-password.html')
+    else:
+        return 'Страница не найдена'
 
+
+@app.route('/reset-password/check-code', methods=['POST'])
+def check_code():
+    print(1)
+    code = request.json.get('code')
+    token = request.json.get('session')
+
+    id = r.get(f'user-hash-{token}').decode('utf-8')
+    redis_token = r.get(f'user-{id}-resetPasswordToken').decode('utf-8')
+
+    if redis_token == token:
+        redis_code = r.get(f'user-{id}-recovery-code').decode('utf-8')
+        if redis_code == code:
+            return jsonify({'success': True, 'session': token})
+    return jsonify({'success': False})
+
+@app.route('/reset-password/check-data', methods=['POST'])
+def reset_password_check_data():
+    email = request.json['email']
+    name = request.json['name']
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'success': False, 'error': 'Пользователь не найден'})
+    if user.name.lower() != name.lower():
+        return jsonify({'success': False, 'error': 'Имя введено не верно'})
+
+    code = random.randint(100000, 999999)
+    token = secrets.token_hex(16)
+
+    r.set(f'user-{user.id}-recovery-code', str(code), ex=180)
+    r.set(f'user-{user.id}-resetPasswordToken', str(token), ex=180)
+    r.set(f'user-hash-{token}', str(user.id), ex=180)
+
+    msg = flask_mail.Message(subject='Код подтверждения', recipients=[email])
+
+
+    with open('templates/send.html', 'r', encoding='utf-8') as f:
+        text = f.read()
+        textSplit = text.split('//////')
+        textSplit.append(textSplit[1])
+        textSplit[1] = str(code)
+        result = ''.join(textSplit)
+    msg.html = result
+    mail.send(msg)
+
+    print(r.get(f'user-{user.id}-resetPasswordToken'))
+    return jsonify({'success': True, 'token': token})
 
 @app.route('/friends/load-more', methods=['POST'])
 def load_more_friends():
