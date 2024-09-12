@@ -1173,7 +1173,7 @@ def check_code():
     if redis_token == token:
         redis_code = r.get(f'user-{id}-recovery-code').decode('utf-8')
         if redis_code == code:
-            return jsonify({'success': True, 'session': session})
+            return jsonify({'success': True, 'session': token})
     return jsonify({'success': False})
 
 @app.route('/reset-password/check-data', methods=['POST'])
